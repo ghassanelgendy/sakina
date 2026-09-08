@@ -70,65 +70,63 @@ export default function App() {
 
   return (
     <div className="flex h-full min-h-screen flex-col bg-background text-foreground">
-      <nav className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-border bg-background/90 px-4 py-3 backdrop-blur-md sm:px-6">
-        <div className="flex items-center gap-2.5 shrink-0">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 text-primary">
-            <BookOpenText size={16} />
+      <nav className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur-xl shadow-[0_1px_0_0_rgba(0,0,0,0.02)]">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
+          <div className="flex items-center gap-2.5 shrink-0">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
+              <BookOpenText size={16} />
+            </div>
+            <span className="hidden font-arabic-title text-sm font-bold text-foreground sm:inline">سكينة</span>
           </div>
-          <span className="hidden font-arabic-title text-sm font-bold text-foreground sm:inline">سكينة</span>
-        </div>
 
-        <div className="flex items-center gap-6">
-          {([
-            { id: 'quran' as const, label: 'القرآن الكريم' },
-            { id: 'azkar' as const, label: 'الأذكار' },
-          ]).map(({ id, label }) => (
-            <button
-              key={id}
-              onClick={() => setTab(id)}
-              className={cn(
-                'relative py-1.5 text-sm font-bold transition-colors cursor-pointer',
-                tab === id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              {label}
-              <span
+          <div className="flex items-center gap-1 rounded-full bg-secondary/70 p-1 shrink-0">
+            {([
+              { id: 'quran' as const, label: 'القرآن الكريم' },
+              { id: 'azkar' as const, label: 'الأذكار' },
+            ]).map(({ id, label }) => (
+              <button
+                key={id}
+                onClick={() => setTab(id)}
                 className={cn(
-                  'absolute inset-x-0 -bottom-3 h-[2.5px] rounded-full bg-primary transition-transform duration-200',
-                  tab === id ? 'scale-x-100' : 'scale-x-0'
+                  'rounded-full px-4 py-1.5 text-sm font-bold transition-all cursor-pointer',
+                  tab === id
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
-              />
-            </button>
-          ))}
-        </div>
+              >
+                {label}
+              </button>
+            ))}
+          </div>
 
-        <div className="flex items-center gap-1 shrink-0">
-          <button
-            onClick={() => setShowGuide(true)}
-            aria-label="دليل الاستخدام"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors cursor-pointer"
-            title="دليل الاستخدام"
-          >
-            <HelpCircle size={16} />
-          </button>
-          <button
-            onClick={toggleTheme}
-            aria-label="تبديل المظهر"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors cursor-pointer"
-          >
-            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-          </button>
-          <button
-            onClick={() => setView('auth')}
-            aria-label="الحساب"
-            className={cn(
-              'flex h-8 w-8 items-center justify-center rounded-lg transition-colors cursor-pointer',
-              user ? 'text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-            )}
-            title={isConfigured ? (user ? user.email ?? undefined : 'تسجيل الدخول') : 'وضع محلي فقط'}
-          >
-            <UserCircle2 size={17} />
-          </button>
+          <div className="flex items-center gap-0.5 rounded-full border border-border/70 bg-secondary/40 p-1 shrink-0">
+            <button
+              onClick={() => setShowGuide(true)}
+              aria-label="دليل الاستخدام"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-background hover:text-foreground transition-colors cursor-pointer"
+              title="دليل الاستخدام"
+            >
+              <HelpCircle size={15} />
+            </button>
+            <button
+              onClick={toggleTheme}
+              aria-label="تبديل المظهر"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-background hover:text-foreground transition-colors cursor-pointer"
+            >
+              {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+            </button>
+            <button
+              onClick={() => setView('auth')}
+              aria-label="الحساب"
+              className={cn(
+                'flex h-7 w-7 items-center justify-center rounded-full transition-colors cursor-pointer',
+                user ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-background hover:text-foreground'
+              )}
+              title={isConfigured ? (user ? user.email ?? undefined : 'تسجيل الدخول') : 'وضع محلي فقط'}
+            >
+              <UserCircle2 size={16} />
+            </button>
+          </div>
         </div>
       </nav>
 

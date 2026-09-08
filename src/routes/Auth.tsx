@@ -3,12 +3,16 @@ import { ArrowLeft, BookOpenText, LogIn, Mail, Lock, Loader2 } from 'lucide-reac
 import { cn } from '../lib/utils';
 import { useAuth } from '../hooks/useAuth';
 
-// Simple 8-point Islamic star (khatam) tessellation, tiled as a subtle background pattern.
+// Classic 8-point Islamic star tile (a square + a 45°-rotated square/diamond,
+// whose points meet the tile edges at their midpoints) — tiled edge-to-edge this
+// interlocks into the traditional star-and-cross lattice seen in Islamic art,
+// rather than a grid of isolated shapes.
 const ISLAMIC_PATTERN_SVG = `data:image/svg+xml,${encodeURIComponent(`
-<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
-  <g fill="none" stroke="white" stroke-width="1">
-    <path d="M60 10 L74 46 L110 60 L74 74 L60 110 L46 74 L10 60 L46 46 Z" />
-    <circle cx="60" cy="60" r="16" />
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <g fill="none" stroke="white" stroke-width="0.75">
+    <rect x="25" y="25" width="50" height="50" />
+    <polygon points="50,10 90,50 50,90 10,50" />
+    <rect x="6" y="6" width="88" height="88" />
   </g>
 </svg>
 `)}`;
@@ -72,14 +76,37 @@ export default function AuthRoute({ onBack }: { onBack: () => void }) {
             <span className="font-arabic-title text-lg font-bold">سكينة</span>
           </div>
 
-          <div className="relative space-y-5 text-center">
-            <div className="text-2xl tracking-[0.3em] text-amber-300/70">۞</div>
-            <p className="font-arabic-quran text-4xl leading-[1.9] text-[#f4fff9]" style={{ textShadow: '0 2px 24px rgba(0,0,0,0.35)' }}>
-              أَلَا بِذِكْرِ ٱللَّهِ
-              <br />
-              تَطْمَئِنُّ ٱلْقُلُوبُ
-            </p>
-            <div className="text-2xl tracking-[0.3em] text-amber-300/70">۩</div>
+          <div className="relative mx-auto w-full max-w-sm">
+            {/* Illuminated-manuscript style frame: double rule + corner rosettes */}
+            <div className="relative border-2 border-amber-300/40 px-6 py-9">
+              <div className="absolute inset-[5px] border border-amber-300/25" />
+              {[
+                'top-0 right-0 -translate-y-1/2 translate-x-1/2',
+                'top-0 left-0 -translate-y-1/2 -translate-x-1/2',
+                'bottom-0 right-0 translate-y-1/2 translate-x-1/2',
+                'bottom-0 left-0 translate-y-1/2 -translate-x-1/2',
+              ].map((pos) => (
+                <span
+                  key={pos}
+                  className={`absolute ${pos} flex h-6 w-6 items-center justify-center rounded-full bg-[#0f4a38] text-amber-300/80 text-xs`}
+                >
+                  ✦
+                </span>
+              ))}
+
+              <div className="text-center space-y-4">
+                <div className="text-lg text-amber-300/60">۞</div>
+                <p
+                  className="font-arabic-quran text-[2.6rem] leading-[1.7] text-[#f4fff9]"
+                  style={{ textShadow: '0 2px 24px rgba(0,0,0,0.35)' }}
+                >
+                  أَلَا بِذِكْرِ ٱللَّهِ
+                  <br />
+                  تَطْمَئِنُّ ٱلْقُلُوبُ
+                </p>
+                <div className="text-lg text-amber-300/60">۩</div>
+              </div>
+            </div>
           </div>
 
           <div className="relative space-y-2 text-center">
