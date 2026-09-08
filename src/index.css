@@ -65,6 +65,9 @@ body.dark {
 .slide-in-from-bottom {
   --tw-enter-translate-y: 100%;
 }
+.slide-in-from-bottom-2 {
+  --tw-enter-translate-y: 0.5rem;
+}
 .slide-in-from-bottom-5 {
   --tw-enter-translate-y: 1.25rem;
 }

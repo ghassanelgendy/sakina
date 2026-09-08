@@ -130,7 +130,9 @@ export default function App() {
         </div>
       </nav>
 
-      <main className="flex-1">{tab === 'quran' ? <QuranRoute /> : <AzkarRoute />}</main>
+      <main key={tab} className="flex-1 animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out">
+        {tab === 'quran' ? <QuranRoute /> : <AzkarRoute />}
+      </main>
 
       <footer className="border-t border-border py-4 text-center text-[11px] text-muted-foreground space-y-2" dir="rtl">
         <div className="flex items-center justify-center gap-1.5 font-bold text-foreground/80">

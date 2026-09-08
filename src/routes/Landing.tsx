@@ -25,7 +25,7 @@ const FEATURES = [
 
 export default function LandingRoute({ onEnter, onLogin }: { onEnter: () => void; onLogin: () => void }) {
   return (
-    <div dir="rtl" className="min-h-screen bg-background text-foreground">
+    <div dir="rtl" className="min-h-screen bg-background text-foreground animate-in fade-in duration-500">
       {/* Top bar */}
       <div className="flex items-center justify-between px-5 py-4 sm:px-8">
         <div className="flex items-center gap-2.5">
@@ -49,22 +49,22 @@ export default function LandingRoute({ onEnter, onLogin }: { onEnter: () => void
           style={{ background: 'radial-gradient(60% 60% at 50% 0%, var(--color-primary) 0%, transparent 70%)' }}
         />
 
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1.5 text-xs font-bold text-primary">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1.5 text-xs font-bold text-primary animate-in fade-in slide-in-from-bottom-2 duration-500 ease-out">
           <Sparkles size={13} />
           <span>القرآن والأذكار في مكان واحد</span>
         </span>
 
-        <h1 className="mt-6 text-3xl sm:text-5xl font-black leading-tight max-w-2xl mx-auto">
+        <h1 className="mt-6 text-3xl sm:text-5xl font-black leading-tight max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
           سكينة قلبك تبدأ
           <br />
           <span className="text-primary">بذكر الله</span>
         </h1>
 
-        <p className="mt-5 max-w-lg mx-auto text-sm sm:text-base text-muted-foreground leading-relaxed">
+        <p className="mt-5 max-w-lg mx-auto text-sm sm:text-base text-muted-foreground leading-relaxed animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
           احفظ القرآن، راجع ما حفظته، واقرأ أذكارك اليومية — تطبيق واحد بسيط يعمل من غير إنترنت، ويحفظ تقدمك أولاً بأول.
         </p>
 
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
           <button
             onClick={onEnter}
             className="flex items-center gap-2 rounded-xl bg-primary px-7 py-3.5 text-sm font-bold text-primary-foreground shadow-sm hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer"

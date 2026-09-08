@@ -10,7 +10,7 @@ export default defineConfig({
       // Precache the app shell (JS/CSS/HTML/fonts) so the app itself opens with
       // zero network — separate from the Quran text/tafsir, which is cached in
       // IndexedDB by the in-app "download for offline" feature.
-      includeAssets: ['icon-192.png', 'icon-512.png'],
+      includeAssets: ['icon-192.png', 'icon-512.png', 'favicon.ico', 'favicon.svg', 'favicon-96x96.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'سكينة — القرآن والأذكار',
         short_name: 'سكينة',
