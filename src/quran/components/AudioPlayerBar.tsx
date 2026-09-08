@@ -90,11 +90,14 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
 
   useEffect(() => {
     const handleScroll = (e: Event) => {
-      const target = e.target as HTMLElement;
-      if (!target || typeof target.hasAttribute !== 'function' || !target.hasAttribute('data-lifeos-scroll-root')) {
-        return;
-      }
-      const scrollTop = target.scrollTop;
+      const target = e.target as unknown;
+      const isWindowOrDoc = target === document || target === document.documentElement || target === document.body;
+      const scrollTop = isWindowOrDoc
+        ? window.scrollY || document.documentElement.scrollTop || 0
+        : typeof (target as HTMLElement)?.scrollTop === 'number'
+        ? (target as HTMLElement).scrollTop
+        : null;
+      if (scrollTop === null) return;
       if (scrollTop <= 10) {
         setIsBarHidden(false);
         lastScrollTopRef.current = scrollTop;
@@ -111,7 +114,11 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
       }
     };
     document.addEventListener('scroll', handleScroll, { capture: true, passive: true });
-    return () => document.removeEventListener('scroll', handleScroll, { capture: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      document.removeEventListener('scroll', handleScroll, { capture: true });
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   const isSidebarCollapsed = false;
@@ -136,20 +143,20 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
           ${isSidebarCollapsed ? 'md:left-16' : 'md:left-64'}
         `}
       >
-        <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-2 md:gap-4 text-foreground h-full">
-          
-          {/* Reciter & Current Ayah Badge */}
-          <div className="flex items-center gap-2 min-w-0 shrink">
+        <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-2 md:gap-5 text-foreground h-full">
+
+          {/* Reciter & Current Ayah */}
+          <div className="flex items-center gap-2.5 min-w-0 shrink">
             {/* Desktop Sheikh Dropdown */}
-            <div className="hidden md:flex items-center gap-2">
-              <Volume2 className="size-4 text-emerald-400 shrink-0" />
+            <div className="hidden md:flex items-center gap-2 shrink-0">
+              <Volume2 className="size-4 text-muted-foreground shrink-0" />
               <select
                 value={reciter.id}
                 onChange={(e) => {
                   const found = RECITERS.find((r) => r.id === e.target.value);
                   if (found) onSelectReciter(found);
                 }}
-                className="bg-secondary/80 text-xs font-bold rounded-xl px-2.5 py-1.5 border border-border focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="bg-transparent text-xs font-bold text-foreground focus:outline-none cursor-pointer max-w-[9rem] truncate"
               >
                 {RECITERS.map((r) => (
                   <option key={r.id} value={r.id}>
@@ -159,22 +166,24 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
               </select>
             </div>
 
+            <div className="hidden md:block h-6 w-px bg-border/60 shrink-0" />
+
             {/* Compact Mobile Sheikh & Ayah Pill */}
             <div
               onClick={() => setShowSettingsDrawer(true)}
-              className="flex items-center gap-1.5 text-[10px] bg-secondary/50 hover:bg-secondary/70 border border-border/40 px-2 py-1 rounded-full cursor-pointer active:scale-95 transition-all truncate"
+              className="flex items-center gap-1.5 text-[10px] md:text-xs bg-secondary/50 md:bg-transparent hover:bg-secondary/70 md:hover:bg-transparent border border-border/40 md:border-none px-2 py-1 md:p-0 rounded-full cursor-pointer active:scale-95 transition-all truncate"
             >
-              <span className="md:hidden text-emerald-400 font-bold truncate max-w-[70px]">
+              <span className="md:hidden text-primary font-bold truncate max-w-[70px]">
                 {getSheikhLastName(reciter)}
               </span>
               <span className="text-foreground font-bold shrink-0">آية {currentAyahIndex}</span>
               {repeatSettings.verseRepeats > 1 && (
-                <span className="text-[9px] text-emerald-400 font-mono font-bold bg-emerald-500/15 px-1 py-0.2 rounded-md shrink-0">
+                <span className="text-[9px] text-primary font-mono font-bold bg-primary/15 px-1 py-0.2 rounded-md shrink-0">
                   {currentVerseRepeat}/{repeatSettings.verseRepeats}
                 </span>
               )}
               {isPlaying && isDelaying && (
-                <span className="animate-pulse text-amber-400 text-[9px] font-bold shrink-0">
+                <span className="animate-pulse text-amber-500 text-[9px] font-bold shrink-0">
                   سكوت...
                 </span>
               )}
@@ -182,10 +191,18 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
           </div>
 
           {/* Center Playback Controls (Ultra-Compact on Mobile) */}
-          <div dir="rtl" className="flex items-center gap-0.5 md:gap-2 shrink-0">
+          <div dir="rtl" className="flex items-center gap-0.5 md:gap-1 shrink-0">
+            <button
+              onClick={onStop}
+              className="hidden sm:flex p-1.5 rounded-full hover:bg-secondary/60 text-muted-foreground hover:text-foreground active:scale-90 transition-all cursor-pointer"
+              title="إيقاف"
+            >
+              <Square className="size-3" />
+            </button>
+
             <button
               onClick={onPrev}
-              className="p-1.5 rounded-full hover:bg-secondary/50 text-foreground active:scale-90 transition-all cursor-pointer"
+              className="p-1.5 rounded-full hover:bg-secondary/60 text-foreground active:scale-90 transition-all cursor-pointer"
               title="الآية السابقة"
             >
               <SkipForward className="size-3.5 shrink-0" />
@@ -193,11 +210,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
 
             <button
               onClick={onTogglePlayPause}
-              className={`p-2 md:p-2.5 rounded-full font-bold text-white shadow-md active:scale-90 transition-all cursor-pointer ${
-                isPlaying
-                  ? 'bg-amber-500 hover:bg-amber-600'
-                  : 'bg-emerald-600 hover:bg-emerald-500'
-              }`}
+              className="p-2 md:p-2.5 rounded-full font-bold text-primary-foreground bg-primary hover:brightness-110 shadow-sm active:scale-90 transition-all cursor-pointer"
               title={isPlaying ? 'إيقاف مؤقت' : 'تشغيل التكرار'}
             >
               {isPlaying ? <Pause className="size-3.5" /> : <Play className="size-3.5 fill-current ml-0.5" />}
@@ -205,92 +218,90 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
 
             <button
               onClick={onNext}
-              className="p-1.5 rounded-full hover:bg-secondary/50 text-foreground active:scale-90 transition-all cursor-pointer"
+              className="p-1.5 rounded-full hover:bg-secondary/60 text-foreground active:scale-90 transition-all cursor-pointer"
               title="الآية التالية"
             >
               <SkipBack className="size-3.5 shrink-0" />
             </button>
-
-            <button
-              onClick={onStop}
-              className="p-1 rounded-full hover:bg-secondary/50 text-muted-foreground hover:text-foreground active:scale-90 transition-all cursor-pointer"
-              title="إيقاف"
-            >
-              <Square className="size-3" />
-            </button>
           </div>
 
-          {/* Desktop Controls (Inline on MD+) */}
-          <div className="hidden md:flex items-center gap-2 text-xs shrink-0">
-            {/* Verse Repeats */}
-            <div className="flex items-center gap-1.5 bg-secondary/80 px-2.5 py-1 rounded-xl border border-border/40">
-              <Repeat className="size-3.5 text-emerald-400 shrink-0" />
-              <span className="text-[11px] font-bold text-muted-foreground">تكرار:</span>
+          {/* Desktop Controls (Inline on MD+) — one unified toolbar instead of separate chips */}
+          <div className="hidden md:flex items-center gap-3 text-xs shrink-0 bg-secondary/40 rounded-2xl border border-border/40 px-3.5 py-1.5">
+            <label className="flex items-center gap-1.5 cursor-pointer">
+              <Repeat className="size-3.5 text-muted-foreground shrink-0" />
               <select
                 value={repeatSettings.verseRepeats}
                 onChange={(e) =>
                   onChangeRepeatSettings({ ...repeatSettings, verseRepeats: Number(e.target.value) })
                 }
-                className="bg-transparent font-bold text-foreground focus:outline-none text-xs"
+                className="bg-transparent font-bold text-foreground focus:outline-none text-xs cursor-pointer"
+                title="تكرار كل آية"
               >
                 {[1, 2, 3, 5, 7, 10, 20].map((num) => (
                   <option key={num} value={num}>
-                    {num}×
+                    {num}× آية
                   </option>
                 ))}
               </select>
-            </div>
+            </label>
 
-            {/* Range Repeats */}
-            <div className="flex items-center gap-1.5 bg-secondary/80 px-2.5 py-1 rounded-xl border border-border/40">
-              <Sparkles className="size-3.5 text-primary shrink-0" />
-              <span className="text-[11px] font-bold text-muted-foreground">المقطع:</span>
+            <div className="h-4 w-px bg-border/60" />
+
+            <label className="flex items-center gap-1.5 cursor-pointer">
+              <Sparkles className="size-3.5 text-muted-foreground shrink-0" />
               <select
                 value={repeatSettings.rangeRepeats}
                 onChange={(e) =>
                   onChangeRepeatSettings({ ...repeatSettings, rangeRepeats: Number(e.target.value) })
                 }
-                className="bg-transparent font-bold text-foreground focus:outline-none text-xs"
+                className="bg-transparent font-bold text-foreground focus:outline-none text-xs cursor-pointer"
+                title="تكرار المقطع"
               >
                 {[1, 2, 3, 5, 10].map((num) => (
                   <option key={num} value={num}>
-                    {num}×
+                    {num}× مقطع
                   </option>
                 ))}
               </select>
-            </div>
+            </label>
 
-            {/* Pause Delay */}
-            <div className="flex items-center gap-1.5 bg-secondary/80 px-2.5 py-1 rounded-xl border border-border/40">
-              <Clock className="size-3.5 text-amber-400 shrink-0" />
-              <span className="text-[11px] font-bold text-muted-foreground">السكوت:</span>
+            <div className="h-4 w-px bg-border/60" />
+
+            <label className="flex items-center gap-1.5 cursor-pointer">
+              <Clock className="size-3.5 text-muted-foreground shrink-0" />
               <select
                 value={repeatSettings.delaySeconds}
                 onChange={(e) =>
                   onChangeRepeatSettings({ ...repeatSettings, delaySeconds: Number(e.target.value) })
                 }
-                className="bg-transparent font-bold text-foreground focus:outline-none text-xs"
+                className="bg-transparent font-bold text-foreground focus:outline-none text-xs cursor-pointer"
+                title="سكوت للتسميع"
               >
                 {[0, 1, 2, 3, 5, 8].map((sec) => (
                   <option key={sec} value={sec}>
-                    {sec === 0 ? 'بدون' : `${sec}ث`}
+                    {sec === 0 ? 'بدون سكوت' : `سكوت ${sec}ث`}
                   </option>
                 ))}
               </select>
-            </div>
+            </label>
 
-            {/* Speed */}
-            <select
-              value={playbackRate}
-              onChange={(e) => onChangeSpeed(Number(e.target.value))}
-              className="bg-secondary/80 text-[11px] font-bold rounded-xl px-2 py-1 border border-border focus:outline-none"
-            >
-              {[0.75, 1.0, 1.25, 1.5].map((speed) => (
-                <option key={speed} value={speed}>
-                  {speed}x
-                </option>
-              ))}
-            </select>
+            <div className="h-4 w-px bg-border/60" />
+
+            <label className="flex items-center gap-1.5 cursor-pointer">
+              <Gauge className="size-3.5 text-muted-foreground shrink-0" />
+              <select
+                value={playbackRate}
+                onChange={(e) => onChangeSpeed(Number(e.target.value))}
+                className="bg-transparent font-bold text-foreground focus:outline-none text-xs cursor-pointer"
+                title="سرعة التلاوة"
+              >
+                {[0.75, 1.0, 1.25, 1.5].map((speed) => (
+                  <option key={speed} value={speed}>
+                    {speed}x
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
 
           {/* Mobile Repeat & Audio Settings Drawer Trigger Button */}
@@ -300,7 +311,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
               className="flex items-center gap-1 px-2 py-1 rounded-full bg-secondary/50 hover:bg-secondary/70 text-foreground text-[10px] font-bold border border-border/40 active:scale-95 transition-all cursor-pointer"
               title="إعدادات الصوت والتكرار"
             >
-              <SlidersHorizontal className="size-3 text-emerald-400" />
+              <SlidersHorizontal className="size-3 text-primary" />
               <span className="text-[10px]">خيارات</span>
             </button>
           </div>
@@ -328,7 +339,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
 
             <div className="flex items-center justify-between border-b border-border/40 pb-3">
               <h3 className="text-sm font-bold text-foreground flex items-center gap-2 font-arabic-title">
-                <SlidersHorizontal className="size-4 text-emerald-400" />
+                <SlidersHorizontal className="size-4 text-primary" />
                 <span>خيارات الصوت والتكرار</span>
               </h3>
               <button
@@ -342,7 +353,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
             {/* 1. Reciter Selection */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
-                <Volume2 className="size-3.5 text-emerald-400" />
+                <Volume2 className="size-3.5 text-muted-foreground" />
                 <span>القارئ الصوتي:</span>
               </label>
               <select
@@ -351,7 +362,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
                   const found = RECITERS.find((r) => r.id === e.target.value);
                   if (found) onSelectReciter(found);
                 }}
-                className="w-full bg-secondary/80 text-xs font-bold rounded-xl px-3 py-2.5 border border-border focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full bg-secondary/80 text-xs font-bold rounded-xl px-3 py-2.5 border border-border focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 {RECITERS.map((r) => (
                   <option key={r.id} value={r.id}>
@@ -365,7 +376,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
-                  <Repeat className="size-3.5 text-emerald-400" />
+                  <Repeat className="size-3.5 text-muted-foreground" />
                   <span>تكرار كل آية:</span>
                 </label>
                 <select
@@ -408,7 +419,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
-                  <Clock className="size-3.5 text-amber-400" />
+                  <Clock className="size-3.5 text-muted-foreground" />
                   <span>السكوت للتسميع:</span>
                 </label>
                 <select
@@ -428,7 +439,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
-                  <Gauge className="size-3.5 text-blue-400" />
+                  <Gauge className="size-3.5 text-muted-foreground" />
                   <span>سرعة التلاوة:</span>
                 </label>
                 <select
@@ -463,8 +474,8 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
                 }}
                 className={`w-full p-2.5 rounded-xl border text-xs font-bold text-right transition-all flex items-center justify-between cursor-pointer ${
                   repeatSettings.cumulativeMemorizationMode
-                    ? 'bg-emerald-600 text-white border-emerald-500 shadow-md'
-                    : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                    ? 'bg-primary text-primary-foreground border-primary shadow-md'
+                    : 'bg-primary/10 hover:bg-primary/20 text-primary border-primary/30'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -513,7 +524,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
 
             <button
               onClick={() => setShowSettingsDrawer(false)}
-              className="w-full py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md active:scale-95 transition-all cursor-pointer mt-2"
+              className="w-full py-2.5 rounded-2xl bg-primary hover:brightness-110 text-primary-foreground font-bold text-xs shadow-md active:scale-95 transition-all cursor-pointer mt-2"
             >
               تم
             </button>

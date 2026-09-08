@@ -535,6 +535,10 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
     }
   }, [showSurahPicker, showToolsSheet]);
 
+  // Directional scroll on page navigation: 'top' when moving to a later page, 'bottom' when moving back
+  const pendingScrollDirRef = React.useRef<'top' | 'bottom' | null>(null);
+  const fullscreenScrollRef = React.useRef<HTMLDivElement | null>(null);
+
   // Touch & Pinch-To-Zoom Gesture Handlers
   const touchStartXRef = React.useRef<number | null>(null);
   const touchStartYRef = React.useRef<number | null>(null);
@@ -636,9 +640,9 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
     }
   }, [effectiveSurah.id, surahNumber, onSelectSurah]);
 
-  // Auto-scroll active ayah into center view
+  // Auto-scroll active ayah into center view (skipped when a page-nav scroll is pending below)
   useEffect(() => {
-    if (!currentAyahIndex || pageLoading) return;
+    if (!currentAyahIndex || pageLoading || pendingScrollDirRef.current) return;
     const timer = setTimeout(() => {
       const el = document.getElementById(`ayah-${effectiveSurah.id}-${currentAyahIndex}`) ||
                  document.getElementById(`ayah-${surahNumber}-${currentAyahIndex}`) ||
@@ -649,6 +653,24 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
     }, 300);
     return () => clearTimeout(timer);
   }, [currentAyahIndex, activePage, pageLoading, effectiveSurah.id, surahNumber]);
+
+  // Consume the pending page-nav scroll direction once the new page's content has rendered
+  useEffect(() => {
+    if (pageLoading || !pendingScrollDirRef.current) return;
+    const dir = pendingScrollDirRef.current;
+    pendingScrollDirRef.current = null;
+    const scrollRoot = isFullscreen ? fullscreenScrollRef.current : null;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (scrollRoot) {
+          scrollRoot.scrollTop = dir === 'top' ? 0 : scrollRoot.scrollHeight;
+        } else {
+          const top = dir === 'top' ? 0 : document.documentElement.scrollHeight;
+          window.scrollTo({ top, behavior: 'auto' });
+        }
+      });
+    });
+  }, [activePage, pageLoading, isFullscreen]);
 
   // Page View Mode: 'single' (Classic Single Page Mushaf) vs 'all' (All Pages of Surah)
   const [pageLayout, setPageLayout] = useState<'single' | 'all'>(() => {
@@ -689,6 +711,9 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
 
   const handlePageChange = (newPage: number) => {
     const clampedPage = Math.min(604, Math.max(1, newPage));
+    // Moving forward lands at the top of the new page; moving backward lands at its bottom
+    // (mirrors flipping through a physical mushaf — resuming where you left off).
+    pendingScrollDirRef.current = clampedPage > activePage ? 'top' : clampedPage < activePage ? 'bottom' : null;
     setActivePage(clampedPage);
     const startingSurah = SURAHS.find((s) => s.pageStart === clampedPage);
     const targetSurah = startingSurah || getSurahForPage(clampedPage);
@@ -698,12 +723,6 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
     try {
       localStorage.setItem('quran_active_page_v1', clampedPage.toString());
       window.dispatchEvent(new Event('quran_active_page_updated'));
-    } catch {}
-    // Scroll window/container to top of the new page
-    try {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
     } catch {}
   };
 
@@ -1658,6 +1677,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                 {isFullscreen &&
                   createPortal(
                     <div
+                      ref={fullscreenScrollRef}
                       dir="rtl"
                       className="fixed inset-0 z-[9999] bg-background/98 text-foreground flex flex-col overflow-y-auto selection:bg-emerald-500/30 font-arabic-title animate-in fade-in duration-200"
                     >
