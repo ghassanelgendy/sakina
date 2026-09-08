@@ -71,9 +71,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signInWithGoogle = async () => {
+    // Vercel serves this same deployment from several domains (the canonical one,
+    // the team-scoped alias, the git-branch alias, per-deploy URLs, ...). Supabase
+    // only completes an OAuth redirect back to a URL on its allowlist, so we always
+    // target the one canonical domain in production rather than whatever alias the
+    // user happened to be browsing — otherwise it silently drops the session and
+    // redirects to a bare "/#" with no tokens.
+    const redirectTo = import.meta.env.PROD ? 'https://sakina-lyart.vercel.app' : window.location.origin;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo },
     });
     return { error: error as Error | null };
   };
