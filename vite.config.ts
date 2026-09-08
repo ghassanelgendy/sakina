@@ -31,6 +31,14 @@ export default defineConfig({
         // App shell + fonts precached at build time; Quran API/audio handled by
         // separate runtime caches below since they're large and page-addressed.
         globPatterns: ['**/*.{js,css,html,woff2}'],
+        // Make a new deployment take over immediately instead of waiting for every
+        // open tab to close first, and drop precache entries from prior builds —
+        // without this, a tab left open (or one that navigates back via an OAuth
+        // redirect) can keep running a stale service worker + old bundle
+        // indefinitely, silently missing things like newly-configured auth.
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
             // Quran text/tafsir pages — cache-first so once a page has been
