@@ -927,10 +927,10 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
           <button
             type="button"
             onClick={onSyncReading}
-            className="px-2 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/25 transition-all cursor-pointer flex items-center gap-1 active:scale-95 whitespace-nowrap shrink-0"
+            className="px-2 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/25 transition-all cursor-pointer flex items-center gap-1 active:scale-95 whitespace-nowrap shrink-0"
             title={`الانتقال إلى موضع التلاوة (ص ${readingPage})`}
           >
-            <Bookmark className="size-3 text-indigo-400 shrink-0" />
+            <Bookmark className="size-3 text-primary shrink-0" />
             <span>التلاوة: ص {readingPage}</span>
           </button>
 
@@ -1304,7 +1304,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                   }
                   className={`h-8 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                     repeatSettings.blindMode
-                      ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm'
+                      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
                       : 'bg-secondary text-muted-foreground border-border'
                   }`}
                 >
@@ -1481,11 +1481,11 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                       onContextMenu={(e) => openAyahContextMenu(e, ayah.numberInSurah, ayahSurah, pageAyahs)}
                                       className={`inline cursor-pointer rounded px-0.5 transition-colors tracking-normal font-bold ${
                                         isMemMarker && isReadMarker
-                                          ? 'bg-gradient-to-r from-amber-500/20 to-indigo-500/20 text-foreground border-b-2 border-amber-400'
+                                          ? 'bg-gradient-to-r from-amber-500/20 to-primary/20 text-foreground border-b-2 border-amber-400'
                                           : isMemMarker
                                           ? 'bg-amber-500/15 text-foreground border-b-2 border-amber-500'
                                           : isReadMarker
-                                          ? 'bg-indigo-500/15 text-foreground border-b-2 border-indigo-500'
+                                          ? 'bg-primary/15 text-foreground border-b-2 border-primary'
                                           : isActive
                                           ? 'border-b-2 border-emerald-500/80 dark:border-emerald-400/80 bg-emerald-500/10 text-foreground'
                                           : inStudyRange
@@ -1501,7 +1501,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                         words.map((w, wIdx) => (
                                           <span
                                             key={wIdx}
-                                            className="inline mx-1 px-1 rounded transition-all duration-300 text-indigo-400/20 bg-indigo-500/20 border border-indigo-500/30 blur-[6px] hover:blur-none hover:text-foreground hover:bg-transparent select-none cursor-pointer"
+                                            className="inline mx-1 px-1 rounded transition-all duration-300 text-primary/20 bg-primary/20 border border-primary/30 blur-[6px] hover:blur-none hover:text-foreground hover:bg-transparent select-none cursor-pointer"
                                           >
                                             {w}{' '}
                                           </span>
@@ -1529,7 +1529,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                           : isMemMarker
                                           ? 'bg-amber-500 text-zinc-950 font-black shadow-sm'
                                           : isReadMarker
-                                          ? 'bg-indigo-600 text-white font-black shadow-sm'
+                                          ? 'bg-primary text-primary-foreground font-black shadow-sm'
                                           : isMemorized
                                           ? 'bg-amber-500/10 text-amber-300 border border-amber-500/40'
                                           : inStudyRange
@@ -1608,8 +1608,8 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                     }}
                                     className={`px-2 py-0.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1 active:scale-95 cursor-pointer ${
                                       readingMarker?.surahNumber === surahNumber && readingMarker?.ayahNumber === currentAyahIndex
-                                        ? 'bg-indigo-600 text-white shadow-sm'
-                                        : 'text-indigo-400 hover:bg-indigo-500/15'
+                                        ? 'bg-primary text-primary-foreground shadow-sm'
+                                        : 'text-primary hover:bg-primary/15'
                                     }`}
                                   >
                                     <Bookmark className="size-3" />
@@ -1874,11 +1874,11 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                               onContextMenu={(e) => e.preventDefault()}
                                               className={`inline cursor-pointer rounded px-0.5 transition-colors tracking-normal font-bold ${
                                                 isMemMarker && isReadMarker
-                                                  ? 'bg-gradient-to-r from-amber-500/20 to-indigo-500/20 text-foreground border-b-2 border-amber-400'
+                                                  ? 'bg-gradient-to-r from-amber-500/20 to-primary/20 text-foreground border-b-2 border-amber-400'
                                                   : isMemMarker
                                                   ? 'bg-amber-500/15 text-foreground border-b-2 border-amber-500'
                                                   : isReadMarker
-                                                  ? 'bg-indigo-500/15 text-foreground border-b-2 border-indigo-500'
+                                                  ? 'bg-primary/15 text-foreground border-b-2 border-primary'
                                                   : isActive
                                                   ? 'border-b-2 border-emerald-500/80 dark:border-emerald-400/80 bg-emerald-500/10 text-foreground'
                                                   : inStudyRange
@@ -1894,7 +1894,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                                 words.map((w, wIdx) => (
                                                   <span
                                                     key={wIdx}
-                                                    className="inline mx-1 px-1 rounded transition-all duration-300 text-indigo-400/20 bg-indigo-500/20 border border-indigo-500/30 blur-[6px] hover:blur-none hover:text-foreground hover:bg-transparent select-none cursor-pointer"
+                                                    className="inline mx-1 px-1 rounded transition-all duration-300 text-primary/20 bg-primary/20 border border-primary/30 blur-[6px] hover:blur-none hover:text-foreground hover:bg-transparent select-none cursor-pointer"
                                                     title="انقر لإظهار الكلمة"
                                                   >
                                                     {w}{' '}
@@ -1923,7 +1923,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                                   : isMemMarker
                                                   ? 'bg-amber-500 text-zinc-950 font-black shadow-sm'
                                                   : isReadMarker
-                                                  ? 'bg-indigo-600 text-white font-black shadow-sm'
+                                                  ? 'bg-primary text-primary-foreground font-black shadow-sm'
                                                   : isMemorized
                                                   ? 'bg-amber-500/10 text-amber-300 border border-amber-500/40'
                                                   : inStudyRange
@@ -2002,8 +2002,8 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                         }}
                                         className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 active:scale-95 cursor-pointer ${
                                           readingMarker?.surahNumber === surahNumber && readingMarker?.ayahNumber === currentAyahIndex
-                                            ? 'bg-indigo-600 text-white shadow-sm'
-                                            : 'text-indigo-400 hover:bg-indigo-500/15'
+                                            ? 'bg-primary text-primary-foreground shadow-sm'
+                                            : 'text-primary hover:bg-primary/15'
                                         }`}
                                       >
                                         <Bookmark className="size-3.5" />
@@ -2193,7 +2193,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                     : isMemMarker
                     ? 'border-emerald-500 bg-emerald-950/20 ring-2 ring-emerald-500/40 shadow-lg'
                     : isReadMarker
-                    ? 'border-indigo-500 bg-indigo-950/20 ring-2 ring-indigo-500/40 shadow-lg'
+                    ? 'border-primary bg-primary/20 ring-2 ring-primary/40 shadow-lg'
                     : isActive
                     ? 'border-emerald-500/80 bg-emerald-500/10'
                     : inStudyRange
@@ -2219,7 +2219,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                     )}
 
                     {isReadMarker && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 font-bold text-[10px]">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/40 font-bold text-[10px]">
                         <Bookmark className="size-2.5" /> موضع التلاوة
                       </span>
                     )}
@@ -2340,7 +2340,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
               <div className="w-full bg-card/95 border border-border/80 backdrop-blur-xl rounded-2xl divide-y divide-border/50 overflow-hidden shadow-xl text-right">
                 {([
                   { id: 'mem_checkpoint', label: 'تحديد كعلامة حفظ', icon: <Target className="size-4 text-amber-500" /> },
-                  { id: 'read_checkpoint', label: 'تحديد كعلامة قراءة وتلاوة', icon: <BookOpen className="size-4 text-indigo-500" /> },
+                  { id: 'read_checkpoint', label: 'تحديد كعلامة قراءة وتلاوة', icon: <BookOpen className="size-4 text-primary" /> },
                   { id: 'bookmark', label: 'حفظ الآية في الملاحظات', icon: <BookmarkPlus className="size-4 text-emerald-500" /> },
                   { id: 'tafseer', label: 'تفسير الآية (التفسير الميسر)', icon: <Sparkles className="size-4 text-violet-500" /> },
                   { id: 'hide', label: 'إخفاء الآية (لهذه الجلسة)', icon: <EyeOff className="size-4 text-muted-foreground" /> },

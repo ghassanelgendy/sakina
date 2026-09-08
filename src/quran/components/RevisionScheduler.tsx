@@ -34,8 +34,8 @@ export const RevisionScheduler: React.FC<RevisionSchedulerProps> = ({
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 flex items-center gap-3">
-          <div className="size-11 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0 border border-indigo-500/20">
+        <div className="p-4 rounded-2xl border border-primary/20 bg-primary/5 flex items-center gap-3">
+          <div className="size-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20">
             <BookOpen className="size-5" />
           </div>
           <div>

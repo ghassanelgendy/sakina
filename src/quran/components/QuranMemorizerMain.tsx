@@ -616,7 +616,7 @@ export const QuranMemorizerMain: React.FC<LifeOSIntegrationProps> = ({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              <Layers className="size-3.5 text-indigo-400 shrink-0" />
+              <Layers className="size-3.5 text-primary shrink-0" />
               <span>المتشابهات</span>
             </button>
           </div>

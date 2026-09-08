@@ -28,6 +28,8 @@ body.dark {
 }
 .font-arabic-quran {
   font-family: 'Scheherazade New', 'Amiri', serif;
+  line-height: 2.1;
+  letter-spacing: 0.01em;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -38,50 +40,50 @@ body.dark {
   scrollbar-width: none;
 }
 
-/* Dark theme (default) */
+/* Sakina (سكينة) — calm teal/emerald theme. Dark is default. */
 @theme {
   --font-sans: 'Cairo', sans-serif;
-  --color-background: hsl(240 12% 3.5%);
-  --color-foreground: hsl(0 0% 97%);
-  --color-card: hsl(240 10% 6%);
-  --color-card-foreground: hsl(0 0% 97%);
-  --color-popover: hsl(240 10% 7.5%);
-  --color-popover-foreground: hsl(0 0% 97%);
-  --color-primary: hsl(0 0% 97%);
-  --color-primary-foreground: hsl(240 5.9% 10%);
-  --color-secondary: hsl(240 5% 14%);
-  --color-secondary-foreground: hsl(0 0% 97%);
-  --color-muted: hsl(240 5% 14%);
-  --color-muted-foreground: hsl(240 5% 62%);
-  --color-accent: hsl(240 5% 14%);
-  --color-accent-foreground: hsl(0 0% 97%);
+  --color-background: hsl(192 28% 6%);
+  --color-foreground: hsl(150 12% 95%);
+  --color-card: hsl(192 24% 9%);
+  --color-card-foreground: hsl(150 12% 95%);
+  --color-popover: hsl(192 24% 10.5%);
+  --color-popover-foreground: hsl(150 12% 95%);
+  --color-primary: hsl(160 48% 46%);
+  --color-primary-foreground: hsl(192 30% 7%);
+  --color-secondary: hsl(192 16% 15%);
+  --color-secondary-foreground: hsl(150 12% 95%);
+  --color-muted: hsl(192 16% 15%);
+  --color-muted-foreground: hsl(180 8% 62%);
+  --color-accent: hsl(160 30% 18%);
+  --color-accent-foreground: hsl(150 12% 95%);
   --color-destructive: hsl(0 62.8% 30.6%);
   --color-destructive-foreground: hsl(0 0% 98%);
-  --color-border: hsl(240 5% 13%);
-  --color-input: hsl(240 5% 13%);
-  --color-ring: hsl(240 4.9% 83.9%);
-  --radius-xl: 0.75rem;
+  --color-border: hsl(192 14% 16%);
+  --color-input: hsl(192 14% 16%);
+  --color-ring: hsl(160 48% 46%);
+  --radius-xl: 0.9rem;
 }
 
 /* Light theme overrides (applied when html has class "light") */
 html.light {
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(240 10% 3.9%);
+  --color-background: hsl(150 25% 98%);
+  --color-foreground: hsl(192 25% 10%);
   --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(240 10% 3.9%);
+  --color-card-foreground: hsl(192 25% 10%);
   --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(240 10% 3.9%);
-  --color-primary: hsl(240 5.9% 10%);
-  --color-primary-foreground: hsl(0 0% 98%);
-  --color-secondary: hsl(240 4.8% 95.9%);
-  --color-secondary-foreground: hsl(240 5.9% 10%);
-  --color-muted: hsl(240 4.8% 95.9%);
-  --color-muted-foreground: hsl(240 3.8% 46.1%);
-  --color-accent: hsl(240 4.8% 95.9%);
-  --color-accent-foreground: hsl(240 5.9% 10%);
+  --color-popover-foreground: hsl(192 25% 10%);
+  --color-primary: hsl(160 55% 30%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-secondary: hsl(155 20% 94%);
+  --color-secondary-foreground: hsl(192 25% 10%);
+  --color-muted: hsl(155 20% 94%);
+  --color-muted-foreground: hsl(190 8% 42%);
+  --color-accent: hsl(160 35% 90%);
+  --color-accent-foreground: hsl(160 55% 22%);
   --color-destructive: hsl(0 84.2% 60.2%);
   --color-destructive-foreground: hsl(0 0% 98%);
-  --color-border: hsl(240 5.9% 90%);
-  --color-input: hsl(240 5.9% 90%);
-  --color-ring: hsl(240 5.9% 10%);
+  --color-border: hsl(155 15% 88%);
+  --color-input: hsl(155 15% 88%);
+  --color-ring: hsl(160 55% 30%);
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BookOpen, Sun, Moon, UserCircle2 } from 'lucide-react';
+import { BookOpenText, Sun, Moon, UserCircle2 } from 'lucide-react';
 import { cn } from './lib/utils';
 import { useAuth } from './hooks/useAuth';
 import { useAzkarRealtime } from './hooks/useAzkar';
@@ -37,7 +37,17 @@ export default function App() {
 
   return (
     <div className="flex h-full min-h-screen flex-col bg-background text-foreground">
-      <nav className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/90 px-3 py-2 backdrop-blur-md sm:px-5">
+      <nav className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border bg-background/90 px-3 py-2.5 backdrop-blur-md sm:px-5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 text-primary">
+            <BookOpenText size={18} />
+          </div>
+          <div className="hidden leading-tight sm:block">
+            <p className="font-arabic-title text-sm font-bold text-foreground">سكينة</p>
+            <p className="text-[11px] text-muted-foreground">القرآن والأذكار</p>
+          </div>
+        </div>
+
         <div className="flex items-center gap-1 rounded-xl bg-secondary/60 p-1">
           <button
             onClick={() => setTab('quran')}
@@ -86,7 +96,7 @@ export default function App() {
       {showAuth && <AuthPanel onClose={() => setShowAuth(false)} />}
 
       <footer className="border-t border-border py-3 text-center text-[11px] text-muted-foreground" dir="rtl">
-        <span className="inline-flex items-center gap-1"><BookOpen size={12} /> سكينة</span>
+        <span className="inline-flex items-center gap-1"><BookOpenText size={12} /> سكينة</span>
       </footer>
     </div>
   );

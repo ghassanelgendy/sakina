@@ -35,7 +35,7 @@ export const BlindModeOverlay: React.FC<BlindModeOverlayProps> = ({
       <div dir="rtl" className="flex items-center gap-2 mb-2">
         <button
           onClick={onToggleBlindMode}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-bold hover:bg-indigo-500/20 transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-primary/10 text-primary border border-primary/20 text-xs font-bold hover:bg-primary/20 transition-all cursor-pointer"
         >
           <EyeOff className="size-4 shrink-0" />
           <span>تفعيل وضع اختبار الحفظ (إخفاء النص)</span>
@@ -45,9 +45,9 @@ export const BlindModeOverlay: React.FC<BlindModeOverlayProps> = ({
   }
 
   return (
-    <div dir="rtl" className="space-y-3 my-2 p-4 md:p-5 rounded-2xl border border-indigo-500/30 bg-indigo-950/30 backdrop-blur-md shadow-lg font-arabic-body text-right">
+    <div dir="rtl" className="space-y-3 my-2 p-4 md:p-5 rounded-2xl border border-primary/30 bg-primary/30 backdrop-blur-md shadow-lg font-arabic-body text-right">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <span className="text-xs font-bold text-indigo-400 flex items-center gap-2">
+        <span className="text-xs font-bold text-primary flex items-center gap-2">
           <EyeOff className="size-4" />
           وضع الاختبار والتسميع الذاتي (مُخفَى)
         </span>
@@ -61,7 +61,7 @@ export const BlindModeOverlay: React.FC<BlindModeOverlayProps> = ({
           </button>
           <button
             onClick={handleToggleFullReveal}
-            className="px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500 cursor-pointer shadow-sm transition-all"
+            className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary cursor-pointer shadow-sm transition-all"
           >
             {isFullyRevealed ? 'إخفاء النص' : 'كشف النص كاملاً'}
           </button>
@@ -86,7 +86,7 @@ export const BlindModeOverlay: React.FC<BlindModeOverlayProps> = ({
               className={`inline mx-1 px-1 rounded-md transition-all duration-300 cursor-pointer ${
                 isRevealed
                   ? 'text-foreground bg-transparent'
-                  : 'text-indigo-400/20 bg-indigo-500/20 rounded border border-indigo-500/30 blur-[6px] hover:blur-none select-none'
+                  : 'text-primary/20 bg-primary/20 rounded border border-primary/30 blur-[6px] hover:blur-none select-none'
               }`}
             >
               {word}{' '}

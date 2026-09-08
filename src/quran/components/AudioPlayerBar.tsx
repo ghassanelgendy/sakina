@@ -243,7 +243,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
 
             {/* Range Repeats */}
             <div className="flex items-center gap-1.5 bg-secondary/80 px-2.5 py-1 rounded-xl border border-border/40">
-              <Sparkles className="size-3.5 text-indigo-400 shrink-0" />
+              <Sparkles className="size-3.5 text-primary shrink-0" />
               <span className="text-[11px] font-bold text-muted-foreground">المقطع:</span>
               <select
                 value={repeatSettings.rangeRepeats}
@@ -385,7 +385,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
-                  <Sparkles className="size-3.5 text-indigo-400" />
+                  <Sparkles className="size-3.5 text-primary" />
                   <span>تكرار المقطع كلياً:</span>
                 </label>
                 <select

@@ -627,13 +627,13 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
         </div>
 
         {/* 2. Reading & Tilawah Wird (ورد التلاوة والقراءة اليومية) */}
-        <div className="p-6 rounded-3xl border border-indigo-500/30 bg-indigo-950/20 backdrop-blur-xl space-y-3 shadow-lg active:scale-[0.99] transition-all">
+        <div className="p-6 rounded-3xl border border-primary/30 bg-primary/20 backdrop-blur-xl space-y-3 shadow-lg active:scale-[0.99] transition-all">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold text-indigo-400 flex items-center gap-2 font-arabic-title">
-              <BookOpen className="size-4 text-indigo-400 shrink-0" />
+            <h3 className="text-xs font-bold text-primary flex items-center gap-2 font-arabic-title">
+              <BookOpen className="size-4 text-primary shrink-0" />
               <span>ورد التلاوة والقراءة اليومية</span>
             </h3>
-            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
               {readingWird.pagesPerDay} صفحة يومياً
             </span>
           </div>
@@ -643,7 +643,7 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
             <div className="p-2.5 rounded-2xl bg-background/50 border border-border/50 space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground font-bold">موضعك الحالي في التلاوة:</span>
-                <span className="font-extrabold text-indigo-400">
+                <span className="font-extrabold text-primary">
                   صفحة {readingWird.currentPage} (سورة {currentReadingSurah.name}
                   {(() => {
                     try {
@@ -712,7 +712,7 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
 
             <div className="flex items-center justify-between text-xs px-1">
               <span className="text-muted-foreground font-semibold">الهدف اليومي للتلاوة:</span>
-              <span className="font-bold text-indigo-400">صفحة {Math.min(604, readingWird.currentPage + readingWird.pagesPerDay)}</span>
+              <span className="font-bold text-primary">صفحة {Math.min(604, readingWird.currentPage + readingWird.pagesPerDay)}</span>
             </div>
 
             <div className="pt-2 flex flex-col gap-2">
@@ -722,7 +722,7 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
                 </span>
                 <button
                   onClick={handleLogReadingWird}
-                  className="px-3.5 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+                  className="px-3.5 py-2 rounded-2xl bg-primary hover:brightness-110 text-primary-foreground font-bold text-xs shadow-md transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
                 >
                   <Bookmark className="size-3.5" /> تسجيل إنجاز التلاوة (+{readingWird.pagesPerDay} صفحة)
                 </button>
@@ -731,18 +731,18 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
               {onOpenReader && (
                 <button
                   onClick={() => onOpenReader(readingWird.currentPage, currentReadingSurah.id)}
-                  className="w-full py-2 px-3 rounded-2xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 font-bold text-xs border border-indigo-500/40 flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
+                  className="w-full py-2 px-3 rounded-2xl bg-primary/20 hover:bg-primary/30 text-primary font-bold text-xs border border-primary/40 flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
                 >
-                  <BookOpen className="size-3.5 text-indigo-400" />
+                  <BookOpen className="size-3.5 text-primary" />
                   <span>فتح ورد التلاوة في المصحف (ص {readingWird.currentPage})</span>
                 </button>
               )}
 
               <button
                 onClick={() => handleOpenSmartHalqahNoteModal('reading')}
-                className="w-full py-2 px-3 rounded-2xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 font-bold text-xs border border-indigo-500/30 flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
+                className="w-full py-2 px-3 rounded-2xl bg-primary/10 hover:bg-primary/20 text-primary font-bold text-xs border border-primary/30 flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
               >
-                <FileText className="size-3.5 text-indigo-400" />
+                <FileText className="size-3.5 text-primary" />
                 <span>تدوين ملاحظة على ورد التلاوة اليومي</span>
               </button>
             </div>
@@ -840,7 +840,7 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
         <div className="p-4 md:p-6 rounded-3xl border border-border/60 bg-card/80 backdrop-blur-xl space-y-3 shadow-md">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="size-8 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-500/20">
+              <div className="size-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20">
                 <UserCheck className="size-4" />
               </div>
               <h3 className="text-xs md:text-sm font-bold text-foreground font-arabic-title truncate">
@@ -849,7 +849,7 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
             </div>
             <button
               onClick={() => handleOpenSmartHalqahNoteModal('memorization')}
-              className="px-2.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-sm transition-all active:scale-95 cursor-pointer flex items-center gap-1 shrink-0 whitespace-nowrap"
+              className="px-2.5 py-1.5 rounded-xl bg-primary hover:brightness-110 text-primary-foreground font-bold text-xs shadow-sm transition-all active:scale-95 cursor-pointer flex items-center gap-1 shrink-0 whitespace-nowrap"
             >
               <Plus className="size-3.5" />
               <span>إضافة ملاحظة</span>
@@ -861,7 +861,7 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
             <div className="space-y-1.5 mb-3">
               <span className="text-[11px] font-bold text-muted-foreground block">الحلقات المجدولة في التقويم:</span>
               {sheikhEvents.map((evt) => (
-                <div key={evt.id} className="p-2.5 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 flex items-center justify-between text-xs">
+                <div key={evt.id} className="p-2.5 rounded-2xl border border-primary/20 bg-primary/5 flex items-center justify-between text-xs">
                   <span className="font-bold text-foreground">{evt.title}</span>
                   <span className="text-[10px] text-muted-foreground">
                     {new Date(evt.start_time).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' })}
@@ -894,7 +894,7 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
                           note.rating === 'mumtaz'
                             ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                             : note.rating === 'jayyid_jiddan'
-                            ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                            ? 'bg-primary/10 text-primary border-primary/20'
                             : note.rating === 'jayyid'
                             ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
                             : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
@@ -1093,7 +1093,7 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
 
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-foreground flex items-center gap-2 font-arabic-title">
-                  <FileText className="size-5 text-indigo-400 shrink-0" />
+                  <FileText className="size-5 text-primary shrink-0" />
                   <span>تدوين ملاحظات وأخطاء حلقة التسميع</span>
                 </h3>
 
@@ -1137,7 +1137,7 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
                       onClick={() => applyWirdPreset('reading')}
                       className={`p-2.5 rounded-2xl border text-right transition-all cursor-pointer ${
                         noteWirdType === 'reading'
-                          ? 'bg-indigo-500/15 border-indigo-500/50 text-indigo-300 shadow-sm'
+                          ? 'bg-primary/15 border-primary/50 text-primary shadow-sm'
                           : 'bg-secondary/40 border-border/60 text-muted-foreground hover:bg-secondary'
                       }`}
                     >
@@ -1152,8 +1152,8 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
                   </div>
                 </div>
 
-                <div className="px-3 py-2 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-[11px] font-bold text-indigo-300 flex items-center gap-1.5">
-                  <Sparkles className="size-3.5 text-indigo-400 shrink-0" />
+                <div className="px-3 py-2 rounded-2xl bg-primary/10 border border-primary/20 text-[11px] font-bold text-primary flex items-center gap-1.5">
+                  <Sparkles className="size-3.5 text-primary shrink-0" />
                   <span>
                     محدَّد تلقائياً لـ {noteWirdType === 'memorization' ? 'ورد الحفظ' : 'ورد التلاوة'}: سورة {selectedNoteSurahMeta.name} (الآيات {noteStartAyah} إلى {noteEndAyah})
                   </span>
@@ -1249,7 +1249,7 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs cursor-pointer shadow-md active:scale-95 transition-all"
+                    className="px-5 py-2.5 rounded-2xl bg-primary hover:brightness-110 text-primary-foreground font-bold text-xs cursor-pointer shadow-md active:scale-95 transition-all"
                   >
                     حفظ الملاحظة
                   </button>
