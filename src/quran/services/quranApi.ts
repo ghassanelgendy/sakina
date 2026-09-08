@@ -1,5 +1,7 @@
 import { Ayah } from '../types/quran';
-import { idbGetQuranPage, idbSetQuranPage, idbSetQuranPagesBatch } from '../../lib/indexedDb';
+import { idbGetQuranPage, idbSetQuranPage, idbSetQuranPagesBatch, idbCountQuranPages } from '../../lib/indexedDb';
+
+const TOTAL_MUSHAF_PAGES = 604;
 
 // Cache in-memory for fast switching
 const verseCache = new Map<number, Ayah[]>();
@@ -139,6 +141,13 @@ async function setMultiplePagesToIdb(pages: { page: number; ayahs: Ayah[] }[]): 
 export async function downloadAndCacheFullQuran(
   onProgress?: (step: 'fetching' | 'processing' | 'saving' | 'done', progressPercent: number, statusText: string) => void
 ): Promise<void> {
+  // Already fully cached on this device — skip the ~2 large network requests entirely.
+  const alreadyCached = await idbCountQuranPages();
+  if (alreadyCached >= TOTAL_MUSHAF_PAGES) {
+    onProgress?.('done', 100, 'المصحف كامل متاح بالفعل بدون إنترنت على هذا الجهاز ✓');
+    return;
+  }
+
   if (typeof navigator !== 'undefined' && !navigator.onLine) {
     throw new Error('لا يوجد اتصال بالإنترنت لبدء التنزيل');
   }

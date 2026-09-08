@@ -94,6 +94,21 @@ export async function idbSetQuranPage(page: number, ayahs: any[]): Promise<void>
   }
 }
 
+/** Number of the 604 mushaf pages currently cached on this device (used to show offline-download progress). */
+export async function idbCountQuranPages(): Promise<number> {
+  try {
+    return await withStore(STORES.quranPages, 'readonly', (store) => {
+      return new Promise<number>((resolve, reject) => {
+        const req = store.count();
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error ?? new Error('IndexedDB countQuranPages failed'));
+      });
+    });
+  } catch {
+    return 0;
+  }
+}
+
 export async function idbSetQuranPagesBatch(pages: { page: number; ayahs: any[] }[]): Promise<void> {
   try {
     await withStore(STORES.quranPages, 'readwrite', (store) => {

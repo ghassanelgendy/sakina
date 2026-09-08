@@ -27,6 +27,7 @@ import {
   ReadingWirdPlan,
 } from '../types/quran';
 import { SURAHS } from '../services/quranData';
+import { OfflineDownload } from './OfflineDownload';
 
 const KHATMAH_STORAGE_KEY = 'quran_khatmah_plan_v1';
 const READING_WIRD_STORAGE_KEY = 'quran_reading_wird_v1';
@@ -480,6 +481,8 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
 
   return (
     <div dir="rtl" className="space-y-6 font-arabic-body text-right">
+
+      <OfflineDownload />
 
       {/* DUAL WIRDS DISPLAY: ورد الحفظ + ورد التلاوة والقراءة */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -4,8 +4,9 @@ A standalone web app for reading, memorizing and reviewing the Quran, plus daily
 
 ## Features
 
-- **Quran**: page-by-page Mushaf reader with Tafsir Al-Muyassar, audio recitation (multiple reciters), spaced-repetition memorization tracker (khatmah planner, revision scheduler, blind-recitation mode, mutashabihat/similar-verse trainer), and offline caching of the full text.
+- **Quran**: page-by-page Mushaf reader with Tafsir Al-Muyassar, audio recitation (multiple reciters), spaced-repetition memorization tracker (khatmah planner, revision scheduler, blind-recitation mode), and a one-tap "download for offline" that caches the full 604-page mushaf + tafsir locally (also starts automatically in the background the first time you're online).
 - **Azkar**: full morning/evening/sleep/prayer azkar library with tap-to-count cards, favorites, a standalone digital tasbih (سبحة إلكترونية), and daily progress tracking.
+- **Installable PWA**: the app shell itself (not just the Quran data) is precached by a service worker, so once it's been opened online, it launches and works with zero network at all — not just the Quran text/tafsir, which live in IndexedDB.
 - Works fully offline/local-only out of the box (localStorage + IndexedDB). Optionally connect a Supabase project to sync favorites, azkar progress, and khatmah plans across devices.
 
 ## Getting started
@@ -36,7 +37,8 @@ npm run preview
 ## Data sources
 
 - Azkar text is bundled locally (`src/data/azkar.json`) — no network dependency.
-- Quran text, translation (Tafsir Al-Muyassar), and audio are fetched from [alquran.cloud](https://alquran.cloud) and [everyayah.com](https://everyayah.com) and cached in IndexedDB after first load.
+- Quran text, translation (Tafsir Al-Muyassar), and audio are fetched from [alquran.cloud](https://alquran.cloud) and [everyayah.com](https://everyayah.com), cached in IndexedDB after first load, and can be bulk-downloaded in full from the "تنزيل المصحف كاملاً" card on the home (الخاتمة) screen.
+- The service worker (`vite-plugin-pwa`) precaches the built app shell and runtime-caches the Quran API and recitation audio, so a production build (`npm run build && npm run preview`, or any static host) keeps working with no network once it's been loaded once. `npm run dev` does not register a service worker — test offline behavior against a built/served copy.
 
 ## Project structure
 
