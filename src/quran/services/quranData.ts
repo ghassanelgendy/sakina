@@ -1,0 +1,651 @@
+import { SurahMeta, Reciter, MutashabihItem, ReadingWirdPlan, KhatmahPlan } from '../types/quran';
+
+export const RECITERS: Reciter[] = [
+  { id: 'alafasy', name: 'Mishary Rashid Alafasy', subfolder: 'Alafasy_128kbps' },
+  { id: 'husary', name: 'Mahmoud Khalil Al-Husary', subfolder: 'Husary_128kbps' },
+  { id: 'minshawi', name: 'Mohamed Siddiq El-Minshawi (Murattal)', subfolder: 'Minshawy_Murattal_128kbps' },
+  { id: 'minshawi_mujawwad', name: 'Mohamed Siddiq El-Minshawi (Mujawwad)', subfolder: 'Minshawy_Mujawwad_192kbps' },
+  { id: 'abdulbasit', name: 'AbdulBaset AbdulSamad (Murattal)', subfolder: 'Abdul_Basit_Murattal_192kbps' },
+  { id: 'shatri', name: 'Abu Bakr al-Shatri', subfolder: 'Abu_Bakr_Ash-Shaatree_128kbps' },
+  { id: 'ghamadi', name: 'Saad Al-Ghamdi', subfolder: 'Ghamadi_40kbps' },
+];
+
+export const SURAHS: SurahMeta[] = [
+  { id: 1, name: 'الفاتحة', transliteration: 'Al-Fatiha', type: 'Meccan', versesCount: 7, juzStart: 1, pageStart: 1 },
+  { id: 2, name: 'البقرة', transliteration: 'Al-Baqarah', type: 'Medinan', versesCount: 286, juzStart: 1, pageStart: 2 },
+  { id: 3, name: 'آل عمران', transliteration: 'Aal-E-Imran', type: 'Medinan', versesCount: 200, juzStart: 3, pageStart: 50 },
+  { id: 4, name: 'النساء', transliteration: 'An-Nisa', type: 'Medinan', versesCount: 176, juzStart: 4, pageStart: 77 },
+  { id: 5, name: 'المائدة', transliteration: 'Al-Ma\'idah', type: 'Medinan', versesCount: 120, juzStart: 6, pageStart: 106 },
+  { id: 6, name: 'الأنعام', transliteration: 'Al-An\'am', type: 'Meccan', versesCount: 165, juzStart: 7, pageStart: 128 },
+  { id: 7, name: 'الأعراف', transliteration: 'Al-A\'raf', type: 'Meccan', versesCount: 206, juzStart: 8, pageStart: 151 },
+  { id: 8, name: 'الأنفال', transliteration: 'Al-Anfal', type: 'Medinan', versesCount: 75, juzStart: 9, pageStart: 177 },
+  { id: 9, name: 'التوبة', transliteration: 'At-Tawbah', type: 'Medinan', versesCount: 129, juzStart: 10, pageStart: 187 },
+  { id: 10, name: 'يونس', transliteration: 'Yunus', type: 'Meccan', versesCount: 109, juzStart: 11, pageStart: 208 },
+  { id: 11, name: 'هود', transliteration: 'Hud', type: 'Meccan', versesCount: 123, juzStart: 11, pageStart: 221 },
+  { id: 12, name: 'يوسف', transliteration: 'Yusuf', type: 'Meccan', versesCount: 111, juzStart: 12, pageStart: 235 },
+  { id: 13, name: 'الرعد', transliteration: 'Ar-Ra\'d', type: 'Medinan', versesCount: 43, juzStart: 13, pageStart: 249 },
+  { id: 14, name: 'إبراهيم', transliteration: 'Ibrahim', type: 'Meccan', versesCount: 52, juzStart: 13, pageStart: 255 },
+  { id: 15, name: 'الحجر', transliteration: 'Al-Hijr', type: 'Meccan', versesCount: 99, juzStart: 14, pageStart: 262 },
+  { id: 16, name: 'النحل', transliteration: 'An-Nahl', type: 'Meccan', versesCount: 128, juzStart: 14, pageStart: 267 },
+  { id: 17, name: 'الإسراء', transliteration: 'Al-Isra', type: 'Meccan', versesCount: 111, juzStart: 15, pageStart: 282 },
+  { id: 18, name: 'الكهف', transliteration: 'Al-Kahf', type: 'Meccan', versesCount: 110, juzStart: 15, pageStart: 293 },
+  { id: 19, name: 'مريم', transliteration: 'Maryam', type: 'Meccan', versesCount: 98, juzStart: 16, pageStart: 305 },
+  { id: 20, name: 'طه', transliteration: 'Taha', type: 'Meccan', versesCount: 135, juzStart: 16, pageStart: 312 },
+  { id: 21, name: 'الأنبياء', transliteration: 'Al-Anbiya', type: 'Meccan', versesCount: 112, juzStart: 17, pageStart: 322 },
+  { id: 22, name: 'الحج', transliteration: 'Al-Hajj', type: 'Medinan', versesCount: 78, juzStart: 17, pageStart: 332 },
+  { id: 23, name: 'المؤمنون', transliteration: 'Al-Mu\'minun', type: 'Meccan', versesCount: 118, juzStart: 18, pageStart: 342 },
+  { id: 24, name: 'النور', transliteration: 'An-Nur', type: 'Medinan', versesCount: 64, juzStart: 18, pageStart: 350 },
+  { id: 25, name: 'الفرقان', transliteration: 'Al-Furqan', type: 'Meccan', versesCount: 77, juzStart: 18, pageStart: 359 },
+  { id: 26, name: 'الشعراء', transliteration: 'Ash-Shu\'ara', type: 'Meccan', versesCount: 227, juzStart: 19, pageStart: 367 },
+  { id: 27, name: 'النمل', transliteration: 'An-Naml', type: 'Meccan', versesCount: 93, juzStart: 19, pageStart: 377 },
+  { id: 28, name: 'القصص', transliteration: 'Al-Qasas', type: 'Meccan', versesCount: 88, juzStart: 20, pageStart: 385 },
+  { id: 29, name: 'العنكبوت', transliteration: 'Al-\'Ankabut', type: 'Meccan', versesCount: 69, juzStart: 20, pageStart: 396 },
+  { id: 30, name: 'الروم', transliteration: 'Ar-Rum', type: 'Meccan', versesCount: 60, juzStart: 21, pageStart: 404 },
+  { id: 31, name: 'لقمان', transliteration: 'Luqman', type: 'Meccan', versesCount: 34, juzStart: 21, pageStart: 411 },
+  { id: 32, name: 'السجدة', transliteration: 'As-Sajdah', type: 'Meccan', versesCount: 30, juzStart: 21, pageStart: 415 },
+  { id: 33, name: 'الأحزاب', transliteration: 'Al-Ahzab', type: 'Medinan', versesCount: 73, juzStart: 21, pageStart: 418 },
+  { id: 34, name: 'سبأ', transliteration: 'Saba', type: 'Meccan', versesCount: 54, juzStart: 22, pageStart: 428 },
+  { id: 35, name: 'فاطر', transliteration: 'Fatir', type: 'Meccan', versesCount: 45, juzStart: 22, pageStart: 434 },
+  { id: 36, name: 'يس', transliteration: 'Ya-Sin', type: 'Meccan', versesCount: 83, juzStart: 22, pageStart: 440 },
+  { id: 37, name: 'الصافات', transliteration: 'As-Saffat', type: 'Meccan', versesCount: 182, juzStart: 23, pageStart: 446 },
+  { id: 38, name: 'ص', transliteration: 'Sad', type: 'Meccan', versesCount: 88, juzStart: 23, pageStart: 453 },
+  { id: 39, name: 'الزمر', transliteration: 'Az-Zumar', type: 'Meccan', versesCount: 75, juzStart: 23, pageStart: 458 },
+  { id: 40, name: 'غافر', transliteration: 'Ghafir', type: 'Meccan', versesCount: 85, juzStart: 24, pageStart: 467 },
+  { id: 41, name: 'فصلت', transliteration: 'Fussilat', type: 'Meccan', versesCount: 54, juzStart: 24, pageStart: 477 },
+  { id: 42, name: 'الشورى', transliteration: 'Ash-Shura', type: 'Meccan', versesCount: 53, juzStart: 25, pageStart: 483 },
+  { id: 43, name: 'الزخرف', transliteration: 'Az-Zukhruf', type: 'Meccan', versesCount: 89, juzStart: 25, pageStart: 489 },
+  { id: 44, name: 'الدخان', transliteration: 'Ad-Dukhan', type: 'Meccan', versesCount: 59, juzStart: 25, pageStart: 496 },
+  { id: 45, name: 'الجاثية', transliteration: 'Al-Jathiyah', type: 'Meccan', versesCount: 37, juzStart: 25, pageStart: 499 },
+  { id: 46, name: 'الأحقاف', transliteration: 'Al-Ahqaf', type: 'Meccan', versesCount: 35, juzStart: 26, pageStart: 502 },
+  { id: 47, name: 'محمد', transliteration: 'Muhammad', type: 'Medinan', versesCount: 38, juzStart: 26, pageStart: 507 },
+  { id: 48, name: 'الفتح', transliteration: 'Al-Fath', type: 'Medinan', versesCount: 29, juzStart: 26, pageStart: 511 },
+  { id: 49, name: 'الحجرات', transliteration: 'Al-Hujurat', type: 'Medinan', versesCount: 18, juzStart: 26, pageStart: 515 },
+  { id: 50, name: 'ق', transliteration: 'Qaf', type: 'Meccan', versesCount: 45, juzStart: 26, pageStart: 518 },
+  { id: 51, name: 'الذاريات', transliteration: 'Adh-Dhariyat', type: 'Meccan', versesCount: 60, juzStart: 26, pageStart: 520 },
+  { id: 52, name: 'الطور', transliteration: 'At-Tur', type: 'Meccan', versesCount: 49, juzStart: 27, pageStart: 523 },
+  { id: 53, name: 'النجم', transliteration: 'An-Najm', type: 'Meccan', versesCount: 62, juzStart: 27, pageStart: 526 },
+  { id: 54, name: 'القمر', transliteration: 'Al-Qamar', type: 'Meccan', versesCount: 55, juzStart: 27, pageStart: 528 },
+  { id: 55, name: 'الرحمن', transliteration: 'Ar-Rahman', type: 'Medinan', versesCount: 78, juzStart: 27, pageStart: 531 },
+  { id: 56, name: 'الواقعة', transliteration: 'Al-Waqi\'ah', type: 'Meccan', versesCount: 96, juzStart: 27, pageStart: 534 },
+  { id: 57, name: 'الحديد', transliteration: 'Al-Hadid', type: 'Medinan', versesCount: 29, juzStart: 27, pageStart: 537 },
+  { id: 58, name: 'المجادلة', transliteration: 'Al-Mujadila', type: 'Medinan', versesCount: 22, juzStart: 28, pageStart: 542 },
+  { id: 59, name: 'الحشر', transliteration: 'Al-Hashr', type: 'Medinan', versesCount: 24, juzStart: 28, pageStart: 545 },
+  { id: 60, name: 'الممتحنة', transliteration: 'Al-Mumtahanah', type: 'Medinan', versesCount: 13, juzStart: 28, pageStart: 549 },
+  { id: 61, name: 'الصف', transliteration: 'As-Saff', type: 'Medinan', versesCount: 14, juzStart: 28, pageStart: 551 },
+  { id: 62, name: 'الجمعة', transliteration: 'Al-Jumu\'ah', type: 'Medinan', versesCount: 11, juzStart: 28, pageStart: 553 },
+  { id: 63, name: 'المنافقون', transliteration: 'Al-Munafiqun', type: 'Medinan', versesCount: 11, juzStart: 28, pageStart: 554 },
+  { id: 64, name: 'التغابن', transliteration: 'At-Taghabun', type: 'Medinan', versesCount: 18, juzStart: 28, pageStart: 556 },
+  { id: 65, name: 'الطلاق', transliteration: 'At-Talaq', type: 'Medinan', versesCount: 12, juzStart: 28, pageStart: 558 },
+  { id: 66, name: 'التحريم', transliteration: 'At-Tahrim', type: 'Medinan', versesCount: 12, juzStart: 28, pageStart: 560 },
+  { id: 67, name: 'الملك', transliteration: 'Al-Mulk', type: 'Meccan', versesCount: 30, juzStart: 29, pageStart: 562 },
+  { id: 68, name: 'القلم', transliteration: 'Al-Qalam', type: 'Meccan', versesCount: 52, juzStart: 29, pageStart: 564 },
+  { id: 69, name: 'الحاقة', transliteration: 'Al-Haqqah', type: 'Meccan', versesCount: 52, juzStart: 29, pageStart: 566 },
+  { id: 70, name: 'المعارج', transliteration: 'Al-Ma\'arij', type: 'Meccan', versesCount: 44, juzStart: 29, pageStart: 568 },
+  { id: 71, name: 'نوح', transliteration: 'Nuh', type: 'Meccan', versesCount: 28, juzStart: 29, pageStart: 570 },
+  { id: 72, name: 'الجن', transliteration: 'Al-Jinn', type: 'Meccan', versesCount: 28, juzStart: 29, pageStart: 572 },
+  { id: 73, name: 'المزمل', transliteration: 'Al-Muzzammil', type: 'Meccan', versesCount: 20, juzStart: 29, pageStart: 574 },
+  { id: 74, name: 'المدثر', transliteration: 'Al-Muddaththir', type: 'Meccan', versesCount: 56, juzStart: 29, pageStart: 575 },
+  { id: 75, name: 'القيامة', transliteration: 'Al-Qiyamah', type: 'Meccan', versesCount: 40, juzStart: 29, pageStart: 577 },
+  { id: 76, name: 'الإنسان', transliteration: 'Al-Insan', type: 'Medinan', versesCount: 31, juzStart: 29, pageStart: 578 },
+  { id: 77, name: 'المرسلات', transliteration: 'Al-Mursalat', type: 'Meccan', versesCount: 50, juzStart: 29, pageStart: 580 },
+  { id: 78, name: 'النبأ', transliteration: 'An-Naba', type: 'Meccan', versesCount: 40, juzStart: 30, pageStart: 582 },
+  { id: 79, name: 'النازعات', transliteration: 'An-Nazi\'at', type: 'Meccan', versesCount: 46, juzStart: 30, pageStart: 583 },
+  { id: 80, name: 'عبس', transliteration: '\'Abasa', type: 'Meccan', versesCount: 42, juzStart: 30, pageStart: 585 },
+  { id: 81, name: 'التكوير', transliteration: 'At-Takwir', type: 'Meccan', versesCount: 29, juzStart: 30, pageStart: 586 },
+  { id: 82, name: 'الانفطار', transliteration: 'Al-Infitar', type: 'Meccan', versesCount: 19, juzStart: 30, pageStart: 587 },
+  { id: 83, name: 'المطففين', transliteration: 'Al-Mutaffifin', type: 'Meccan', versesCount: 36, juzStart: 30, pageStart: 587 },
+  { id: 84, name: 'الانشقاق', transliteration: 'Al-Inshiqaq', type: 'Meccan', versesCount: 25, juzStart: 30, pageStart: 589 },
+  { id: 85, name: 'البروج', transliteration: 'Al-Buruj', type: 'Meccan', versesCount: 22, juzStart: 30, pageStart: 590 },
+  { id: 86, name: 'الطارق', transliteration: 'At-Tariq', type: 'Meccan', versesCount: 17, juzStart: 30, pageStart: 591 },
+  { id: 87, name: 'الأعلى', transliteration: 'Al-A\'la', type: 'Meccan', versesCount: 19, juzStart: 30, pageStart: 591 },
+  { id: 88, name: 'الغاشية', transliteration: 'Al-Ghashiyah', type: 'Meccan', versesCount: 26, juzStart: 30, pageStart: 592 },
+  { id: 89, name: 'الفجر', transliteration: 'Al-Fajr', type: 'Meccan', versesCount: 30, juzStart: 30, pageStart: 593 },
+  { id: 90, name: 'البلد', transliteration: 'Al-Balad', type: 'Meccan', versesCount: 20, juzStart: 30, pageStart: 594 },
+  { id: 91, name: 'الشمس', transliteration: 'Ash-Shams', type: 'Meccan', versesCount: 15, juzStart: 30, pageStart: 595 },
+  { id: 92, name: 'الليل', transliteration: 'Al-Layl', type: 'Meccan', versesCount: 21, juzStart: 30, pageStart: 595 },
+  { id: 93, name: 'الضحى', transliteration: 'Ad-Duha', type: 'Meccan', versesCount: 11, juzStart: 30, pageStart: 596 },
+  { id: 94, name: 'الشرح', transliteration: 'Ash-Sharh', type: 'Meccan', versesCount: 8, juzStart: 30, pageStart: 596 },
+  { id: 95, name: 'التين', transliteration: 'At-Tin', type: 'Meccan', versesCount: 8, juzStart: 30, pageStart: 597 },
+  { id: 96, name: 'العلق', transliteration: 'Al-\'Alaq', type: 'Meccan', versesCount: 19, juzStart: 30, pageStart: 597 },
+  { id: 97, name: 'القدر', transliteration: 'Al-Qadr', type: 'Meccan', versesCount: 5, juzStart: 30, pageStart: 598 },
+  { id: 98, name: 'البينة', transliteration: 'Al-Bayyinah', type: 'Medinan', versesCount: 8, juzStart: 30, pageStart: 598 },
+  { id: 99, name: 'الزلزلة', transliteration: 'Az-Zalzalah', type: 'Medinan', versesCount: 8, juzStart: 30, pageStart: 599 },
+  { id: 100, name: 'العاديات', transliteration: 'Al-\'Adiyat', type: 'Meccan', versesCount: 11, juzStart: 30, pageStart: 599 },
+  { id: 101, name: 'القارعة', transliteration: 'Al-Qari\'ah', type: 'Meccan', versesCount: 11, juzStart: 30, pageStart: 600 },
+  { id: 102, name: 'التكاثر', transliteration: 'At-Takathur', type: 'Meccan', versesCount: 8, juzStart: 30, pageStart: 600 },
+  { id: 103, name: 'العصر', transliteration: 'Al-\'Asr', type: 'Meccan', versesCount: 3, juzStart: 30, pageStart: 601 },
+  { id: 104, name: 'الهمزة', transliteration: 'Al-Humazah', type: 'Meccan', versesCount: 9, juzStart: 30, pageStart: 601 },
+  { id: 105, name: 'الفيل', transliteration: 'Al-Fil', type: 'Meccan', versesCount: 5, juzStart: 30, pageStart: 601 },
+  { id: 106, name: 'قريش', transliteration: 'Quraysh', type: 'Meccan', versesCount: 4, juzStart: 30, pageStart: 602 },
+  { id: 107, name: 'الماعون', transliteration: 'Al-Ma\'un', type: 'Meccan', versesCount: 7, juzStart: 30, pageStart: 602 },
+  { id: 108, name: 'الكوثر', transliteration: 'Al-Kawthar', type: 'Meccan', versesCount: 3, juzStart: 30, pageStart: 602 },
+  { id: 109, name: 'الكافرون', transliteration: 'Al-Kafirun', type: 'Meccan', versesCount: 6, juzStart: 30, pageStart: 603 },
+  { id: 110, name: 'النصر', transliteration: 'An-Nasr', type: 'Medinan', versesCount: 3, juzStart: 30, pageStart: 603 },
+  { id: 111, name: 'المسد', transliteration: 'Al-Masad', type: 'Meccan', versesCount: 5, juzStart: 30, pageStart: 603 },
+  { id: 112, name: 'الإخلاص', transliteration: 'Al-Ikhlas', type: 'Meccan', versesCount: 4, juzStart: 30, pageStart: 604 },
+  { id: 113, name: 'الفلق', transliteration: 'Al-Falaq', type: 'Meccan', versesCount: 5, juzStart: 30, pageStart: 604 },
+  { id: 114, name: 'الناس', transliteration: 'An-Nas', type: 'Meccan', versesCount: 6, juzStart: 30, pageStart: 604 },
+];
+
+export const MUTASHABIHAT_SAMPLE: MutashabihItem[] = [
+  {
+    id: 'm1',
+    surahNumber: 2,
+    ayahNumber: 48,
+    matchedSurah: 2,
+    matchedAyah: 123,
+    snippet: 'وَاتَّقُوا يَوْمًا لَّا تَجْزِي نَفْسٌ عَن نَّفْسٍ شَيْئًا وَلَا يُقْبَلُ مِنْهَا شَفَاعَةٌ وَلَا يُؤْخَذُ مِنْهَا عَدْلٌ',
+    matchedSnippet: 'وَاتَّقُوا يَوْمًا لَّا تَجْزِي نَفْسٌ عَن نَّفْسٍ شَيْئًا وَلَا يُقْبَلُ مِنْهَا عَدْلٌ وَلَا تَنفَعُهَا شَفَاعَةٌ',
+    similarityNote: 'تقديم (شَفَاعَةٌ) في الموضع الأول (الآية 48) وتقديم (عَدْلٌ) في الموضع الثاني (الآية 123).'
+  },
+  {
+    id: 'm2',
+    surahNumber: 2,
+    ayahNumber: 58,
+    matchedSurah: 7,
+    matchedAyah: 161,
+    snippet: 'وَإِذْ قُلْنَا ادْخُلُوا هَٰذِهِ الْقَرْيَةَ فَكُلُوا مِنْهَا حَيْثُ شِئْتُمْ رَغَدًا',
+    matchedSnippet: 'وَإِذْ قِيلَ لَهُمُ اسْكُنُوا هَٰذِهِ الْقَرْيَةَ وَكُلُوا مِنْهَا حَيْثُ شِئْتُمْ',
+    similarityNote: 'في سورة البقرة جاء لفظ (ادْخُلُوا) مع زيادة (رَغَدًا)، بينما في سورة الأعراف جاء لفظ (اسْكُنُوا) بدون (رَغَدًا).'
+  },
+  {
+    id: 'm3',
+    surahNumber: 3,
+    ayahNumber: 133,
+    matchedSurah: 57,
+    matchedAyah: 21,
+    snippet: 'وَسَارِعُوا إِلَىٰ مَغْفِرَةٍ مِّن رَّبِّكُمْ وَجَنَّةٍ عَرْضُهَا السَّمَاوَاتُ وَالْأَرْضُ',
+    matchedSnippet: 'سَابِقُوا إِلَىٰ مَغْفِرَةٍ مِّن رَّبِّكُمْ وَجَنَّةٍ كَعَرْضِ السَّمَاءِ وَالْأَرْضِ',
+    similarityNote: 'في سورة آل عمران جاء الأمر بلفظ (وَسَارِعُوا) و(عَرْضُهَا)، بينما في سورة الحديد جاء بلفظ (سَابِقُوا) و(كَعَرْضِ السَّمَاءِ).'
+  },
+  {
+    id: 'm4',
+    surahNumber: 6,
+    ayahNumber: 151,
+    matchedSurah: 17,
+    matchedAyah: 31,
+    snippet: 'وَلَا تَقْتُلُوا أَوْلَادَكُم مِّنْ إِمْلَاقٍ ۖ نَّحْنُ نَرْزُقُكُمْ وَإِيَّاهُمْ',
+    matchedSnippet: 'وَلَا تَقْتُلُوا أَوْلَادَكُمْ خَشْيَةَ إِمْلَاقٍ ۖ نَّحْنُ نَرْزُقُهُمْ وَإِيَّاكُمْ',
+    similarityNote: 'في الأنعام (مِّنْ إِمْلَاقٍ) لأن الفقر واقع فقُدّم رزق الآباء (نَرْزُقُكُمْ وَإِيَّاهُمْ)، وفي الإسراء (خَشْيَةَ إِمْلَاقٍ) لأن الفقر متوقع فقُدّم رزق الأبناء (نَرْزُقُهُمْ وَإِيَّاكُمْ).'
+  },
+  {
+    id: 'm5',
+    surahNumber: 2,
+    ayahNumber: 136,
+    matchedSurah: 3,
+    matchedAyah: 84,
+    snippet: 'قُولُوا آمَنَّا بِاللَّهِ وَمَا أُنزِلَ إِلَيْنَا',
+    matchedSnippet: 'قُلْ آمَنَّا بِاللَّهِ وَمَا أُنزِلَ عَلَيْنَا',
+    similarityNote: 'في البقرة جاء الخطاب للجماعة (قُولُوا) و(إِلَيْنَا)، بينما في آل عمران الخطاب للنبي صلى الله عليه وسلم (قُلْ) و(عَلَيْنَا).'
+  }
+];
+
+/**
+ * Returns the Surah that contains the given page number in the Medina Mushaf (1-604).
+ */
+export function getSurahForPage(pageNum: number): SurahMeta {
+  const p = Math.max(1, Math.min(604, pageNum));
+  for (let i = SURAHS.length - 1; i >= 0; i--) {
+    if (SURAHS[i].pageStart <= p) {
+      return SURAHS[i];
+    }
+  }
+  return SURAHS[0];
+}
+
+/**
+ * Reads local storage to resolve the user's latest Memorization & Reading Wird page and Surah.
+ */
+export function getCurrentWirdInfo() {
+  let memPage = 604;
+  let memSurahId = 114;
+  let memSurahName = 'الناس';
+  let memAyahNumber = 1;
+
+  let readPage = 1;
+  let readSurahId = 1;
+  let readSurahName = 'الفاتحة';
+  let readAyahNumber = 1;
+
+  try {
+    const memMarkerStr = localStorage.getItem('quran_memorization_marker_v1');
+    const memPlanStr = localStorage.getItem('quran_khatmah_plan_v1');
+    const memMarker = memMarkerStr ? JSON.parse(memMarkerStr) : null;
+    const memPlan = memPlanStr ? JSON.parse(memPlanStr) : null;
+
+    if (memMarker?.page) {
+      memPage = memMarker.page;
+      memSurahId = memMarker.surahNumber || getSurahForPage(memPage).id;
+      if (memMarker.ayahNumber) memAyahNumber = memMarker.ayahNumber;
+    } else if (memPlan?.currentPage) {
+      memPage = memPlan.currentPage;
+      memSurahId = memPlan.currentSurah || getSurahForPage(memPage).id;
+      if (memPlan.currentAyah) memAyahNumber = memPlan.currentAyah;
+    }
+    const foundMemSurah = SURAHS.find((s) => s.id === memSurahId);
+    memSurahName = foundMemSurah ? foundMemSurah.name : getSurahForPage(memPage).name;
+
+    const readMarkerStr = localStorage.getItem('quran_reading_marker_v1');
+    const readPlanStr = localStorage.getItem('quran_reading_wird_v1');
+    const readMarker = readMarkerStr ? JSON.parse(readMarkerStr) : null;
+    const readPlan = readPlanStr ? JSON.parse(readPlanStr) : null;
+
+    if (readMarker?.page) {
+      readPage = readMarker.page;
+      readSurahId = readMarker.surahNumber || getSurahForPage(readPage).id;
+      if (readMarker.ayahNumber) readAyahNumber = readMarker.ayahNumber;
+    } else if (readPlan?.currentPage) {
+      readPage = readPlan.currentPage;
+      readSurahId = readPlan.readingCurrentSurah || getSurahForPage(readPage).id;
+      if (readPlan.readingCurrentAyah) readAyahNumber = readPlan.readingCurrentAyah;
+    }
+    const foundReadSurah = SURAHS.find((s) => s.id === readSurahId);
+    readSurahName = foundReadSurah ? foundReadSurah.name : getSurahForPage(readPage).name;
+  } catch {}
+
+  return {
+    memorization: {
+      page: memPage,
+      surahId: memSurahId,
+      surahName: memSurahName,
+      ayahNumber: memAyahNumber,
+    },
+    reading: {
+      page: readPage,
+      surahId: readSurahId,
+      surahName: readSurahName,
+      ayahNumber: readAyahNumber,
+    },
+  };
+}
+
+const READING_WIRD_KEY = 'quran_reading_wird_v1';
+const KHATMAH_KEY = 'quran_khatmah_plan_v1';
+
+/**
+ * Classify a habit/event title as a Quran READING (تلاوة/ورد/قراءة) or
+ * MEMORIZATION (حفظ/تحفيظ/تسميع) wird — title takes precedence over anything
+ * else so "الورد اليومي" is always treated as reading.
+ */
+export function classifyQuranHabitTitle(title: string): 'reading' | 'memorization' | null {
+  const titleIsMem = /memoriz|حفظ|تحفيظ|تسميع|تثبيت/i.test(title);
+  const titleIsRead = /read|تلاوة|قراءة|ورد/i.test(title);
+  if (titleIsMem && !titleIsRead) return 'memorization';
+  if (titleIsRead) return 'reading';
+  return null;
+}
+
+export type AdvancedWirdResult = {
+  kind: 'reading' | 'memorization';
+  page: number;
+  surahId: number;
+  surahName: string;
+  ayahNumber: number;
+} | null;
+
+/**
+ * Advances the Quran wird (reading OR memorization) in localStorage when the
+ * matching lifeOS habit is completed. Reading (الورد اليومي) pushes
+ * `quran_reading_wird_v1` forward; memorization (حفظ صفحه) pushes
+ * `quran_khatmah_plan_v1` forward. Dispatches `quran_plan_updated` so open
+ * planners re-read the new positions. Returns the advanced wird details, or null.
+ */
+export function advanceWirdOnHabitComplete(habitTitle: string): AdvancedWirdResult {
+  const kind = classifyQuranHabitTitle(habitTitle);
+  if (!kind) return null;
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  if (kind === 'reading') {
+    let wird: ReadingWirdPlan = { currentPage: 1, pagesPerDay: 4, streakDays: 0 };
+    try {
+      const saved = localStorage.getItem(READING_WIRD_KEY);
+      if (saved) wird = { ...wird, ...JSON.parse(saved) };
+    } catch {}
+    const isConsecutive = wird.lastReadDate
+      ? (new Date(todayStr).getTime() - new Date(wird.lastReadDate).getTime()) / (1000 * 3600 * 24) <= 1
+      : true;
+    const nextStreak = isConsecutive ? wird.streakDays + 1 : 1;
+    const nextPage = Math.min(604, wird.currentPage + (wird.pagesPerDay || 4));
+    const updated: ReadingWirdPlan = {
+      ...wird,
+      currentPage: nextPage === 604 ? 1 : nextPage,
+      streakDays: nextStreak,
+      lastReadDate: todayStr,
+    };
+    localStorage.setItem(READING_WIRD_KEY, JSON.stringify(updated));
+
+    const startingSurah = SURAHS.find((s) => s.pageStart === updated.currentPage);
+    const nextSurah = startingSurah || getSurahForPage(updated.currentPage);
+    const firstAyah = 1;
+    localStorage.setItem(
+      'quran_reading_marker_v1',
+      JSON.stringify({ surahNumber: nextSurah.id, ayahNumber: firstAyah, page: updated.currentPage })
+    );
+
+    window.dispatchEvent(new Event('quran_plan_updated'));
+    return {
+      kind: 'reading',
+      page: updated.currentPage,
+      surahId: nextSurah.id,
+      surahName: nextSurah.name,
+      ayahNumber: firstAyah,
+    };
+  }
+
+  // Memorization — advance the khatmah plan (respecting its direction)
+  let plan: KhatmahPlan | null = null;
+  try {
+    const saved = localStorage.getItem(KHATMAH_KEY);
+    if (saved) plan = JSON.parse(saved);
+  } catch {}
+  if (plan) {
+    const isConsecutive = plan.lastCompletedDate
+      ? (new Date(todayStr).getTime() - new Date(plan.lastCompletedDate).getTime()) / (1000 * 3600 * 24) <= 1
+      : true;
+    const nextStreak = isConsecutive ? (plan.streakDays || 0) + 1 : 1;
+    const isReverse =
+      plan.direction === 'reverse' ||
+      (plan.startPage !== undefined && plan.endPage !== undefined && plan.startPage > plan.endPage) ||
+      plan.startPage === 604 ||
+      /reverse|الناس إلى.*البقرة/i.test(plan.title || '');
+
+    const targetMin = Math.min(plan.startPage ?? 1, plan.endPage ?? 1);
+    const targetMax = Math.max(plan.startPage ?? 604, plan.endPage ?? 604);
+
+    const nextCurrentPage = isReverse
+      ? Math.max(targetMin, plan.currentPage - (plan.pagesPerDay || 1))
+      : Math.min(targetMax, plan.currentPage + (plan.pagesPerDay || 1));
+
+    plan = {
+      ...plan,
+      direction: isReverse ? 'reverse' : (plan.direction || 'forward'),
+      startPage: plan.startPage || (isReverse ? 604 : 1),
+      endPage: plan.endPage || (isReverse ? 1 : 604),
+      currentPage: nextCurrentPage,
+      streakDays: nextStreak,
+      lastCompletedDate: todayStr,
+    };
+    localStorage.setItem(KHATMAH_KEY, JSON.stringify(plan));
+
+    const startingSurah = SURAHS.find((s) => s.pageStart === nextCurrentPage);
+    const nextSurah = startingSurah || getSurahForPage(nextCurrentPage);
+    const firstAyah = 1;
+    localStorage.setItem(
+      'quran_memorization_marker_v1',
+      JSON.stringify({ surahNumber: nextSurah.id, ayahNumber: firstAyah, page: nextCurrentPage })
+    );
+
+    window.dispatchEvent(new Event('quran_plan_updated'));
+    return {
+      kind: 'memorization',
+      page: nextCurrentPage,
+      surahId: nextSurah.id,
+      surahName: nextSurah.name,
+      ayahNumber: firstAyah,
+    };
+  }
+
+  return {
+    kind: 'memorization',
+    page: 604,
+    surahId: 114,
+    surahName: 'الناس',
+    ayahNumber: 1,
+  };
+}
+
+export interface QuranWirdSummary {
+  isQuran: boolean;
+  isMemorization: boolean;
+  isReading: boolean;
+  page: number;
+  surahId: number;
+  surahName: string;
+  ayahNumber?: number;
+  wirdLabel: string;
+  reviewLabel?: string;
+  combinedLabel: string;
+}
+
+/**
+ * Formats the Surah and estimated Ayah span for a given Medina Mushaf page.
+ */
+export function formatSurahAndAyahSpan(pageNum: number): { surah: SurahMeta; label: string; shortLabel: string } {
+  const surah = getSurahForPage(pageNum);
+  const nextSurah = SURAHS.find((s) => s.id === surah.id + 1);
+  const surahEndPage = nextSurah ? nextSurah.pageStart - 1 : 604;
+  const totalPagesInSurah = Math.max(1, surahEndPage - surah.pageStart + 1);
+  const pageIndexInSurah = pageNum - surah.pageStart;
+
+  if (totalPagesInSurah === 1) {
+    return {
+      surah,
+      label: `سورة ${surah.name} كاملة (ص ${pageNum})`,
+      shortLabel: `سورة ${surah.name} (١-${surah.versesCount})`,
+    };
+  }
+
+  const approxAyahsPerPage = Math.ceil(surah.versesCount / totalPagesInSurah);
+  const startAyah = Math.min(surah.versesCount, pageIndexInSurah * approxAyahsPerPage + 1);
+  const endAyah = Math.min(surah.versesCount, (pageIndexInSurah + 1) * approxAyahsPerPage);
+
+  return {
+    surah,
+    label: `سورة ${surah.name}: الآيات ${startAyah}-${endAyah} (ص ${pageNum})`,
+    shortLabel: `سورة ${surah.name} (${startAyah}-${endAyah})`,
+  };
+}
+
+/**
+ * Computes live or projected Wird details and Spaced Repetition (مراجعة) due content for a specific date.
+ */
+export function getQuranWirdAndReviewSummary(
+  habitTitle: string = '',
+  targetDateStr?: string,
+  isCompletedForDate?: boolean
+): QuranWirdSummary | null {
+  const kind = classifyQuranHabitTitle(habitTitle);
+  if (!kind) return null; // STRICT: Returns null for non-Quran habits (Fajr, Dhuhr, Shower, etc.)
+
+  const isMem = kind === 'memorization';
+  const isRead = kind === 'reading';
+  const wird = getCurrentWirdInfo();
+
+  // Calculate day difference from today if targetDateStr is provided
+  let diffDays = 0;
+  let targetDate = new Date();
+  if (targetDateStr) {
+    try {
+      const today = new Date();
+      const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+      const targetParts = targetDateStr.split('-').map(Number);
+      targetDate = new Date(targetParts[0], targetParts[1] - 1, targetParts[2]);
+      const targetMidnight = targetDate.getTime();
+      diffDays = Math.round((targetMidnight - todayMidnight) / (1000 * 60 * 60 * 24));
+    } catch {}
+  }
+
+  if (isRead) {
+    let readPagesPerDay = 4;
+    try {
+      const saved = localStorage.getItem('quran_reading_wird_v1');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.pagesPerDay) readPagesPerDay = parsed.pagesPerDay;
+      }
+    } catch {}
+
+    const projectedReadPage = Math.min(604, Math.max(1, wird.reading.page + (diffDays * readPagesPerDay)));
+    const span = formatSurahAndAyahSpan(projectedReadPage);
+    const label = `ورد التلاوة: ${span.label}`;
+
+    return {
+      isQuran: true,
+      isMemorization: false,
+      isReading: true,
+      page: projectedReadPage,
+      surahId: span.surah.id,
+      surahName: span.surah.name,
+      ayahNumber: diffDays === 0 ? wird.reading.ayahNumber : 1,
+      wirdLabel: label,
+      combinedLabel: label,
+    };
+  }
+
+  // Memorization: Project target page based on plan direction & pagesPerDay
+  let memPagesPerDay = 1;
+  let isReverse = false;
+  let memPlan: any = null;
+  try {
+    const planStr = localStorage.getItem('quran_khatmah_plan_v1');
+    if (planStr) {
+      memPlan = JSON.parse(planStr);
+      if (memPlan.pagesPerDay) memPagesPerDay = memPlan.pagesPerDay;
+      isReverse =
+        memPlan.direction === 'reverse' ||
+        (memPlan.startPage !== undefined && memPlan.endPage !== undefined && memPlan.startPage > memPlan.endPage) ||
+        memPlan.startPage === 604 ||
+        /reverse|الناس إلى.*البقرة/i.test(memPlan.title || '');
+    }
+  } catch {}
+
+  const projectedMemPage = isReverse
+    ? Math.max(1, Math.min(604, wird.memorization.page - (diffDays * memPagesPerDay)))
+    : Math.min(604, Math.max(1, wird.memorization.page + (diffDays * memPagesPerDay)));
+  const span = formatSurahAndAyahSpan(projectedMemPage);
+
+  // Dynamic Spaced Repetition (مراجعة) for the specific day
+  let reviewText = '';
+  try {
+    const recordsStr = localStorage.getItem('quran_memorizer_records_v1');
+    const records: any[] = recordsStr ? JSON.parse(recordsStr) : [];
+
+    // 1. Check if specific records are scheduled for review on this target date
+    const dateDue = targetDateStr
+      ? records.filter((r) => r.nextReviewAt && r.nextReviewAt.startsWith(targetDateStr))
+      : records.filter((r) => r.nextReviewAt && new Date(r.nextReviewAt) <= new Date());
+
+    if (dateDue.length > 0) {
+      const surahIds = Array.from(new Set(dateDue.map((r) => r.surahNumber)));
+      const surahNames = surahIds
+        .map((id) => SURAHS.find((s) => s.id === id)?.name)
+        .filter(Boolean)
+        .slice(0, 2);
+      reviewText = `مراجعة: ${surahNames.join('، ')}${surahIds.length > 2 ? ` (+${surahIds.length - 2})` : ''}`;
+    } else {
+      // 2. Cumulative Spaced Repetition rotation across the 7 days of the week
+      const currentSurahId = span.surah.id;
+      const dayOfWeek = targetDate.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+
+      if (isReverse || /reverse|الناس/i.test(memPlan?.title || '')) {
+        // In reverse khatmah (from 114 towards 1), all surahs between currentSurahId and 114 are memorized
+        const memorizedSurahs = SURAHS.filter((s) => s.id >= currentSurahId && s.id <= 114);
+
+        if (memorizedSurahs.length > 0) {
+          const chunkSize = Math.max(1, Math.ceil(memorizedSurahs.length / 7));
+          const startIndex = (dayOfWeek * chunkSize) % memorizedSurahs.length;
+          const chunk = memorizedSurahs.slice(startIndex, startIndex + chunkSize);
+
+          if (chunk.length === 1) {
+            reviewText = `مراجعة: سورة ${chunk[0].name}`;
+          } else if (chunk.length > 1) {
+            reviewText = `مراجعة: ${chunk[0].name} إلى ${chunk[chunk.length - 1].name}`;
+          }
+        }
+      } else {
+        // Forward khatmah (from 1 upwards to currentSurahId)
+        const memorizedSurahs = SURAHS.filter((s) => s.id <= currentSurahId);
+        if (memorizedSurahs.length > 0) {
+          const chunkSize = Math.max(1, Math.ceil(memorizedSurahs.length / 7));
+          const startIndex = (dayOfWeek * chunkSize) % memorizedSurahs.length;
+          const chunk = memorizedSurahs.slice(startIndex, startIndex + chunkSize);
+
+          if (chunk.length === 1) {
+            reviewText = `مراجعة: سورة ${chunk[0].name}`;
+          } else if (chunk.length > 1) {
+            reviewText = `مراجعة: ${chunk[0].name} إلى ${chunk[chunk.length - 1].name}`;
+          }
+        }
+      }
+
+      if (!reviewText) {
+        reviewText = 'مراجعة: ورد المراجعة اليومي';
+      }
+    }
+  } catch {
+    reviewText = 'مراجعة: ورد المراجعة والتثبيت';
+  }
+
+  const baseWirdLabel = `ورد أساسي: ${span.label}`;
+  const combined = reviewText ? `${baseWirdLabel} • ${reviewText}` : baseWirdLabel;
+
+  return {
+    isQuran: true,
+    isMemorization: true,
+    isReading: false,
+    page: projectedMemPage,
+    surahId: span.surah.id,
+    surahName: span.surah.name,
+    ayahNumber: diffDays === 0 ? wird.memorization.ayahNumber : 1,
+    wirdLabel: baseWirdLabel,
+    reviewLabel: reviewText,
+    combinedLabel: combined,
+  };
+}
+
+export interface QuranHabitTarget {
+  surahId: number;
+  surahName: string;
+  page: number;
+  ayahNumber?: number;
+  label: string;
+}
+
+export function getSpecificSurahHabitTarget(title?: string, description?: string): QuranHabitTarget | null {
+  const t = (title || '').trim();
+  const d = (description || '').trim();
+
+  // 1. Surat Al-Mulk: Surah 67, Page 562
+  if (/المُ?لك|mulk/i.test(t) || /المُ?لك|mulk/i.test(d)) {
+    return {
+      surahId: 67,
+      surahName: 'سورة الملك',
+      page: 562,
+      ayahNumber: 1,
+      label: 'سورة الملك (ص 562)',
+    };
+  }
+
+  // 2. Surat Al-Kahf: Surah 18, Page 293
+  if (/الكهف|kahf/i.test(t) || /الكهف|kahf/i.test(d)) {
+    return {
+      surahId: 18,
+      surahName: 'سورة الكهف',
+      page: 293,
+      ayahNumber: 1,
+      label: 'سورة الكهف (ص 293)',
+    };
+  }
+
+  // 3. Any habit description with "سورة X ... صفحة Y"
+  const descMatch = d.match(/سورة\s+([^\s(•]+)(?:\s*\(الآية\s*(\d+)\))?.*?(?:صفحة|ص)\s*(\d+)/);
+  if (descMatch) {
+    const rawName = descMatch[1].trim();
+    const ayahNum = descMatch[2] ? Number(descMatch[2]) : 1;
+    const pageNum = Number(descMatch[3]);
+    const surahMeta = SURAHS.find((s) => s.name === rawName || rawName.includes(s.name) || s.name.includes(rawName));
+    if (pageNum >= 1 && pageNum <= 604) {
+      return {
+        surahId: surahMeta?.id || 1,
+        surahName: surahMeta?.name ? `سورة ${surahMeta.name}` : `سورة ${rawName}`,
+        page: pageNum,
+        ayahNumber: ayahNum,
+        label: `${surahMeta?.name ? `سورة ${surahMeta.name}` : `سورة ${rawName}`} (ص ${pageNum})`,
+      };
+    }
+  }
+
+  return null;
+}
+
