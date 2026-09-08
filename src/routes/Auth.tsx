@@ -76,37 +76,17 @@ export default function AuthRoute({ onBack }: { onBack: () => void }) {
             <span className="font-arabic-title text-lg font-bold">سكينة</span>
           </div>
 
-          <div className="relative mx-auto w-full max-w-sm">
-            {/* Illuminated-manuscript style frame: double rule + corner rosettes */}
-            <div className="relative border-2 border-amber-300/40 px-6 py-9">
-              <div className="absolute inset-[5px] border border-amber-300/25" />
-              {[
-                'top-0 right-0 -translate-y-1/2 translate-x-1/2',
-                'top-0 left-0 -translate-y-1/2 -translate-x-1/2',
-                'bottom-0 right-0 translate-y-1/2 translate-x-1/2',
-                'bottom-0 left-0 translate-y-1/2 -translate-x-1/2',
-              ].map((pos) => (
-                <span
-                  key={pos}
-                  className={`absolute ${pos} flex h-6 w-6 items-center justify-center rounded-full bg-[#0f4a38] text-amber-300/80 text-xs`}
-                >
-                  ✦
-                </span>
-              ))}
-
-              <div className="text-center space-y-4">
-                <div className="text-lg text-amber-300/60">۞</div>
-                <p
-                  className="font-arabic-calligraphy text-[2.75rem] leading-[1.75] text-[#f4fff9]"
-                  style={{ textShadow: '0 2px 24px rgba(0,0,0,0.35)' }}
-                >
-                  أَلَا بِذِكْرِ ٱللَّهِ
-                  <br />
-                  تَطْمَئِنُّ ٱلْقُلُوبُ
-                </p>
-                <div className="text-lg text-amber-300/60">۩</div>
-              </div>
-            </div>
+          <div className="relative mx-auto w-full max-w-sm text-center space-y-4">
+            <div className="text-lg text-amber-300/60">۞</div>
+            <p
+              className="font-arabic-calligraphy text-[2.75rem] leading-[1.75] text-[#f4fff9]"
+              style={{ textShadow: '0 2px 24px rgba(0,0,0,0.35)' }}
+            >
+              أَلَا بِذِكْرِ ٱللَّهِ
+              <br />
+              تَطْمَئِنُّ ٱلْقُلُوبُ
+            </p>
+            <div className="text-lg text-amber-300/60">۩</div>
           </div>
 
           <div className="relative space-y-2 text-center">
