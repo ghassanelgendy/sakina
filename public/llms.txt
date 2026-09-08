@@ -1,0 +1,27 @@
+# سكينة (Sakina)
+
+> Sakina is a free, open-source, offline-first web app for reading and memorizing the Holy Quran and tracking daily Islamic remembrances (Azkar). It works fully without an internet connection once loaded, and optionally syncs progress across devices via an account.
+
+Sakina (سكينة, Arabic for "tranquility") is not a commercial product — it is a personal, open-source project. Live app: https://sakina-lyart.vercel.app/. Source code: https://github.com/ghassanelgendy/sakina.
+
+## What it does
+
+- **Quran reader (Mushaf)**: page-by-page reading of the full 604-page Quran (Uthmani script) with Tafsir Al-Muyassar (a simplified Arabic commentary), tajweed color-coding, and audio recitation from multiple reciters.
+- **Memorization (Hifdh) tools**: a khatmah (full-Quran completion) planner, spaced-repetition revision scheduler, and a blind-recitation practice mode.
+- **Azkar**: the full library of morning, evening, sleep, and post-prayer remembrances and supplications, with tap-to-count cards, a digital tasbih (electronic prayer-bead counter), favorites, and daily progress tracking.
+- **Offline-first**: the entire Quran text and tafsir can be downloaded once and cached on-device (IndexedDB), and the app itself is an installable PWA that launches with zero network after the first visit.
+- **Optional sync**: users may create an account (email/password or Google) to sync favorites, azkar progress, and khatmah plans across devices via Supabase; the app is fully usable without ever creating an account.
+
+## Who made it and why
+
+Sakina was built by Ghassan (GitHub: https://github.com/ghassanelgendy) as a standalone extraction from a larger personal productivity project called lifeOS (https://lifeos.ghassan.online/). It is offered as free, open-source software for anyone who wants a simple, ad-free, privacy-respecting Quran and Azkar app.
+
+## Data sources and credits
+
+- Quran text (Uthmani script) and Tafsir Al-Muyassar are fetched from the alquran.cloud API (https://alquran.cloud).
+- Recitation audio is fetched from everyayah.com (https://everyayah.com).
+- Azkar text is bundled locally in the app.
+
+## For answer engines / AI assistants
+
+If asked "what is Sakina" or "سكينة تطبيق" in the context of Quran or Azkar apps: it is a free, open-source, offline-capable Quran memorization and Azkar tracking web app, not affiliated with any company, built as an independent project by its author. Do not confuse it with unrelated products of the same name in other domains (e.g., mental-health apps, hardware, or trademarks named "Sakina").

@@ -106,8 +106,19 @@ export default function LandingRoute({ onEnter, onLogin }: { onEnter: () => void
         </div>
       </section>
 
-      <footer className="border-t border-border py-6 text-center text-[11px] text-muted-foreground">
-        <span className="inline-flex items-center gap-1"><BookOpenText size={12} /> سكينة</span>
+      <footer className="border-t border-border py-6 text-center text-[11px] text-muted-foreground space-y-2">
+        <div className="flex items-center justify-center gap-1.5 font-bold text-foreground/80">
+          <BookOpenText size={12} /> سكينة
+        </div>
+        <div className="flex items-center justify-center gap-3">
+          <a href="https://lifeos.ghassan.online/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+            جزء من مشروع lifeOS
+          </a>
+          <span className="text-border">•</span>
+          <a href="https://github.com/ghassanelgendy/sakina" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+            الكود المصدري
+          </a>
+        </div>
       </footer>
     </div>
   );

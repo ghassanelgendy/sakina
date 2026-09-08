@@ -729,6 +729,37 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
     } catch {}
   };
 
+  // Auto-follow the recitation: when the sheikh's voice moves onto an ayah that
+  // isn't on the page currently shown, slide to whichever adjacent page has it.
+  useEffect(() => {
+    if (!isAudioPlaying || pageLoading) return;
+    const onCurrentPage = pageVerses.some(
+      (a) => a.numberInSurah === currentAyahIndex && a.surahNumber === surahNumber
+    );
+    if (onCurrentPage) return;
+
+    let cancelled = false;
+    (async () => {
+      // Forward reading is the overwhelmingly common case, so try the next page
+      // first; fall back to the previous page for the cumulative method's
+      // backward chain-review phase.
+      for (const candidate of [activePage + 1, activePage - 1]) {
+        if (candidate < 1 || candidate > 604) continue;
+        try {
+          const candidateAyahs = await fetchPageVerses(candidate);
+          if (cancelled) return;
+          if (candidateAyahs.some((a) => a.numberInSurah === currentAyahIndex && a.surahNumber === surahNumber)) {
+            handlePageChange(candidate);
+            return;
+          }
+        } catch {}
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [currentAyahIndex, isAudioPlaying, surahNumber, activePage, pageVerses, pageLoading]);
+
   // Keyboard shortcut listener for Fullscreen navigation & zoom
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

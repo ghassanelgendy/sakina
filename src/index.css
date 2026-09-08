@@ -41,6 +41,30 @@ body.dark {
   scrollbar-width: none;
 }
 
+/* Themed scrollbar — thin, rounded, tinted with the brand teal instead of the
+   browser's default gray, on every scrollable element (not just no-scrollbar ones). */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-primary) 45%, transparent) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 65%, transparent);
+  background-clip: padding-box;
+}
+
 /* Sakina (سكينة) — calm teal/emerald theme. Dark is default. */
 @theme {
   --font-sans: 'Cairo', sans-serif;

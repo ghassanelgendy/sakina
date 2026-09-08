@@ -1,6 +1,8 @@
 # Sakina (سكينة)
 
-A standalone web app for reading, memorizing and reviewing the Quran, plus daily Azkar tracking with a digital tasbih counter — extracted from [lifeOS](https://github.com) into its own project.
+A free, open-source, offline-first web app for reading, memorizing and reviewing the Quran, plus daily Azkar tracking with a digital tasbih counter — extracted from [lifeOS](https://lifeos.ghassan.online/), a personal productivity project by [@ghassanelgendy](https://github.com/ghassanelgendy), into its own standalone app.
+
+Live app: **https://sakina-lyart.vercel.app/**
 
 ## Features
 
@@ -27,6 +29,10 @@ The app opens at `http://localhost:5174`.
 
 Without a `.env`, the app runs entirely locally — no account needed.
 
+#### Google sign-in
+
+The login screen also offers "المتابعة عبر Google" (continue with Google), which calls `supabase.auth.signInWithOAuth({ provider: 'google' })` — no app-side config beyond the Supabase URL/key above. To enable it, add a Google OAuth client and turn on the Google provider under **Authentication → Providers** in your Supabase project dashboard, and add your site's URL (and `http://localhost:5174` for local dev) to the provider's authorized redirect URIs.
+
 ## Build
 
 ```bash
@@ -44,13 +50,28 @@ npm run preview
 
 ```
 src/
-  App.tsx                 top-level nav (Quran / Azkar tabs, theme, account)
-  routes/                 Quran.tsx, Azkar.tsx — the two screens
+  App.tsx                 top-level nav (Quran / Azkar tabs, theme, account, guide, about)
+  routes/                 Landing.tsx, Auth.tsx, Quran.tsx, Azkar.tsx
+  components/Guide.tsx    first-run usage guide (reopenable from the "؟" nav icon)
+  components/About.tsx    credits / data-source attribution modal
   quran/                  the Quran reader/memorizer engine (self-contained)
   components/azkar/       ZekrCard, TasbihCounterModal
   hooks/useAzkar.ts       azkar data, favorites, daily progress (local + Supabase)
   hooks/useQuranCloudSync.ts  syncs khatmah plan/records with Supabase
   stores/useAzkarStore.ts Zustand store for azkar display preferences
-  contexts/AuthContext.tsx minimal Supabase email/password auth
+  contexts/AuthContext.tsx Supabase auth: email/password + Google OAuth
   lib/                    supabase client, IndexedDB helper, utils
 ```
+
+## Credits & attribution
+
+Sakina is a personal, non-commercial, open-source project — not affiliated with any company.
+
+- **Part of [lifeOS](https://lifeos.ghassan.online/)** — Sakina was extracted from lifeOS, a personal productivity project, into its own standalone app.
+- **Built by** [Ghassan](https://github.com/ghassanelgendy) — [source code](https://github.com/ghassanelgendy/sakina).
+- **Quran text (Uthmani script, Hafs recitation) and Tafsir Al-Muyassar** — [alquran.cloud](https://alquran.cloud) API.
+- **Recitation audio** — [everyayah.com](https://everyayah.com).
+- **Azkar text** — the widely-circulated Hisn al-Muslim ("Fortress of the Muslim") azkar collection, bundled locally in `src/data/azkar.json`.
+- **Fonts** — Cairo, Amiri, and Scheherazade New via [Google Fonts](https://fonts.google.com/).
+
+This same attribution, plus SEO/AI-answer-engine-facing context, is also published at `/llms.txt` on the live site.
