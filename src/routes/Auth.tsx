@@ -59,12 +59,12 @@ export default function AuthRoute({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background text-foreground flex flex-col">
-      <div className="flex-1 grid md:grid-cols-2">
+    <div dir="rtl" className="min-h-screen bg-background text-foreground flex flex-col animate-in fade-in duration-500">
+      <div className="flex-1 grid md:grid-cols-2 animate-in fade-in zoom-in-95 duration-300 ease-out">
         {/* Branding panel — oriental calligraphy motif */}
         <div className="relative hidden md:flex flex-col justify-between overflow-hidden bg-gradient-to-b from-[#0c2a20] via-[#0f4a38] to-[#0a1f18] p-10 border-l border-border text-[#eafff5]">
           <div
-            className="absolute inset-0 opacity-[0.15] text-[#eafff5]"
+            className="absolute -inset-8 opacity-[0.15] text-[#eafff5] animate-pattern-drift"
             style={{ backgroundImage: `url("${ISLAMIC_PATTERN_SVG}")`, backgroundSize: '120px 120px' }}
           />
           <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/20 to-transparent" />
@@ -97,7 +97,7 @@ export default function AuthRoute({ onBack }: { onBack: () => void }) {
               <div className="text-center space-y-4">
                 <div className="text-lg text-amber-300/60">۞</div>
                 <p
-                  className="font-arabic-quran text-[2.6rem] leading-[1.7] text-[#f4fff9]"
+                  className="font-arabic-calligraphy text-[2.75rem] leading-[1.75] text-[#f4fff9]"
                   style={{ textShadow: '0 2px 24px rgba(0,0,0,0.35)' }}
                 >
                   أَلَا بِذِكْرِ ٱللَّهِ

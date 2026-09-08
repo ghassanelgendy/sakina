@@ -32,6 +32,79 @@ body.dark {
   line-height: 2.1;
   letter-spacing: 0.01em;
 }
+/* Ornate Ruqaa-style calligraphy — for short decorative display text (verses,
+   branding moments), not body copy: it's much harder to read at small sizes. */
+.font-arabic-calligraphy {
+  font-family: 'Aref Ruqaa', 'Amiri', serif;
+}
+
+/* ---------- Minimal animate-in engine (subset of tailwindcss-animate) ----------
+   The codebase uses `animate-in fade-in zoom-in-95 slide-in-from-bottom-N` etc.
+   throughout, but no plugin ever provided them — they were silently inert.
+   This implements just the variants actually used, the same way the real
+   plugin composes them (each utility sets one CSS var consumed by one @keyframes). */
+@keyframes enter {
+  from {
+    opacity: var(--tw-enter-opacity, 1);
+    transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0)
+      scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1));
+  }
+}
+.animate-in {
+  animation-name: enter;
+  animation-duration: var(--tw-duration, 150ms);
+  animation-timing-function: var(--tw-ease, ease);
+  animation-fill-mode: both;
+}
+.fade-in {
+  --tw-enter-opacity: 0;
+}
+.zoom-in-95 {
+  --tw-enter-scale: 0.95;
+}
+.slide-in-from-bottom {
+  --tw-enter-translate-y: 100%;
+}
+.slide-in-from-bottom-5 {
+  --tw-enter-translate-y: 1.25rem;
+}
+.slide-in-from-bottom-6 {
+  --tw-enter-translate-y: 1.5rem;
+}
+.slide-in-from-bottom-8 {
+  --tw-enter-translate-y: 2rem;
+}
+.fill-mode-both {
+  animation-fill-mode: both;
+}
+.duration-150 {
+  --tw-duration: 150ms;
+}
+.duration-200 {
+  --tw-duration: 200ms;
+}
+.duration-300 {
+  --tw-duration: 300ms;
+}
+.duration-500 {
+  --tw-duration: 500ms;
+}
+.ease-out {
+  --tw-ease: cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Slow ambient drift for decorative geometric backgrounds (auth screen) */
+@keyframes pattern-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 100px 100px;
+  }
+}
+.animate-pattern-drift {
+  animation: pattern-drift 40s linear infinite;
+}
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
