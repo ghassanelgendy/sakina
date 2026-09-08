@@ -6,7 +6,6 @@ import {
   Calendar,
   Sparkles,
   CheckCircle2,
-  Circle,
   Plus,
   Trash2,
   BookOpen,
@@ -453,10 +452,6 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
     setHalqahNotes(halqahNotes.filter((n) => n.id !== id));
   };
 
-  const quranHabits = linkedHabits.filter((h) =>
-    /quran|memoriz|حفظ|مراجعة|تلاوة|قران|قرآن|قراٰن|ورد|تحفيظ|صفحة|صفحه|صفحات/i.test(h.title)
-  );
-
   // The reading streak is driven by the linked reading habit (e.g. الورد اليومي)
   // as the source of truth, falling back to the wird's own counter when no
   // reading habit is linked.
@@ -751,90 +746,8 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
 
       </div>
 
-      {/* lifeOS Connected Habits & Sheikh Halqah Recitation Sessions Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-        {/* Connected Habits Card */}
-        <div className="p-6 rounded-3xl border border-border/60 bg-card/80 backdrop-blur-xl space-y-3 shadow-md">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2 font-arabic-title">
-              <Sparkles className="size-4 text-amber-400 shrink-0" />
-              <span>العادات القرآنية (lifeOS Habits) ({quranHabits.length})</span>
-            </h3>
-          </div>
-
-          {quranHabits.length === 0 ? (
-            <div className="p-4 border border-dashed border-border rounded-2xl text-center text-xs text-muted-foreground">
-              لا توجد عادات قرآنية في lifeOS Habits (مثل: حفظ صفحة، ورد القرآن).
-            </div>
-          ) : (
-            <div className="space-y-2 max-h-64 overflow-y-auto overscroll-contain pl-1">
-              {quranHabits.map((habit) => (
-                <div
-                  key={habit.id}
-                  className={`p-3.5 rounded-2xl border transition-all ${
-                    habit.is_completed_today
-                      ? 'border-amber-500/30 bg-amber-500/5'
-                      : 'border-border/60 bg-secondary/30'
-                  }`}
-                >
-                  <div
-                    onClick={() => {
-                      const nextState = !habit.is_completed_today;
-                      // Completion is persisted via useLogHabit, which also advances
-                      // the linked Quran wird (الورد اليومي → reading, حفظ صفحه → memorization).
-                      if (onToggleHabit) onToggleHabit(habit.id, nextState);
-                      if (nextState && onUpdateHabitDescription && /حفظ|memoriz|تحفيظ/i.test(habit.title)) {
-                        const surah = getSurahForPage(nextTargetPage);
-                        onUpdateHabitDescription(
-                          habit.id,
-                          `الورد القادم للحفظ: الصفحة ${nextTargetPage} (سورة ${surah.name})`
-                        );
-                      }
-                    }}
-                    className="flex items-center justify-between cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      {habit.is_completed_today ? (
-                        <CheckCircle2 className="size-4 text-amber-500 shrink-0" />
-                      ) : (
-                        <Circle className="size-4 text-muted-foreground shrink-0" />
-                      )}
-                      <span className={`text-xs font-bold ${habit.is_completed_today ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                        {habit.title}
-                      </span>
-                    </div>
-
-                    <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
-                      {habit.is_completed_today ? 'تم اليوم' : 'غير مكتمل'}
-                    </span>
-                  </div>
-
-                  <div className="mt-2.5 pt-2 border-t border-border/30 flex items-center justify-between gap-2 text-[10px]">
-                    <span className="text-muted-foreground font-semibold truncate max-w-[200px]">
-                      {habit.description || 'لا يوجد وصف حالياً'}
-                    </span>
-                    <button
-                      onClick={() => {
-                        if (onUpdateHabitDescription) {
-                          const nextP = nextTargetPage;
-                          const surah = getSurahForPage(nextP);
-                          const desc = `الورد القادم للحفظ: الصفحة ${nextP} (سورة ${surah.name})`;
-                          onUpdateHabitDescription(habit.id, desc);
-                          alert(`تم تحديث تفاصيل العادة إلى:\n"${desc}"`);
-                        }
-                      }}
-                      className="px-2.5 py-1 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 font-bold border border-emerald-500/30 transition-all cursor-pointer shrink-0 active:scale-95"
-                      title="مزامنة الورد القادم مع تفاصيل العادة في lifeOS"
-                    >
-                      مزامنة الورد القادم
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+      {/* Sheikh Halqah Recitation Sessions & Notes */}
+      <div className="grid grid-cols-1 gap-4">
 
         {/* Sheikh Recitation Sessions & Notes for Mistakes */}
         <div className="p-4 md:p-6 rounded-3xl border border-border/60 bg-card/80 backdrop-blur-xl space-y-3 shadow-md">

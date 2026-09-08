@@ -714,6 +714,9 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
     // Moving forward lands at the top of the new page; moving backward lands at its bottom
     // (mirrors flipping through a physical mushaf — resuming where you left off).
     pendingScrollDirRef.current = clampedPage > activePage ? 'top' : clampedPage < activePage ? 'bottom' : null;
+    // Flip pageLoading true in the SAME render as activePage so the scroll effects below
+    // never fire against the outgoing page's stale DOM before the new page's verses load.
+    setPageLoading(true);
     setActivePage(clampedPage);
     const startingSurah = SURAHS.find((s) => s.pageStart === clampedPage);
     const targetSurah = startingSurah || getSurahForPage(clampedPage);
@@ -1449,20 +1452,22 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                             return (
                               <React.Fragment key={`${ayah.surahNumber}-${ayah.numberInSurah}-${ayah.number}`}>
                                 {isNewSurahStart && (
-                                  <div className="w-full block my-3">
-                                    <div className="p-2.5 sm:p-3 rounded-xl bg-gradient-to-r from-amber-950/20 via-zinc-900/80 to-amber-950/20 border border-amber-500/20 text-center space-y-0.5 shadow-md font-arabic-title">
-                                      <div className="text-lg sm:text-2xl font-extrabold text-amber-200 tracking-wide">
+                                  <div className="w-full block my-4">
+                                    <div className="relative rounded-2xl border border-primary/25 bg-gradient-to-b from-primary/[0.08] to-transparent px-3 py-3 sm:py-4 text-center font-arabic-title">
+                                      <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                                      <div className="absolute inset-x-8 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                                      <div className="text-lg sm:text-2xl font-extrabold text-foreground tracking-wide">
                                         سُورَةُ {ayahSurah.name}
                                       </div>
-                                      <div className="text-[10px] text-amber-400 font-bold flex items-center justify-center gap-3">
-                                        <span>{ayahSurah.type === 'Meccan' ? 'مَكِّيَّةٌ' : 'مَدَنِيَّةٌ'}</span>
-                                        <span>•</span>
+                                      <div className="mt-1 text-[10px] font-bold text-primary/85 flex items-center justify-center gap-2">
+                                        <span>{ayahSurah.type === 'Meccan' ? 'مَكِّيَّةٌ' : 'مَدَنِيَّةٌ'}</span>
+                                        <span className="text-primary/35">•</span>
                                         <span>آيَاتُهَا {ayahSurah.versesCount}</span>
                                       </div>
                                     </div>
                                     {ayahSurah.id !== 9 && ayahSurah.id !== 1 && (
                                       <div className="text-center py-1 font-arabic-quran text-xl sm:text-2xl text-foreground/90 select-none tracking-normal">
-                                        بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+                                        بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
                                       </div>
                                     )}
                                   </div>
@@ -1508,7 +1513,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                           : isActive
                                           ? 'border-b-2 border-emerald-500/80 dark:border-emerald-400/80 bg-emerald-500/10 text-foreground'
                                           : inStudyRange
-                                          ? 'bg-secondary/40 border-b border-zinc-500/40'
+                                          ? 'bg-secondary/40 border-b border-border'
                                           : 'hover:bg-accent/30'
                                       } ${
                                         pressingAyah === ayah.numberInSurah
@@ -1552,7 +1557,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                           : isMemorized
                                           ? 'bg-amber-500/10 text-amber-300 border border-amber-500/40'
                                           : inStudyRange
-                                          ? 'bg-secondary text-foreground border border-zinc-700'
+                                          ? 'bg-secondary text-foreground border border-border'
                                           : 'border border-border/70 text-muted-foreground bg-secondary/30 hover:bg-secondary/60'
                                       }`}
                                     >
@@ -1843,20 +1848,22 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                     return (
                                       <React.Fragment key={`fs-${ayah.surahNumber}-${ayah.numberInSurah}-${ayah.number}`}>
                                         {isNewSurahStart && (
-                                          <div className="w-full block my-3">
-                                            <div className="p-2.5 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-950/30 via-zinc-900/90 to-amber-950/30 border border-amber-500/30 text-center space-y-1 shadow-lg font-arabic-title">
-                                              <div className="text-xl sm:text-3xl font-extrabold text-amber-200 tracking-wide">
+                                          <div className="w-full block my-4">
+                                            <div className="relative rounded-2xl border border-primary/25 bg-gradient-to-b from-primary/[0.08] to-transparent px-3 py-3 sm:py-4 text-center font-arabic-title">
+                                              <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                                              <div className="absolute inset-x-8 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                                              <div className="text-xl sm:text-3xl font-extrabold text-foreground tracking-wide">
                                                 سُورَةُ {ayahSurah.name}
                                               </div>
-                                              <div className="text-xs text-amber-400 font-bold flex items-center justify-center gap-3">
-                                                <span>{ayahSurah.type === 'Meccan' ? 'مَكِّيَّةٌ' : 'مَدَنِيَّةٌ'}</span>
-                                                <span>•</span>
+                                              <div className="mt-1 text-xs font-bold text-primary/85 flex items-center justify-center gap-2">
+                                                <span>{ayahSurah.type === 'Meccan' ? 'مَكِّيَّةٌ' : 'مَدَنِيَّةٌ'}</span>
+                                                <span className="text-primary/35">•</span>
                                                 <span>آيَاتُهَا {ayahSurah.versesCount}</span>
                                               </div>
                                             </div>
                                             {ayahSurah.id !== 9 && ayahSurah.id !== 1 && (
                                               <div className="text-center py-2 font-arabic-quran text-xl sm:text-2xl text-foreground/90 select-none tracking-normal">
-                                                بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+                                                بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
                                               </div>
                                             )}
                                           </div>
@@ -1902,7 +1909,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                                   : isActive
                                                   ? 'border-b-2 border-emerald-500/80 dark:border-emerald-400/80 bg-emerald-500/10 text-foreground'
                                                   : inStudyRange
-                                                  ? 'bg-secondary/40 border-b border-zinc-500/40'
+                                                  ? 'bg-secondary/40 border-b border-border'
                                                   : 'hover:bg-accent/30'
                                               } ${
                                                 pressingAyah === ayah.numberInSurah
@@ -1947,7 +1954,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                                   : isMemorized
                                                   ? 'bg-amber-500/10 text-amber-300 border border-amber-500/40'
                                                   : inStudyRange
-                                                  ? 'bg-secondary text-foreground border border-zinc-700'
+                                                  ? 'bg-secondary text-foreground border border-border'
                                                   : 'border border-border/70 text-muted-foreground bg-secondary/30 hover:bg-secondary/60'
                                               }`}
                                             >

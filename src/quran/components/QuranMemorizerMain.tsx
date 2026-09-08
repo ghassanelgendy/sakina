@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { BookOpen, Calendar, Layers, Award, Sparkles, Target, X } from 'lucide-react';
+import { BookOpen, Calendar, Award, Sparkles, Target, X } from 'lucide-react';
 import { Reciter, RepeatSettings, HifdhRecord, LifeOSIntegrationProps, KhatmahPlan, ReadingWirdPlan } from '../types/quran';
 import { RECITERS, SURAHS } from '../services/quranData';
 import { useQuranAudio } from '../hooks/useQuranAudio';
@@ -8,7 +8,6 @@ import { useQuranMemorizer } from '../hooks/useQuranMemorizer';
 import { AudioPlayerBar } from './AudioPlayerBar';
 import { QuranReaderView } from './QuranReaderView';
 import { RevisionScheduler } from './RevisionScheduler';
-import { MutashabihatView } from './MutashabihatView';
 import { KhatmahPlannerView } from './KhatmahPlannerView';
 
 const QURAN_LAST_POSITION_KEY = 'quran_last_position_v1';
@@ -62,7 +61,7 @@ export const QuranMemorizerMain: React.FC<LifeOSIntegrationProps> = ({
   onCreateHalqahNote,
   onBookmarkAyah,
 }) => {
-  const [activeTab, setActiveTab] = useState<'reader' | 'khatmah' | 'revision' | 'mutashabihat'>(() => {
+  const [activeTab, setActiveTab] = useState<'reader' | 'khatmah' | 'revision'>(() => {
     try {
       const saved = localStorage.getItem(QURAN_LAST_POSITION_KEY);
       if (saved) {
@@ -501,7 +500,7 @@ export const QuranMemorizerMain: React.FC<LifeOSIntegrationProps> = ({
         }
       }
 
-      if (targetTab && (targetTab === 'reader' || targetTab === 'khatmah' || targetTab === 'revision' || targetTab === 'mutashabihat')) {
+      if (targetTab && (targetTab === 'reader' || targetTab === 'khatmah' || targetTab === 'revision')) {
         setActiveTab(targetTab);
       }
 
@@ -570,55 +569,29 @@ export const QuranMemorizerMain: React.FC<LifeOSIntegrationProps> = ({
         }`}
       >
         <div className="max-w-2xl mx-auto w-full">
-          {/* iOS Native Segmented Tabs Pill */}
-          <div dir="rtl" className="w-full grid grid-cols-4 bg-muted/60 p-1 rounded-2xl border border-border/50 shadow-inner">
-            <button
-              onClick={() => setActiveTab('khatmah')}
-              className={`py-2 rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${
-                activeTab === 'khatmah'
-                  ? 'bg-background text-foreground shadow-[0_2px_8px_rgba(0,0,0,0.08)]'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Target className="size-3.5 text-emerald-500 shrink-0" />
-              <span>الخاتمة</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('reader')}
-              className={`py-2 rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${
-                activeTab === 'reader'
-                  ? 'bg-background text-foreground shadow-[0_2px_8px_rgba(0,0,0,0.08)]'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <BookOpen className="size-3.5 text-emerald-500 shrink-0" />
-              <span>المصحف</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('revision')}
-              className={`py-2 rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${
-                activeTab === 'revision'
-                  ? 'bg-background text-foreground shadow-[0_2px_8px_rgba(0,0,0,0.08)]'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Calendar className="size-3.5 text-amber-500 shrink-0" />
-              <span>المراجعة</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('mutashabihat')}
-              className={`py-2 rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${
-                activeTab === 'mutashabihat'
-                  ? 'bg-background text-foreground shadow-[0_2px_8px_rgba(0,0,0,0.08)]'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Layers className="size-3.5 text-primary shrink-0" />
-              <span>المتشابهات</span>
-            </button>
+          {/* Underline tab bar */}
+          <div dir="rtl" className="flex items-stretch gap-6">
+            {([
+              { id: 'khatmah' as const, label: 'الخاتمة', Icon: Target },
+              { id: 'reader' as const, label: 'المصحف', Icon: BookOpen },
+              { id: 'revision' as const, label: 'المراجعة', Icon: Calendar },
+            ]).map(({ id, label, Icon }) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={`relative py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5 cursor-pointer ${
+                  activeTab === id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Icon className={`size-4 shrink-0 ${activeTab === id ? 'text-primary' : ''}`} />
+                <span>{label}</span>
+                <span
+                  className={`absolute inset-x-0 -bottom-[1px] h-[2.5px] rounded-full bg-primary transition-transform duration-200 origin-center ${
+                    activeTab === id ? 'scale-x-100' : 'scale-x-0'
+                  }`}
+                />
+              </button>
+            ))}
           </div>
         </div>
       </header>
@@ -745,15 +718,8 @@ export const QuranMemorizerMain: React.FC<LifeOSIntegrationProps> = ({
           />
         )}
 
-        {activeTab === 'mutashabihat' && (
-          <MutashabihatView
-            currentSurahNumber={selectedSurah}
-            currentAyahNumber={audio.currentAyahIndex}
-          />
-        )}
-
         {/* Sticky Audio Player Bar — only on the reader tab so it never covers
-            the khatmah / revision / mutashabihat action buttons. Hidden while the
+            the khatmah / revision action buttons. Hidden while the
             reader is fullscreen since that view renders its own bottom bar. */}
         {activeTab === 'reader' && !readerFullscreen && (
           <AudioPlayerBar

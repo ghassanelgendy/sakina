@@ -121,29 +121,25 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
     };
   }, []);
 
-  const isSidebarCollapsed = false;
-
   const content = (
     <>
       <div
         dir="rtl"
         className={`fixed z-[10000] font-arabic-title text-right
-          /* Smooth recede on scroll-down matching the dashboard bottom tab bar (shrink, don't fly away) */
           transition-all duration-500 ease-[cubic-bezier(0.25,1,0.3,1)] will-change-transform
-          /* iOS Mobile: Crisp Compact Floating Pill matching iOS bottom tab bar */
-          bottom-[calc(14px+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 w-[90%] max-w-[390px] h-[52px]
-          rounded-full px-3 flex items-center justify-between
+          /* Floating rounded pill, both on mobile and desktop — never a flat edge-to-edge bar */
+          bottom-[calc(14px+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2
+          w-[92%] max-w-[390px] h-[52px] rounded-full px-3
+          md:bottom-5 md:w-[min(92%,42rem)] md:max-w-[42rem] md:h-16 md:px-5
+          flex items-center justify-between
           ${isBarHidden || forceSmall
             ? 'scale-[0.78] translate-y-[10px] opacity-55 bg-white/40 dark:bg-[#141416]/50 backdrop-blur-md'
-            : 'scale-100 translate-y-0 opacity-100 bg-white/45 dark:bg-[#141416]/60 backdrop-blur-2xl'}
-          border border-white/30 dark:border-white/10
-          shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)]
-          /* Desktop / MD+: Perfectly docked and aligned with the sidebar line */
-          md:bottom-0 md:translate-x-0 md:translate-y-0 md:scale-100 md:opacity-100 md:right-0 md:w-auto md:max-w-none md:h-14 md:rounded-none md:border-t md:border-x-0 md:border-b-0 md:border-border/40 md:bg-card/80 md:backdrop-blur-xl md:px-6 md:py-2
-          ${isSidebarCollapsed ? 'md:left-16' : 'md:left-64'}
+            : 'scale-100 translate-y-0 opacity-100 bg-white/70 dark:bg-[#141416]/70 backdrop-blur-2xl'}
+          border border-border/50
+          shadow-[0_12px_36px_-8px_rgba(0,0,0,0.18)] dark:shadow-[0_12px_36px_-8px_rgba(0,0,0,0.5)]
         `}
       >
-        <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-2 md:gap-5 text-foreground h-full">
+        <div className="w-full flex items-center justify-between gap-2 md:gap-5 text-foreground h-full">
 
           {/* Reciter & Current Ayah */}
           <div className="flex items-center gap-2.5 min-w-0 shrink">
@@ -225,96 +221,35 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
             </button>
           </div>
 
-          {/* Desktop Controls (Inline on MD+) — one unified toolbar instead of separate chips */}
-          <div className="hidden md:flex items-center gap-3 text-xs shrink-0 bg-secondary/40 rounded-2xl border border-border/40 px-3.5 py-1.5">
-            <label className="flex items-center gap-1.5 cursor-pointer">
-              <Repeat className="size-3.5 text-muted-foreground shrink-0" />
-              <select
-                value={repeatSettings.verseRepeats}
-                onChange={(e) =>
-                  onChangeRepeatSettings({ ...repeatSettings, verseRepeats: Number(e.target.value) })
-                }
-                className="bg-transparent font-bold text-foreground focus:outline-none text-xs cursor-pointer"
-                title="تكرار كل آية"
-              >
-                {[1, 2, 3, 5, 7, 10, 20].map((num) => (
-                  <option key={num} value={num}>
-                    {num}× آية
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <div className="h-4 w-px bg-border/60" />
-
-            <label className="flex items-center gap-1.5 cursor-pointer">
-              <Sparkles className="size-3.5 text-muted-foreground shrink-0" />
-              <select
-                value={repeatSettings.rangeRepeats}
-                onChange={(e) =>
-                  onChangeRepeatSettings({ ...repeatSettings, rangeRepeats: Number(e.target.value) })
-                }
-                className="bg-transparent font-bold text-foreground focus:outline-none text-xs cursor-pointer"
-                title="تكرار المقطع"
-              >
-                {[1, 2, 3, 5, 10].map((num) => (
-                  <option key={num} value={num}>
-                    {num}× مقطع
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <div className="h-4 w-px bg-border/60" />
-
-            <label className="flex items-center gap-1.5 cursor-pointer">
-              <Clock className="size-3.5 text-muted-foreground shrink-0" />
-              <select
-                value={repeatSettings.delaySeconds}
-                onChange={(e) =>
-                  onChangeRepeatSettings({ ...repeatSettings, delaySeconds: Number(e.target.value) })
-                }
-                className="bg-transparent font-bold text-foreground focus:outline-none text-xs cursor-pointer"
-                title="سكوت للتسميع"
-              >
-                {[0, 1, 2, 3, 5, 8].map((sec) => (
-                  <option key={sec} value={sec}>
-                    {sec === 0 ? 'بدون سكوت' : `سكوت ${sec}ث`}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <div className="h-4 w-px bg-border/60" />
-
-            <label className="flex items-center gap-1.5 cursor-pointer">
-              <Gauge className="size-3.5 text-muted-foreground shrink-0" />
-              <select
-                value={playbackRate}
-                onChange={(e) => onChangeSpeed(Number(e.target.value))}
-                className="bg-transparent font-bold text-foreground focus:outline-none text-xs cursor-pointer"
-                title="سرعة التلاوة"
-              >
-                {[0.75, 1.0, 1.25, 1.5].map((speed) => (
-                  <option key={speed} value={speed}>
-                    {speed}x
-                  </option>
-                ))}
-              </select>
-            </label>
+          {/* Quick glance at the two settings that matter most while memorizing */}
+          <div className="hidden md:flex items-center gap-3 text-xs shrink-0 text-muted-foreground">
+            {repeatSettings.verseRepeats > 1 && (
+              <span className="flex items-center gap-1 font-bold">
+                <Repeat size={13} className="text-primary" />
+                {repeatSettings.verseRepeats}×
+              </span>
+            )}
+            {repeatSettings.delaySeconds > 0 && (
+              <span className="flex items-center gap-1 font-bold">
+                <Clock size={13} className="text-primary" />
+                {repeatSettings.delaySeconds}ث
+              </span>
+            )}
+            <span className="flex items-center gap-1 font-bold">
+              <Gauge size={13} />
+              {playbackRate}x
+            </span>
           </div>
 
-          {/* Mobile Repeat & Audio Settings Drawer Trigger Button */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setShowSettingsDrawer(true)}
-              className="flex items-center gap-1 px-2 py-1 rounded-full bg-secondary/50 hover:bg-secondary/70 text-foreground text-[10px] font-bold border border-border/40 active:scale-95 transition-all cursor-pointer"
-              title="إعدادات الصوت والتكرار"
-            >
-              <SlidersHorizontal className="size-3 text-primary" />
-              <span className="text-[10px]">خيارات</span>
-            </button>
-          </div>
+          {/* Settings Drawer Trigger — one button opens the full settings sheet on any screen size */}
+          <button
+            onClick={() => setShowSettingsDrawer(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 md:px-3 rounded-full bg-secondary/60 hover:bg-secondary text-foreground text-[10px] md:text-xs font-bold border border-border/40 active:scale-95 transition-all cursor-pointer shrink-0"
+            title="إعدادات الصوت والتكرار"
+          >
+            <SlidersHorizontal size={13} className="text-primary" />
+            <span>خيارات</span>
+          </button>
 
         </div>
       </div>

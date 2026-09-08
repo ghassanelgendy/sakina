@@ -5,7 +5,6 @@ export * from './hooks/useQuranAudio';
 export * from './hooks/useQuranMemorizer';
 export * from './components/AudioPlayerBar';
 export * from './components/BlindModeOverlay';
-export * from './components/MutashabihatView';
 export * from './components/RevisionScheduler';
 export * from './components/QuranReaderView';
 export * from './components/QuranMemorizerMain';
