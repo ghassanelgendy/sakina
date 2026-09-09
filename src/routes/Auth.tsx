@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, BookOpenText, LogIn, Mail, Lock, Loader2 } from 'lucide-react';
+import { ArrowLeft, BookOpenText, LogIn, LogOut, Mail, Lock, Loader2, UserCircle2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../hooks/useAuth';
 
@@ -29,13 +29,20 @@ function GoogleIcon({ size = 16 }: { size?: number }) {
 }
 
 export default function AuthRoute({ onBack }: { onBack: () => void }) {
-  const { isConfigured, signIn, signUp, signInWithGoogle } = useAuth();
+  const { user, isConfigured, signIn, signUp, signInWithGoogle, signOut } = useAuth();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    setSigningOut(true);
+    await signOut();
+    setSigningOut(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,6 +120,31 @@ export default function AuthRoute({ onBack }: { onBack: () => void }) {
             <span className="font-arabic-title text-base font-bold">سكينة</span>
           </div>
 
+          {user ? (
+            <>
+              <h1 className="text-2xl font-bold mb-1.5">حسابك</h1>
+              <p className="text-sm text-muted-foreground mb-8">تتم مزامنة المفضلة والتقدم على هذا الحساب.</p>
+
+              <div className="max-w-sm space-y-4">
+                <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                    <UserCircle2 size={22} />
+                  </div>
+                  <span className="text-sm font-bold truncate">{user.email}</span>
+                </div>
+
+                <button
+                  onClick={handleSignOut}
+                  disabled={signingOut}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-border py-3 text-sm font-bold hover:bg-secondary transition-colors disabled:opacity-60 cursor-pointer"
+                >
+                  {signingOut ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
+                  <span>{signingOut ? 'جارٍ تسجيل الخروج...' : 'تسجيل الخروج'}</span>
+                </button>
+              </div>
+            </>
+          ) : (
+          <>
           <h1 className="text-2xl font-bold mb-1.5">
             {mode === 'signin' ? 'تسجيل الدخول' : 'إنشاء حساب جديد'}
           </h1>
@@ -214,6 +246,8 @@ export default function AuthRoute({ onBack }: { onBack: () => void }) {
               </div>
               </form>
             </div>
+          )}
+          </>
           )}
         </div>
       </div>
