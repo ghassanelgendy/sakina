@@ -9,7 +9,6 @@ import LandingRoute from './routes/Landing';
 import AuthRoute from './routes/Auth';
 import { Guide, shouldShowGuideOnEntry } from './components/Guide';
 import { About } from './components/About';
-import { SlidingTabs } from './components/SlidingTabs';
 
 type Tab = 'quran' | 'azkar';
 type View = 'landing' | 'auth' | 'app';
@@ -77,16 +76,31 @@ export default function App() {
             <span className="font-display text-[26px] font-bold leading-none text-foreground">سكينة</span>
           </div>
 
-          <SlidingTabs
-            tabs={[
+          <div role="tablist" className="flex items-stretch gap-1 shrink-0 h-14">
+            {([
               { id: 'quran' as const, label: 'القرآن الكريم' },
               { id: 'azkar' as const, label: 'الأذكار' },
-            ]}
-            value={tab}
-            onChange={setTab}
-            className="h-14 shrink-0"
-            itemClassName="px-3 sm:px-5 text-[15px]"
-          />
+            ]).map(({ id, label }) => (
+              <button
+                key={id}
+                role="tab"
+                aria-selected={tab === id}
+                onClick={() => setTab(id)}
+                className={cn(
+                  'relative px-3 sm:px-5 text-[15px] font-bold transition-colors duration-200 cursor-pointer',
+                  tab === id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                {label}
+                <span
+                  className={cn(
+                    'absolute inset-x-3 sm:inset-x-5 bottom-0 h-[3px] rounded-t bg-primary transition-transform duration-300 ease-out origin-center',
+                    tab === id ? 'scale-x-100' : 'scale-x-0'
+                  )}
+                />
+              </button>
+            ))}
+          </div>
 
           <div className="flex items-center gap-1 shrink-0">
             <button

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { SlidingTabs } from '../../components/SlidingTabs';
 import { BookOpen, Calendar, Award, Target, X } from 'lucide-react';
 import { Reciter, RepeatSettings, HifdhRecord, LifeOSIntegrationProps, KhatmahPlan, ReadingWirdPlan } from '../types/quran';
 import { RECITERS, SURAHS } from '../services/quranData';
@@ -570,18 +569,30 @@ export const QuranMemorizerMain: React.FC<LifeOSIntegrationProps> = ({
         }`}
       >
         <div className="max-w-2xl mx-auto w-full">
-          <div dir="rtl" className="flex justify-center">
-            <SlidingTabs
-              tabs={[
-                { id: 'khatmah' as const, label: 'الختمة', Icon: Target },
-                { id: 'reader' as const, label: 'المصحف', Icon: BookOpen },
-                { id: 'revision' as const, label: 'المراجعة', Icon: Calendar },
-              ]}
-              value={activeTab}
-              onChange={setActiveTab}
-              className="gap-2"
-              itemClassName="h-11 px-4 text-sm"
-            />
+          <div dir="rtl" role="tablist" className="flex items-stretch justify-center gap-2">
+            {([
+              { id: 'khatmah' as const, label: 'الختمة', Icon: Target },
+              { id: 'reader' as const, label: 'المصحف', Icon: BookOpen },
+              { id: 'revision' as const, label: 'المراجعة', Icon: Calendar },
+            ]).map(({ id, label, Icon }) => (
+              <button
+                key={id}
+                role="tab"
+                aria-selected={activeTab === id}
+                onClick={() => setActiveTab(id)}
+                className={`relative h-11 px-4 text-sm font-bold transition-colors duration-200 flex items-center gap-2 cursor-pointer ${
+                  activeTab === id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Icon className={`size-4 shrink-0 transition-colors ${activeTab === id ? 'text-primary' : ''}`} />
+                <span>{label}</span>
+                <span
+                  className={`absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-primary transition-transform duration-300 ease-out origin-center ${
+                    activeTab === id ? 'scale-x-100' : 'scale-x-0'
+                  }`}
+                />
+              </button>
+            ))}
           </div>
         </div>
       </header>

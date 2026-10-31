@@ -30,13 +30,12 @@ export const PageMap: React.FC<PageMapProps> = ({ readPage, memPage, memReverse,
         return (
           <React.Fragment key={j}>
             <span className="text-[11px] font-bold tabular-nums text-muted-foreground">{j + 1}</span>
-            {pages.map((p, ci) => (
+            {pages.map((p) => (
               <button
                 key={p}
                 type="button"
                 data-s={stateOf(p)}
                 className="page-cell"
-                style={{ ["--r" as string]: j, ["--c" as string]: ci }}
                 onClick={() => onOpen?.(p)}
                 aria-label={`صفحة ${p}`}
                 title={`صفحة ${p}`}
