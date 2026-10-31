@@ -1,5 +1,5 @@
-import { useState, useMemo, useCallback } from 'react';
-import { Sparkles, Search, Bookmark, RotateCcw, BookOpen, Settings2, Smartphone, Volume2, VolumeX, Type, Sun, X } from 'lucide-react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { Sparkles, Search, Bookmark, RotateCcw, BookOpen, Settings2, Smartphone, Volume2, VolumeX, Type, Sun, X, GalleryHorizontal, LayoutList } from 'lucide-react';
 import { cn } from '../lib/utils';
 import {
   useAllAzkar,
@@ -11,6 +11,7 @@ import {
 } from '../hooks/useAzkar';
 import { useAzkarStore } from '../stores/useAzkarStore';
 import { ZekrCard } from '../components/azkar/ZekrCard';
+import { ZekrFocus } from '../components/azkar/ZekrFocus';
 import { TasbihCounterModal } from '../components/azkar/TasbihCounterModal';
 import type { AzkarItem } from '../types/azkar';
 
@@ -40,6 +41,20 @@ export default function AzkarRoute() {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [isTasbihOpen, setIsTasbihOpen] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  // Phones get one dhikr at a time; larger screens keep the list. The choice is remembered.
+  const [viewMode, setViewMode] = useState<'focus' | 'list'>(() => {
+    try {
+      const saved = localStorage.getItem('azkar_view_v1');
+      if (saved === 'focus' || saved === 'list') return saved;
+    } catch {}
+    return typeof window !== 'undefined' && window.innerWidth < 768 ? 'focus' : 'list';
+  });
+  const [focusIndex, setFocusIndex] = useState(0);
+  const changeView = (m: 'focus' | 'list') => {
+    setViewMode(m);
+    try { localStorage.setItem('azkar_view_v1', m); } catch {}
+  };
 
   const displayedAzkar = useMemo(() => {
     let list: AzkarItem[] = allAzkar;
@@ -71,6 +86,16 @@ export default function AzkarRoute() {
     : searchQuery
     ? `نتائج البحث عن "${searchQuery}"`
     : selectedCategory || contextual.category;
+
+  useEffect(() => {
+    setFocusIndex(0);
+  }, [activeCategoryTitle]);
+
+  const currentCategoryName = selectedCategory || contextual.category;
+  const nextCategory = useMemo(() => {
+    const i = categories.findIndex((c) => c.name === currentCategoryName);
+    return i >= 0 && i < categories.length - 1 ? categories[i + 1].name : null;
+  }, [categories, currentCategoryName]);
 
   const categoryStats = useMemo(() => {
     if (!displayedAzkar.length) return { completed: 0, total: 0, percent: 0 };
@@ -114,19 +139,35 @@ export default function AzkarRoute() {
   }, [displayedAzkar, resetCategory]);
 
   return (
-    <div className="min-h-dvh bg-background text-foreground pb-24 md:pb-10">
-      <div className="sticky top-14 z-20 bg-background">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+    <div className={cn('bg-background text-foreground', viewMode === 'list' ? 'min-h-dvh pb-24 md:pb-10' : 'pb-4')}>
+      <div className={cn('z-20 bg-background', viewMode === 'list' && 'sticky top-14')}>
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-4 sm:h-16 sm:gap-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <div className="hidden h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary sm:flex">
               <Sun size={20} />
             </div>
             <div>
-              <h1 className="text-lg font-bold leading-tight">الأذكار والأدعية</h1>
+              <h1 className="text-base font-bold leading-tight sm:text-lg">الأذكار</h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => changeView(viewMode === 'focus' ? 'list' : 'focus')}
+              aria-label={viewMode === 'focus' ? 'عرض القائمة' : 'عرض ذكر واحد'}
+              title={viewMode === 'focus' ? 'عرض القائمة' : 'عرض ذكر واحد'}
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground cursor-pointer"
+            >
+              {viewMode === 'focus' ? <LayoutList size={19} /> : <GalleryHorizontal size={19} />}
+            </button>
+            <button
+              onClick={() => { setShowSearch((v) => !v); if (showSearch) setSearchQuery(''); }}
+              aria-label="بحث"
+              aria-pressed={showSearch || !!searchQuery}
+              className={cn('flex h-10 w-10 items-center justify-center rounded-xl transition-colors cursor-pointer', showSearch || searchQuery ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground')}
+            >
+              <Search size={19} />
+            </button>
             <button
               onClick={() => setIsTasbihOpen(true)}
               className="flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-[13px] font-semibold text-primary-foreground transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -141,7 +182,7 @@ export default function AzkarRoute() {
               aria-pressed={showFavoritesOnly}
               aria-label="الأذكار المفضلة"
               className={cn(
-                'flex h-9 w-9 items-center justify-center rounded-xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                'flex h-10 w-10 items-center justify-center rounded-xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                 showFavoritesOnly
                   ? 'border-amber-500/40 bg-amber-500/20 text-amber-500'
                   : 'border-border text-muted-foreground hover:bg-secondary hover:text-foreground'
@@ -156,7 +197,7 @@ export default function AzkarRoute() {
               aria-pressed={showPreferences}
               aria-label="إعدادات القراءة والخط"
               className={cn(
-                'flex h-9 w-9 items-center justify-center rounded-xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                'flex h-10 w-10 items-center justify-center rounded-xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                 showPreferences
                   ? 'border-primary/40 bg-primary/20 text-primary'
                   : 'border-border text-muted-foreground hover:bg-secondary hover:text-foreground'
@@ -240,6 +281,86 @@ export default function AzkarRoute() {
         )}
       </div>
 
+      {viewMode === 'focus' ? (
+        <div className="mx-auto flex h-[calc(100dvh-7.5rem)] min-h-[28rem] max-w-2xl flex-col gap-3 px-4 pb-3 pt-1 sm:px-6">
+          {(showSearch || searchQuery) && (
+            <div className="relative shrink-0">
+              <Search className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+              <input
+                type="text"
+                autoFocus
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); if (showFavoritesOnly) setShowFavoritesOnly(false); }}
+                placeholder="ابحث: آية الكرسي، سيد الاستغفار، السفر"
+                aria-label="البحث في الأذكار"
+                className="h-12 w-full rounded-xl bg-card pr-11 pl-10 text-[15px] placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                dir="rtl"
+              />
+              {searchQuery && (
+                <button type="button" onClick={() => setSearchQuery('')} aria-label="مسح البحث" className="absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary cursor-pointer">
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+          )}
+
+          {!searchQuery && !showFavoritesOnly ? (
+            <div className="no-scrollbar -mx-4 flex shrink-0 gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0" role="tablist" aria-label="أقسام الأذكار">
+              {categories.map((cat) => {
+                const isSelected = currentCategoryName === cat.name;
+                const isContext = contextual.category === cat.name;
+                return (
+                  <button
+                    key={cat.name}
+                    role="tab"
+                    aria-selected={isSelected}
+                    onClick={() => setSelectedCategory(cat.name)}
+                    ref={(el) => { if (el && isSelected) el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); }}
+                    className={cn(
+                      'flex h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 text-[14px] font-semibold transition-colors cursor-pointer',
+                      isSelected ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    {isContext && <span className={cn('size-1.5 shrink-0 rounded-full', isSelected ? 'bg-primary-foreground' : 'bg-primary')} />}
+                    <span lang="ar">{cat.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex shrink-0 items-center justify-between text-[14px]">
+              <span className="font-bold" lang="ar">{activeCategoryTitle}</span>
+              <span className="text-muted-foreground">{displayedAzkar.length} ذكر</span>
+            </div>
+          )}
+
+          <div className="min-h-0 flex-1">
+            {displayedAzkar.length === 0 ? (
+              <div className="flex h-full flex-col items-center justify-center gap-3 rounded-2xl bg-card text-center" dir="rtl">
+                <BookOpen size={36} className="text-muted-foreground/60" />
+                <p className="text-[15px] text-muted-foreground" lang="ar">
+                  {showFavoritesOnly ? 'لم تحفظ أي أذكار في المفضلة بعد.' : 'لا توجد أذكار تطابق هذا البحث.'}
+                </p>
+              </div>
+            ) : (
+              <ZekrFocus
+                items={displayedAzkar}
+                counts={progress.counts}
+                index={focusIndex}
+                onIndexChange={setFocusIndex}
+                onIncrement={handleIncrement}
+                onReset={handleResetZekr}
+                isFavorite={isFavorite}
+                onToggleFavorite={toggleFavorite}
+                onRestartAll={() => { handleResetCurrentCategory(); setFocusIndex(0); }}
+                onNextCategory={nextCategory && !searchQuery && !showFavoritesOnly ? () => setSelectedCategory(nextCategory) : undefined}
+                nextCategoryName={nextCategory || undefined}
+              />
+            )}
+          </div>
+        </div>
+      ) : (
+      <>
       <div className="mx-auto max-w-6xl space-y-6 px-4 pt-6 sm:px-6">
         {!searchQuery && !showFavoritesOnly && (
           <div className="relative flex flex-col justify-between gap-4 overflow-hidden rounded-3xl bg-primary/10 p-5 sm:flex-row sm:items-center sm:p-6">
@@ -396,6 +517,9 @@ export default function AzkarRoute() {
           </div>
         )}
       </div>
+
+      </>
+      )}
 
       <TasbihCounterModal isOpen={isTasbihOpen} onClose={() => setIsTasbihOpen(false)} />
     </div>
