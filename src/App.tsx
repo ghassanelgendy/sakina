@@ -69,7 +69,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-full min-h-dvh flex-col bg-background text-foreground">
+    <div className="flex min-h-dvh flex-col bg-background text-foreground">
       <nav className="sticky top-0 z-30 bg-background">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-3 sm:gap-3 sm:px-6">
           <div className="flex items-center gap-2.5 shrink-0">
