@@ -710,8 +710,10 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
     };
   }, []);
 
+  const turnDirRef = useRef<'next' | 'prev'>('next');
   const handlePageChange = (newPage: number) => {
     const clampedPage = Math.min(604, Math.max(1, newPage));
+    turnDirRef.current = clampedPage >= activePage ? 'next' : 'prev';
     // Moving forward lands at the top of the new page; moving backward lands at its bottom
     // (mirrors flipping through a physical mushaf — resuming where you left off).
     pendingScrollDirRef.current = clampedPage > activePage ? 'top' : clampedPage < activePage ? 'bottom' : null;
@@ -767,23 +769,25 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
       const targetTag = (e.target as HTMLElement)?.tagName;
       if (targetTag === 'INPUT' || targetTag === 'TEXTAREA' || targetTag === 'SELECT') return;
 
-      if (isFullscreen) {
-        if (e.key === 'Escape') {
-          e.preventDefault();
-          setIsFullscreen(false);
-        } else if (e.key === 'ArrowRight') {
-          e.preventDefault();
-          if (activePage < 604) handlePageChange(activePage + 1);
-        } else if (e.key === 'ArrowLeft') {
-          e.preventDefault();
-          if (activePage > 1) handlePageChange(activePage - 1);
-        } else if (e.key === '+' || e.key === '=') {
-          e.preventDefault();
-          updateFontSizeScale(0.1);
-        } else if (e.key === '-' || e.key === '_') {
-          e.preventDefault();
-          updateFontSizeScale(-0.1);
-        }
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (isFullscreen && e.key === 'Escape') {
+        e.preventDefault();
+        setIsFullscreen(false);
+        return;
+      }
+      // Arabic books turn leftwards: the left arrow goes to the next page
+      if (e.key === 'ArrowLeft' && activePage < 604) {
+        e.preventDefault();
+        handlePageChange(activePage + 1);
+      } else if (e.key === 'ArrowRight' && activePage > 1) {
+        e.preventDefault();
+        handlePageChange(activePage - 1);
+      } else if (isFullscreen && (e.key === '+' || e.key === '=')) {
+        e.preventDefault();
+        updateFontSizeScale(0.1);
+      } else if (isFullscreen && (e.key === '-' || e.key === '_')) {
+        e.preventDefault();
+        updateFontSizeScale(-0.1);
       }
     };
 
@@ -935,6 +939,27 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
           </button>
         ))}
 
+        <div className="flex h-9 shrink-0 items-center rounded-lg bg-secondary" role="group" aria-label="حجم الخط">
+          <button
+            type="button"
+            onClick={() => updateFontSizeScale(-0.1)}
+            disabled={fontSizeScale <= 0.65}
+            aria-label="تصغير الخط"
+            className="flex h-9 w-9 items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30 cursor-pointer"
+          >
+            <span className="font-arabic-quran text-[15px] leading-none">ا</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => updateFontSizeScale(0.1)}
+            disabled={fontSizeScale >= 2}
+            aria-label="تكبير الخط"
+            className="flex h-9 w-9 items-center justify-center text-foreground hover:text-primary disabled:opacity-30 cursor-pointer"
+          >
+            <span className="font-arabic-quran text-[22px] leading-none">ا</span>
+          </button>
+        </div>
+
         <span className="w-3 shrink-0" aria-hidden />
 
         <button
@@ -968,6 +993,10 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
             <span>ملاحظة الحلقة</span>
           </button>
         )}
+      </div>
+
+      <div className="h-1 overflow-hidden rounded-full bg-secondary" role="progressbar" aria-valuemin={1} aria-valuemax={604} aria-valuenow={activePage} aria-label="موضعك في المصحف">
+        <div className="read-progress h-full origin-right rounded-full bg-primary" style={{ width: `${(activePage / 604) * 100}%` }} />
       </div>
 
       {/* Bookmark Added Toast Notification (brief transient overlay) */}
@@ -1350,8 +1379,10 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                 );
               }
               return (
-                <div className="p-8 text-center text-xs font-bold text-muted-foreground rounded-2xl space-y-3 bg-card/60">
-                  <p className="text-sm">جاري تحميل آيات صفحة {activePage}...</p>
+                <div className="mushaf-frame mx-auto max-w-3xl space-y-5 px-4 pb-10 pt-8 sm:px-12 sm:pt-12" aria-busy="true" aria-label={`جاري تحميل صفحة ${activePage}`}>
+                  {[96, 100, 88, 100, 94, 100, 82, 100, 90, 100, 70].map((w, i) => (
+                    <div key={i} className="skeleton-line mr-auto" style={{ width: `${w}%`, ['--i' as string]: i }} />
+                  ))}
                 </div>
               );
             }
@@ -1387,7 +1418,8 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                         onTouchMove={handleTouchMove}
                         onTouchEnd={handleTouchEnd}
                         onDoubleClick={() => setIsFullscreen(true)}
-                        className="mushaf-frame relative mx-auto max-w-3xl space-y-4 px-4 pb-6 pt-5 sm:px-12 sm:pb-10 sm:pt-8 transition-colors touch-pan-y animate-in fade-in duration-300"
+                        className={`mushaf-frame relative mx-auto max-w-3xl space-y-4 px-4 pb-6 pt-5 sm:px-12 sm:pb-10 sm:pt-8 transition-colors touch-pan-y ${turnDirRef.current === 'prev' ? 'page-turn-prev' : 'page-turn-next'}`}
+                        style={{ ['--mushaf-size' as string]: `${1.75 * fontSizeScale}rem`, ['--mushaf-size-lg' as string]: `${2.15 * fontSizeScale}rem` }}
                       >
                         {/* Page header: surah on one side, juz on the other */}
                         <div className="flex items-center justify-between font-arabic-title text-[13px] font-semibold text-muted-foreground">
@@ -1692,7 +1724,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                             onClick={() => activePage > 1 && handlePageChange(activePage - 1)}
                             disabled={activePage <= 1}
                             className="h-8 px-2.5 rounded-xl bg-secondary/70 hover:bg-secondary disabled:opacity-30 flex items-center gap-1 text-xs font-bold transition cursor-pointer active:scale-95"
-                            title="الصفحة السابقة (ArrowLeft)"
+                            title="الصفحة السابقة (→)"
                           >
                             <ChevronRight className="size-3.5" />
                             <span className="hidden sm:inline">السابقة</span>
@@ -1707,7 +1739,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                             onClick={() => activePage < 604 && handlePageChange(activePage + 1)}
                             disabled={activePage >= 604}
                             className="h-8 px-2.5 rounded-xl bg-secondary/70 hover:bg-secondary disabled:opacity-30 flex items-center gap-1 text-xs font-bold transition cursor-pointer active:scale-95"
-                            title="الصفحة التالية (ArrowRight)"
+                            title="الصفحة التالية (←)"
                           >
                             <span className="hidden sm:inline">التالية</span>
                             <ChevronLeft className="size-3.5" />

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PageMap } from './PageMap';
 import { createPortal } from 'react-dom';
 import {
+  ArrowLeft,
   Target,
   Flame,
   Calendar,
@@ -45,6 +46,24 @@ interface KhatmahPlannerViewProps {
   onCreateHalqahNote?: (note: SheikhHalqahNote) => void;
   onOpenReader?: (page: number, surahNumber?: number) => void;
 }
+
+/** Counts a figure up to its value once, so the number lands rather than appears. */
+const useCountUp = (target: number, ms = 800) => {
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) { setV(target); return; }
+    let raf = 0;
+    const t0 = performance.now();
+    const tick = (t: number) => {
+      const k = Math.min(1, (t - t0) / ms);
+      setV(Math.round(target * (1 - Math.pow(1 - k, 3))));
+      if (k < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, ms]);
+  return v;
+};
 
 const getSurahForPage = (page: number) => {
   let found = SURAHS[0];
@@ -144,6 +163,7 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
       return { currentPage: 1, pagesPerDay: 4, streakDays: 0 };
     }
   });
+  const shownPage = useCountUp(readingWird.currentPage);
 
   // Sheikh Halqah Notes State
   const [halqahNotes, setHalqahNotes] = useState<SheikhHalqahNote[]>(() => {
@@ -492,7 +512,7 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
             <div>
               <p className="text-sm font-semibold text-muted-foreground">أنت الآن في</p>
               <p className="font-display text-6xl font-bold leading-tight sm:text-7xl">
-                صفحة <span className="tabular-nums">{readingWird.currentPage}</span>
+                صفحة <span className="tabular-nums">{shownPage}</span>
               </p>
               <p className="mt-1 text-[15px] text-foreground/80">
                 سورة {getSurahForPage(readingWird.currentPage).name} · الجزء {getSurahForPage(readingWird.currentPage).juzStart}
@@ -506,7 +526,15 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
               {plan && <span className="flex items-center gap-1.5"><i className="size-3 rounded-[2px] bg-amber-500" />حفظت</span>}
               <span className="flex items-center gap-1.5"><i className="size-3 rounded-[2px] bg-foreground" />موضعك</span>
             </div>
-            <p className="max-w-xs text-[13px] leading-6 text-muted-foreground">اضغط أي مربع لفتح الصفحة. كل صف جزء، وكل مربع صفحة.</p>
+            <button
+              type="button"
+              onClick={() => onOpenReader?.(readingWird.currentPage)}
+              className="flex h-12 items-center gap-2 rounded-lg bg-primary px-6 text-[15px] font-bold text-primary-foreground hover:brightness-110 cursor-pointer"
+            >
+              تابع القراءة
+              <ArrowLeft className="size-4" />
+            </button>
+            <p className="max-w-xs text-[13px] leading-6 text-muted-foreground">أو اضغط أي مربع لفتح صفحته. كل صف جزء، وكل مربع صفحة.</p>
           </div>
           <div className="w-full md:max-w-[28rem]">
             <PageMap

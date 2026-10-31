@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { ArrowLeft, Minus, Plus } from 'lucide-react';
+import { Reveal } from '../components/Reveal';
+
+const VERSE = 'ٱلَّذِينَ ءَامَنُوا۟ وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ ٱللَّهِ ۗ أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ'.split(' ');
 
 const FEATURES = [
   {
@@ -74,7 +77,9 @@ export default function LandingRoute({ onEnter, onLogin }: { onEnter: () => void
               className="font-arabic-quran text-center text-foreground transition-[font-size] duration-300 ease-out"
               style={{ fontSize: `${size}rem`, lineHeight: 2.3 }}
             >
-              ٱلَّذِينَ ءَامَنُوا۟ وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ ٱللَّهِ ۗ أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ
+              {VERSE.map((w, i) => (
+                <span key={i} className="word-in" style={{ ['--i' as string]: i }}>{w}{' '}</span>
+              ))}
             </blockquote>
             <figcaption className="mt-6 flex items-center justify-between gap-4">
               <span className="text-sm font-semibold text-muted-foreground">سورة الرعد · الآية ٢٨</span>
@@ -103,15 +108,15 @@ export default function LandingRoute({ onEnter, onLogin }: { onEnter: () => void
         {/* What it does — plain type on a field of colour */}
         <section className="bg-card py-20 md:py-28">
           <div className="mx-auto max-w-6xl px-5 sm:px-8">
-            <h2 className="max-w-xl text-3xl font-black leading-snug sm:text-4xl">
+            <Reveal><h2 className="max-w-xl text-3xl font-bold leading-snug sm:text-4xl">
               كل ما تحتاجه لورد يومي ثابت
-            </h2>
+            </h2></Reveal>
             <dl className="mt-12 grid gap-x-16 gap-y-12 md:grid-cols-2">
-              {FEATURES.map(({ title, desc }) => (
-                <div key={title}>
+              {FEATURES.map(({ title, desc }, i) => (
+                <Reveal key={title} delay={(i % 2) * 120}>
                   <dt className="text-xl font-extrabold">{title}</dt>
                   <dd className="mt-3 text-base leading-8 text-foreground/75">{desc}</dd>
-                </div>
+                </Reveal>
               ))}
             </dl>
           </div>
@@ -119,7 +124,7 @@ export default function LandingRoute({ onEnter, onLogin }: { onEnter: () => void
 
         {/* Close: the name returns, large */}
         <section className="mx-auto max-w-6xl px-5 py-20 text-center sm:px-8 md:py-28">
-          <p className="font-display text-7xl font-bold sm:text-9xl">سكينة</p>
+          <Reveal><p className="font-display text-7xl font-bold sm:text-9xl">سكينة</p></Reveal>
           <button
             onClick={onEnter}
             className="mt-10 inline-flex h-14 items-center justify-center gap-2 rounded-lg bg-primary px-10 text-base font-bold text-primary-foreground transition-transform duration-200 hover:brightness-110 active:scale-[0.98] cursor-pointer"
