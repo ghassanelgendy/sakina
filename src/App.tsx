@@ -90,9 +90,9 @@ export default function App() {
                 aria-selected={tab === id}
                 onClick={() => setTab(id)}
                 className={cn(
-                  'rounded-full px-4 sm:px-5 h-9 text-sm font-bold transition-colors duration-200 cursor-pointer',
+                  'rounded-full px-4 sm:px-5 h-9 text-sm font-bold transition-all duration-200 cursor-pointer active:scale-95',
                   tab === id
-                    ? 'bg-primary text-primary-foreground'
+                    ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
@@ -105,7 +105,7 @@ export default function App() {
             <button
               onClick={() => setShowGuide(true)}
               aria-label="دليل الاستخدام"
-              className="hidden h-10 w-10 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors cursor-pointer sm:flex"
+              className="hidden h-10 w-10 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors cursor-pointer sm:flex active:scale-90"
               title="دليل الاستخدام"
             >
               <HelpCircle size={18} />
@@ -113,15 +113,17 @@ export default function App() {
             <button
               onClick={toggleTheme}
               aria-label="تبديل المظهر"
-              className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors cursor-pointer"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground transition-all duration-200 cursor-pointer active:scale-90"
             >
-              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              <span key={theme} className="inline-flex animate-icon-pop">
+                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              </span>
             </button>
             <button
               onClick={() => setView('auth')}
               aria-label="الحساب"
               className={cn(
-                'flex h-10 w-10 items-center justify-center rounded-full transition-colors cursor-pointer',
+                'flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 cursor-pointer active:scale-90',
                 user ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
               )}
               title={isConfigured ? (user ? user.email ?? undefined : 'تسجيل الدخول') : 'وضع محلي فقط'}
@@ -138,7 +140,7 @@ export default function App() {
         {tab === 'quran' ? <QuranRoute /> : <AzkarRoute />}
       </main>
 
-      <footer className="mt-12 bg-card py-8 text-center text-xs text-muted-foreground" dir="rtl">
+      <footer className={cn("mt-12 bg-card py-8 text-center text-xs text-muted-foreground", tab === 'azkar' && 'hidden md:block')} dir="rtl">
         <div className="mb-3 font-arabic-title text-base font-bold text-foreground">سكينة</div>
         <div className="flex items-center justify-center gap-x-5 gap-y-2 flex-wrap px-4">
           <a

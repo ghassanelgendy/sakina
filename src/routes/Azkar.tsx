@@ -42,19 +42,33 @@ export default function AzkarRoute() {
   const [isTasbihOpen, setIsTasbihOpen] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  // Phones get one dhikr at a time; larger screens keep the list. The choice is remembered.
-  const [viewMode, setViewMode] = useState<'focus' | 'list'>(() => {
+
+  // Detect mobile viewport
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // On desktop, user can toggle focus / list mode (saved in localStorage).
+  // On phone, it is ALWAYS the dedicated full-screen focus mode.
+  const [desktopViewMode, setDesktopViewMode] = useState<'focus' | 'list'>(() => {
     try {
       const saved = localStorage.getItem('azkar_view_v1');
       if (saved === 'focus' || saved === 'list') return saved;
     } catch {}
-    return typeof window !== 'undefined' && window.innerWidth < 768 ? 'focus' : 'list';
+    return 'focus';
   });
-  const [focusIndex, setFocusIndex] = useState(0);
-  const changeView = (m: 'focus' | 'list') => {
-    setViewMode(m);
+
+  const changeDesktopView = (m: 'focus' | 'list') => {
+    setDesktopViewMode(m);
     try { localStorage.setItem('azkar_view_v1', m); } catch {}
   };
+
+  const effectiveViewMode = isMobile ? 'focus' : desktopViewMode;
+  const [focusIndex, setFocusIndex] = useState(0);
 
   const displayedAzkar = useMemo(() => {
     let list: AzkarItem[] = allAzkar;
@@ -138,9 +152,43 @@ export default function AzkarRoute() {
     resetCategory(ids);
   }, [displayedAzkar, resetCategory]);
 
+  if (isMobile) {
+    return (
+      <div className="h-[calc(100dvh-3.5rem)] flex flex-col bg-background overflow-hidden text-foreground">
+        <ZekrFocus
+          items={displayedAzkar}
+          counts={progress.counts}
+          index={focusIndex}
+          onIndexChange={setFocusIndex}
+          onIncrement={handleIncrement}
+          onReset={handleResetZekr}
+          isFavorite={isFavorite}
+          onToggleFavorite={toggleFavorite}
+          onRestartAll={() => {
+            handleResetCurrentCategory();
+            setFocusIndex(0);
+          }}
+          onNextCategory={nextCategory && !searchQuery && !showFavoritesOnly ? () => setSelectedCategory(nextCategory) : undefined}
+          nextCategoryName={nextCategory || undefined}
+          categories={categories}
+          currentCategoryName={activeCategoryTitle}
+          onSelectCategory={(cat) => {
+            setSelectedCategory(cat);
+            setShowFavoritesOnly(false);
+            setSearchQuery('');
+          }}
+          onOpenTasbih={() => setIsTasbihOpen(true)}
+          showFavoritesOnly={showFavoritesOnly}
+          onToggleFavoritesOnly={() => setShowFavoritesOnly((v) => !v)}
+        />
+        <TasbihCounterModal isOpen={isTasbihOpen} onClose={() => setIsTasbihOpen(false)} />
+      </div>
+    );
+  }
+
   return (
-    <div className={cn('bg-background text-foreground', viewMode === 'list' ? 'min-h-dvh pb-24 md:pb-10' : 'pb-4')}>
-      <div className={cn('z-20 bg-background', viewMode === 'list' && 'sticky top-14')}>
+    <div className={cn('bg-background text-foreground', desktopViewMode === 'list' ? 'min-h-dvh pb-24 md:pb-10' : 'pb-4')}>
+      <div className={cn('z-20 bg-background', desktopViewMode === 'list' && 'sticky top-14')}>
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-4 sm:h-16 sm:gap-4 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="hidden h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary sm:flex">
@@ -153,24 +201,24 @@ export default function AzkarRoute() {
 
           <div className="flex items-center gap-1.5">
             <button
-              onClick={() => changeView(viewMode === 'focus' ? 'list' : 'focus')}
-              aria-label={viewMode === 'focus' ? 'عرض القائمة' : 'عرض ذكر واحد'}
-              title={viewMode === 'focus' ? 'عرض القائمة' : 'عرض ذكر واحد'}
-              className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground cursor-pointer"
+              onClick={() => changeDesktopView(desktopViewMode === 'focus' ? 'list' : 'focus')}
+              aria-label={desktopViewMode === 'focus' ? 'عرض القائمة' : 'عرض ذكر واحد'}
+              title={desktopViewMode === 'focus' ? 'عرض القائمة' : 'عرض ذكر واحد'}
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-all duration-150 hover:bg-secondary hover:text-foreground cursor-pointer active:scale-90"
             >
-              {viewMode === 'focus' ? <LayoutList size={19} /> : <GalleryHorizontal size={19} />}
+              {desktopViewMode === 'focus' ? <LayoutList size={19} /> : <GalleryHorizontal size={19} />}
             </button>
             <button
               onClick={() => { setShowSearch((v) => !v); if (showSearch) setSearchQuery(''); }}
               aria-label="بحث"
               aria-pressed={showSearch || !!searchQuery}
-              className={cn('flex h-10 w-10 items-center justify-center rounded-xl transition-colors cursor-pointer', showSearch || searchQuery ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground')}
+              className={cn('flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-150 cursor-pointer active:scale-90', showSearch || searchQuery ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-secondary hover:text-foreground')}
             >
               <Search size={19} />
             </button>
             <button
               onClick={() => setIsTasbihOpen(true)}
-              className="flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-[13px] font-semibold text-primary-foreground transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-[13px] font-semibold text-primary-foreground transition-all duration-150 hover:brightness-105 active:scale-95 cursor-pointer"
             >
               <RotateCcw size={14} />
               <span className="hidden sm:inline">سبحة إلكترونية</span>
@@ -182,7 +230,7 @@ export default function AzkarRoute() {
               aria-pressed={showFavoritesOnly}
               aria-label="الأذكار المفضلة"
               className={cn(
-                'flex h-10 w-10 items-center justify-center rounded-xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                'flex h-10 w-10 items-center justify-center rounded-xl border transition-all duration-150 active:scale-90 cursor-pointer',
                 showFavoritesOnly
                   ? 'border-amber-500/40 bg-amber-500/20 text-amber-500'
                   : 'border-border text-muted-foreground hover:bg-secondary hover:text-foreground'
@@ -197,7 +245,7 @@ export default function AzkarRoute() {
               aria-pressed={showPreferences}
               aria-label="إعدادات القراءة والخط"
               className={cn(
-                'flex h-10 w-10 items-center justify-center rounded-xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                'flex h-10 w-10 items-center justify-center rounded-xl border transition-all duration-150 active:scale-90 cursor-pointer',
                 showPreferences
                   ? 'border-primary/40 bg-primary/20 text-primary'
                   : 'border-border text-muted-foreground hover:bg-secondary hover:text-foreground'
@@ -210,7 +258,7 @@ export default function AzkarRoute() {
         </div>
 
         {showPreferences && (
-          <div className="bg-card/60 px-4 py-3 sm:px-6">
+          <div className="bg-card/60 px-4 py-3 sm:px-6 animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 text-[13px]">
               <div className="flex items-center gap-2">
                 <span className="flex items-center gap-1 text-muted-foreground">
@@ -222,9 +270,9 @@ export default function AzkarRoute() {
                     onClick={() => setFontSize(sz)}
                     aria-pressed={fontSize === sz}
                     className={cn(
-                      'rounded-lg border px-2.5 py-1 tabular-nums font-medium uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      'rounded-lg border px-2.5 py-1 tabular-nums font-medium uppercase transition-all duration-150 cursor-pointer active:scale-95',
                       fontSize === sz
-                        ? 'border-primary bg-primary text-primary-foreground'
+                        ? 'border-primary bg-primary text-primary-foreground shadow-sm'
                         : 'border-border text-muted-foreground hover:text-foreground'
                     )}
                   >
@@ -237,7 +285,7 @@ export default function AzkarRoute() {
                 <button
                   onClick={toggleHaptic}
                   className={cn(
-                    'flex items-center gap-1 rounded-lg border px-2.5 py-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                    'flex items-center gap-1 rounded-lg border px-2.5 py-1 transition-all duration-150 cursor-pointer active:scale-95',
                     hapticFeedback ? 'border-primary/40 bg-primary/10 font-medium text-primary' : 'border-border text-muted-foreground'
                   )}
                 >
@@ -248,7 +296,7 @@ export default function AzkarRoute() {
                 <button
                   onClick={toggleSound}
                   className={cn(
-                    'flex items-center gap-1 rounded-lg border px-2.5 py-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                    'flex items-center gap-1 rounded-lg border px-2.5 py-1 transition-all duration-150 cursor-pointer active:scale-95',
                     soundEnabled ? 'border-primary/40 bg-primary/10 font-medium text-primary' : 'border-border text-muted-foreground'
                   )}
                 >
@@ -259,17 +307,17 @@ export default function AzkarRoute() {
                 <button
                   onClick={toggleAutoAdvance}
                   className={cn(
-                    'flex items-center gap-1 rounded-lg border px-2.5 py-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                    'flex items-center gap-1 rounded-lg border px-2.5 py-1 transition-all duration-150 cursor-pointer active:scale-95',
                     autoAdvance ? 'border-primary/40 bg-primary/10 font-medium text-primary' : 'border-border text-muted-foreground'
                   )}
                 >
-                  <span>التمرير التلقائي عند الإتمام</span>
+                  <span>الانتقال التلقائي</span>
                 </button>
 
                 <button
                   onClick={toggleTashkeel}
                   className={cn(
-                    'flex items-center gap-1 rounded-lg border px-2.5 py-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                    'flex items-center gap-1 rounded-lg border px-2.5 py-1 transition-all duration-150 cursor-pointer active:scale-95',
                     showTashkeel ? 'border-primary/40 bg-primary/10 font-medium text-primary' : 'border-border text-muted-foreground'
                   )}
                 >
@@ -281,10 +329,10 @@ export default function AzkarRoute() {
         )}
       </div>
 
-      {viewMode === 'focus' ? (
-        <div className="mx-auto flex h-[calc(100dvh-7.5rem)] min-h-[28rem] max-w-2xl flex-col gap-3 px-4 pb-3 pt-1 sm:px-6">
+      {desktopViewMode === 'focus' ? (
+        <div className="mx-auto flex h-[calc(100dvh-7.5rem)] min-h-[32rem] max-w-3xl flex-col gap-3 px-4 pb-3 pt-1 sm:px-6">
           {(showSearch || searchQuery) && (
-            <div className="relative shrink-0">
+            <div className="relative shrink-0 animate-in fade-in duration-200">
               <Search className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
               <input
                 type="text"
@@ -293,7 +341,7 @@ export default function AzkarRoute() {
                 onChange={(e) => { setSearchQuery(e.target.value); if (showFavoritesOnly) setShowFavoritesOnly(false); }}
                 placeholder="ابحث: آية الكرسي، سيد الاستغفار، السفر"
                 aria-label="البحث في الأذكار"
-                className="h-12 w-full rounded-xl bg-card pr-11 pl-10 text-[15px] placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="h-12 w-full rounded-xl bg-card pr-11 pl-10 text-[15px] placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring border border-border/60"
                 dir="rtl"
               />
               {searchQuery && (
@@ -317,8 +365,8 @@ export default function AzkarRoute() {
                     onClick={() => setSelectedCategory(cat.name)}
                     ref={(el) => { if (el && isSelected) el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); }}
                     className={cn(
-                      'flex h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 text-[14px] font-semibold transition-colors cursor-pointer',
-                      isSelected ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'
+                      'flex h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 text-[14px] font-semibold transition-all duration-150 cursor-pointer active:scale-95',
+                      isSelected ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80'
                     )}
                   >
                     {isContext && <span className={cn('size-1.5 shrink-0 rounded-full', isSelected ? 'bg-primary-foreground' : 'bg-primary')} />}
@@ -334,7 +382,7 @@ export default function AzkarRoute() {
             </div>
           )}
 
-          <div className="min-h-0 flex-1">
+          <div className="min-h-0 flex-1 rounded-2xl bg-card/50 border border-border/50 p-2 sm:p-4 overflow-hidden">
             {displayedAzkar.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center gap-3 rounded-2xl bg-card text-center" dir="rtl">
                 <BookOpen size={36} className="text-muted-foreground/60" />
@@ -355,6 +403,16 @@ export default function AzkarRoute() {
                 onRestartAll={() => { handleResetCurrentCategory(); setFocusIndex(0); }}
                 onNextCategory={nextCategory && !searchQuery && !showFavoritesOnly ? () => setSelectedCategory(nextCategory) : undefined}
                 nextCategoryName={nextCategory || undefined}
+                categories={categories}
+                currentCategoryName={activeCategoryTitle}
+                onSelectCategory={(cat) => {
+                  setSelectedCategory(cat);
+                  setShowFavoritesOnly(false);
+                  setSearchQuery('');
+                }}
+                onOpenTasbih={() => setIsTasbihOpen(true)}
+                showFavoritesOnly={showFavoritesOnly}
+                onToggleFavoritesOnly={() => setShowFavoritesOnly((v) => !v)}
               />
             )}
           </div>

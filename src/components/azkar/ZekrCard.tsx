@@ -37,6 +37,7 @@ export function ZekrCard({
   } = useAzkarStore();
 
   const [showDetails, setShowDetails] = useState(false);
+  const [isPopping, setIsPopping] = useState(false);
 
   const targetCount = item.count;
   const isFinished = completedCount >= targetCount;
@@ -77,6 +78,8 @@ export function ZekrCard({
     if (isFinished) return;
 
     triggerHaptic();
+    setIsPopping(true);
+    setTimeout(() => setIsPopping(false), 240);
     const newCount = completedCount + 1;
     onIncrement(item.id, newCount);
 
@@ -266,11 +269,11 @@ export function ZekrCard({
           >
             {isFinished ? (
               <>
-                <Check size={18} strokeWidth={3} />
+                <Check size={18} strokeWidth={3} className="animate-celebrate" />
                 <span className="text-sm font-semibold">{targetCount}</span>
               </>
             ) : (
-              <span className="text-base font-extrabold tracking-tight tabular-nums">
+              <span className={cn("text-base font-extrabold tracking-tight tabular-nums transition-transform", isPopping && "animate-counter-pop")}>
                 {completedCount} / {targetCount}
               </span>
             )}

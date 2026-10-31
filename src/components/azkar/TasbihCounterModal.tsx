@@ -29,6 +29,7 @@ export function TasbihCounterModal({ isOpen, onClose }: { isOpen: boolean; onClo
   } = useAzkarStore();
 
   const [isCompletedAnim, setIsCompletedAnim] = useState(false);
+  const [isPopping, setIsPopping] = useState(false);
 
   const triggerHaptic = useCallback(() => {
     if (!hapticFeedback) return;
@@ -41,6 +42,8 @@ export function TasbihCounterModal({ isOpen, onClose }: { isOpen: boolean; onClo
 
   const handleTap = useCallback(() => {
     triggerHaptic();
+    setIsPopping(true);
+    setTimeout(() => setIsPopping(false), 220);
     incrementTasbih();
 
     if (tasbihTarget > 0 && tasbihCount + 1 >= tasbihTarget) {
@@ -204,7 +207,13 @@ export function TasbihCounterModal({ isOpen, onClose }: { isOpen: boolean; onClo
             )}
           </svg>
 
-          <span className="text-5xl sm:text-6xl font-extrabold tracking-tight tabular-nums text-foreground select-none" aria-live="polite">
+          <span
+            className={cn(
+              "text-5xl sm:text-6xl font-extrabold tracking-tight tabular-nums text-foreground select-none transition-transform",
+              isPopping && "animate-counter-pop text-primary"
+            )}
+            aria-live="polite"
+          >
             {tasbihCount}
           </span>
           {tasbihTarget > 0 && (
