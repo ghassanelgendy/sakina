@@ -45,7 +45,7 @@ export function OfflineDownload() {
 
   if (isComplete && !isDownloading) {
     return (
-      <div className="flex items-center gap-2.5 rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.06] px-4 py-3 text-xs font-bold text-emerald-500">
+      <div className="flex items-center gap-2.5 rounded-2xl bg-emerald-500/[0.06] px-4 py-3 text-[13px] font-bold text-emerald-500">
         <CheckCircle2 size={16} className="shrink-0" />
         <span>المصحف كامل (604 صفحة) متاح بدون إنترنت على هذا الجهاز</span>
       </div>
@@ -53,9 +53,9 @@ export function OfflineDownload() {
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card/60 px-4 py-3.5 space-y-2.5">
+    <div className="rounded-2xl bg-card/60 px-4 py-3.5 space-y-2.5">
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-xs font-bold text-foreground min-w-0">
+        <div className="flex items-center gap-2 text-[13px] font-bold text-foreground min-w-0">
           {!isOnline ? (
             <WifiOff size={15} className="text-muted-foreground shrink-0" />
           ) : isDownloading ? (
@@ -67,7 +67,7 @@ export function OfflineDownload() {
             {isDownloading
               ? progress.text
               : cachedCount > 0
-              ? `تم تنزيل ${cachedCount} من ${TOTAL_PAGES} صفحة — أكمل التنزيل ليعمل المصحف بالكامل بدون إنترنت`
+              ? `تم تنزيل ${cachedCount} من ${TOTAL_PAGES} صفحة، أكمل التنزيل ليعمل المصحف بالكامل بدون إنترنت`
               : 'نزّل المصحف كاملاً مع التفسير الميسر ليعمل التطبيق بدون إنترنت نهائياً'}
           </span>
         </div>
@@ -76,7 +76,7 @@ export function OfflineDownload() {
           <button
             onClick={handleDownload}
             disabled={!isOnline}
-            className="shrink-0 rounded-xl bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-foreground hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            className="shrink-0 rounded-xl bg-primary px-3.5 py-1.5 text-[13px] font-bold text-primary-foreground hover:brightness-110 active:scale-95 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             title={!isOnline ? 'يلزم الاتصال بالإنترنت لبدء التنزيل' : undefined}
           >
             تنزيل الآن
@@ -87,14 +87,14 @@ export function OfflineDownload() {
       {(isDownloading || progress.step === 'error') && (
         <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-300 ${progress.step === 'error' ? 'bg-destructive' : 'bg-primary'}`}
+            className={`h-full rounded-full transition duration-300 ${progress.step === 'error' ? 'bg-destructive' : 'bg-primary'}`}
             style={{ width: `${progress.step === 'error' ? 100 : progress.percent}%` }}
           />
         </div>
       )}
 
       {progress.step === 'error' && (
-        <p className="text-[11px] text-destructive font-semibold">{progress.text}</p>
+        <p className="text-[13px] text-destructive font-semibold">{progress.text}</p>
       )}
     </div>
   );

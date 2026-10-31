@@ -20,12 +20,12 @@ const STEPS = [
   {
     Icon: Moon,
     title: 'الأذكار والسبحة',
-    desc: 'من تبويب "الأذكار" ستجد أذكار الصباح والمساء والنوم وبعد الصلاة، مع سبحة إلكترونية وتتبع يومي — كل ذلك محفوظ محلياً حتى بلا حساب.',
+    desc: 'من تبويب "الأذكار" ستجد أذكار الصباح والمساء والنوم وبعد الصلاة، مع سبحة إلكترونية وتتبع يومي، كل ذلك محفوظ محلياً حتى بلا حساب.',
   },
   {
     Icon: CloudDownload,
     title: 'اعمل بلا إنترنت بالكامل',
-    desc: 'من الشاشة الرئيسية (الخاتمة) اضغط "تنزيل الآن" لحفظ المصحف كاملاً مع التفسير على جهازك — بعدها يعمل التطبيق بالكامل بدون أي اتصال بالإنترنت.',
+    desc: 'من الشاشة الرئيسية (الخاتمة) اضغط "تنزيل الآن" لحفظ المصحف كاملاً مع التفسير على جهازك، بعدها يعمل التطبيق بالكامل بدون أي اتصال بالإنترنت.',
   },
 ];
 
@@ -52,17 +52,17 @@ export function Guide({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-md p-0 sm:p-4">
+    <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4">
       <div
         dir="rtl"
-        className="w-full sm:max-w-md rounded-t-[2rem] sm:rounded-3xl border border-border bg-card p-6 space-y-5 shadow-2xl text-right animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-300"
+        className="w-full sm:max-w-md rounded-t-[2rem] sm:rounded-3xl bg-card p-6 space-y-5 text-right animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-300"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             {STEPS.map((_, i) => (
               <span
                 key={i}
-                className={`h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-primary' : 'w-1.5 bg-secondary'}`}
+                className={`h-1.5 rounded-full transition ${i === step ? 'w-6 bg-primary' : 'w-1.5 bg-secondary'}`}
               />
             ))}
           </div>
@@ -83,7 +83,7 @@ export function Guide({ onClose }: { onClose: () => void }) {
           {step > 0 && (
             <button
               onClick={() => setStep((s) => s - 1)}
-              className="flex items-center gap-1.5 rounded-xl border border-border px-4 py-2.5 text-sm font-bold hover:bg-secondary transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-bold hover:bg-secondary transition-colors cursor-pointer"
             >
               <ArrowRight size={15} />
               <span>السابق</span>
@@ -91,7 +91,7 @@ export function Guide({ onClose }: { onClose: () => void }) {
           )}
           <button
             onClick={() => (isLast ? finish() : setStep((s) => s + 1))}
-            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer"
+            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground hover:brightness-110 active:scale-[0.98] transition cursor-pointer"
           >
             <span>{isLast ? 'ابدأ الآن' : 'التالي'}</span>
             {!isLast && <ArrowLeft size={15} />}

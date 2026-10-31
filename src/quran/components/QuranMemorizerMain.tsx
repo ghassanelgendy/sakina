@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { BookOpen, Calendar, Award, Sparkles, Target, X } from 'lucide-react';
+import { BookOpen, Calendar, Award, Target, X } from 'lucide-react';
 import { Reciter, RepeatSettings, HifdhRecord, LifeOSIntegrationProps, KhatmahPlan, ReadingWirdPlan } from '../types/quran';
 import { RECITERS, SURAHS } from '../services/quranData';
 import { useQuranAudio } from '../hooks/useQuranAudio';
@@ -562,31 +562,32 @@ export const QuranMemorizerMain: React.FC<LifeOSIntegrationProps> = ({
 
   return (
     <div dir="rtl" className="flex flex-col font-arabic-body text-right">
-      {/* Native iOS Segmented Control Navbar */}
+      {/* Section tabs — sit directly under the 56px app bar */}
       <header
-        className={`sticky top-0 z-30 w-full bg-background/80 backdrop-blur-2xl border-b border-border/30 px-3 py-2.5 ${
-          activeTab === 'reader' ? 'mb-2 sm:mb-3' : 'mb-4'
+        className={`sticky top-14 z-20 w-full bg-background px-3 ${
+          activeTab === 'reader' ? 'mb-1' : 'mb-3'
         }`}
       >
         <div className="max-w-2xl mx-auto w-full">
-          {/* Underline tab bar */}
-          <div dir="rtl" className="flex items-stretch gap-6">
+          <div dir="rtl" role="tablist" className="flex items-stretch justify-center gap-2">
             {([
-              { id: 'khatmah' as const, label: 'الخاتمة', Icon: Target },
+              { id: 'khatmah' as const, label: 'الختمة', Icon: Target },
               { id: 'reader' as const, label: 'المصحف', Icon: BookOpen },
               { id: 'revision' as const, label: 'المراجعة', Icon: Calendar },
             ]).map(({ id, label, Icon }) => (
               <button
                 key={id}
+                role="tab"
+                aria-selected={activeTab === id}
                 onClick={() => setActiveTab(id)}
-                className={`relative py-2.5 text-sm font-bold transition-colors flex items-center gap-1.5 cursor-pointer ${
+                className={`relative h-11 px-4 text-sm font-bold transition-colors duration-200 flex items-center gap-2 cursor-pointer ${
                   activeTab === id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <Icon className={`size-4 shrink-0 ${activeTab === id ? 'text-primary' : ''}`} />
+                <Icon className={`size-4 shrink-0 transition-colors ${activeTab === id ? 'text-primary' : ''}`} />
                 <span>{label}</span>
                 <span
-                  className={`absolute inset-x-0 -bottom-[1px] h-[2.5px] rounded-full bg-primary transition-transform duration-200 origin-center ${
+                  className={`absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-primary transition-transform duration-300 ease-out origin-center ${
                     activeTab === id ? 'scale-x-100' : 'scale-x-0'
                   }`}
                 />
@@ -596,44 +597,29 @@ export const QuranMemorizerMain: React.FC<LifeOSIntegrationProps> = ({
         </div>
       </header>
 
-      {/* 12-Hour Daily Hadith Modal (Mobile Only - Never on PC/Desktop) */}
+      {/* Daily hadith (mobile only) */}
       {isMobile &&
         showHadithModal &&
         createPortal(
           <div
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md transition-opacity animate-in fade-in duration-300 md:hidden font-arabic-title"
+            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-black/60 animate-in fade-in duration-300 md:hidden font-arabic-title"
             onClick={() => setShowHadithModal(false)}
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-sm rounded-3xl border border-emerald-500/40 bg-card/95 backdrop-blur-2xl p-5 space-y-4 shadow-2xl text-center overscroll-contain animate-in fade-in zoom-in-95 duration-300 ease-out"
+              className="w-full max-w-sm rounded-3xl bg-popover p-6 space-y-5 text-center overscroll-contain animate-in fade-in slide-in-from-bottom-5 duration-300 ease-out"
             >
-              {/* Header Badge */}
-              <div className="flex items-center justify-center">
-                <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px] font-cairo font-bold shadow-sm">
-                  <Sparkles className="size-3.5 text-emerald-400" />
-                  <span>حديث اليوم في فضل القرآن</span>
-                </div>
-              </div>
+              <p className="text-sm font-bold text-primary">حديث اليوم في فضل القرآن</p>
 
-              {/* Enhanced Hadith Box for Mobile */}
-              <div className="p-4 sm:p-5 rounded-2xl border border-emerald-500/30 bg-gradient-to-b from-emerald-950/40 via-emerald-950/20 to-zinc-950/50 shadow-inner space-y-3">
-                <blockquote className="font-arabic-quran text-xl sm:text-2xl text-emerald-200 font-bold leading-[2.3] text-center drop-shadow-sm select-none">
-                  «{currentHadith.text}»
-                </blockquote>
+              <blockquote className="font-arabic-quran text-2xl text-foreground leading-[2.2] select-none">
+                «{currentHadith.text}»
+              </blockquote>
 
-                {/* Narrator Section in Cairo Font */}
-                <div className="pt-2.5 border-t border-emerald-500/20 text-center">
-                  <span className="font-cairo text-xs font-bold text-muted-foreground/90 tracking-wide block">
-                    {currentHadith.narrator}
-                  </span>
-                </div>
-              </div>
+              <p className="text-sm text-muted-foreground">{currentHadith.narrator}</p>
 
-              {/* Dismiss Button */}
               <button
                 onClick={() => setShowHadithModal(false)}
-                className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-cairo font-bold text-xs shadow-md active:scale-95 transition-all cursor-pointer"
+                className="w-full h-12 rounded-full bg-primary text-primary-foreground text-sm font-bold active:scale-[0.98] transition-transform cursor-pointer"
               >
                 متابعة القراءة
               </button>

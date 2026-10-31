@@ -4,7 +4,7 @@ import { cn } from '../lib/utils';
 import { useAuth } from '../hooks/useAuth';
 
 // Classic 8-point Islamic star tile (a square + a 45°-rotated square/diamond,
-// whose points meet the tile edges at their midpoints) — tiled edge-to-edge this
+// whose points meet the tile edges at their midpoints)، tiled edge-to-edge this
 // interlocks into the traditional star-and-cross lattice seen in Islamic art,
 // rather than a grid of isolated shapes.
 const ISLAMIC_PATTERN_SVG = `data:image/svg+xml,${encodeURIComponent(`
@@ -62,22 +62,21 @@ export default function AuthRoute({ onBack }: { onBack: () => void }) {
       setError(err.message);
       setGoogleLoading(false);
     }
-    // On success, Supabase redirects the page to the OAuth provider — no further action needed here.
+    // On success, Supabase redirects the page to the OAuth provider، no further action needed here.
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background text-foreground flex flex-col animate-in fade-in duration-500">
+    <div dir="rtl" className="min-h-dvh bg-background text-foreground flex flex-col animate-in fade-in duration-500">
       <div className="flex-1 grid md:grid-cols-2 animate-in fade-in zoom-in-95 duration-300 ease-out">
-        {/* Branding panel — oriental calligraphy motif */}
-        <div className="relative hidden md:flex flex-col justify-between overflow-hidden bg-gradient-to-b from-[#0c2a20] via-[#0f4a38] to-[#0a1f18] p-10 border-l border-border text-[#eafff5]">
+        {/* Branding panel، oriental calligraphy motif */}
+        <div className="relative hidden md:flex flex-col justify-between overflow-hidden bg-[#0d3a2c] p-10 text-[#eafff5]">
           <div
             className="absolute -inset-8 opacity-[0.15] text-[#eafff5] animate-pattern-drift"
             style={{ backgroundImage: `url("${ISLAMIC_PATTERN_SVG}")`, backgroundSize: '120px 120px' }}
           />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/20 to-transparent" />
 
           <div className="relative flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
               <BookOpenText size={20} />
             </div>
             <span className="font-arabic-title text-lg font-bold">سكينة</span>
@@ -98,7 +97,7 @@ export default function AuthRoute({ onBack }: { onBack: () => void }) {
 
           <div className="relative space-y-2 text-center">
             <p className="text-sm text-[#c9f5e3]/90 leading-relaxed">
-              سجّل دخولك لمزامنة تقدمك في الحفظ والمراجعة والأذكار بين أجهزتك — أو تابع بدون حساب وسيبقى كل شيء محفوظاً على هذا الجهاز فقط.
+              سجّل دخولك لمزامنة تقدمك في الحفظ والمراجعة والأذكار بين أجهزتك، أو تابع بدون حساب وسيبقى كل شيء محفوظاً على هذا الجهاز فقط.
             </p>
           </div>
         </div>
@@ -126,7 +125,7 @@ export default function AuthRoute({ onBack }: { onBack: () => void }) {
               <p className="text-sm text-muted-foreground mb-8">تتم مزامنة المفضلة والتقدم على هذا الحساب.</p>
 
               <div className="max-w-sm space-y-4">
-                <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-4">
+                <div className="flex items-center gap-3 rounded-xl bg-card p-4">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
                     <UserCircle2 size={22} />
                   </div>
@@ -136,7 +135,7 @@ export default function AuthRoute({ onBack }: { onBack: () => void }) {
                 <button
                   onClick={handleSignOut}
                   disabled={signingOut}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-border py-3 text-sm font-bold hover:bg-secondary transition-colors disabled:opacity-60 cursor-pointer"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold hover:bg-secondary transition-colors disabled:opacity-60 cursor-pointer"
                 >
                   {signingOut ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
                   <span>{signingOut ? 'جارٍ تسجيل الخروج...' : 'تسجيل الخروج'}</span>
@@ -151,7 +150,7 @@ export default function AuthRoute({ onBack }: { onBack: () => void }) {
           <p className="text-sm text-muted-foreground mb-8">
             {isConfigured
               ? 'لمزامنة المفضلة والتقدم بين أجهزتك.'
-              : 'لم يتم إعداد المزامنة لهذا التطبيق بعد — يمكنك المتابعة بدون حساب.'}
+              : 'لم يتم إعداد المزامنة لهذا التطبيق بعد، يمكنك المتابعة بدون حساب.'}
           </p>
 
           {!isConfigured ? (
@@ -167,16 +166,16 @@ export default function AuthRoute({ onBack }: { onBack: () => void }) {
                 type="button"
                 onClick={handleGoogle}
                 disabled={googleLoading}
-                className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-border bg-card py-3 text-sm font-bold hover:bg-secondary transition-colors disabled:opacity-60 cursor-pointer"
+                className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-card py-3 text-sm font-bold hover:bg-secondary transition-colors disabled:opacity-60 cursor-pointer"
               >
                 {googleLoading ? <Loader2 size={16} className="animate-spin" /> : <GoogleIcon size={16} />}
                 <span>{googleLoading ? 'جارٍ التحويل...' : 'المتابعة عبر Google'}</span>
               </button>
 
-              <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                <div className="h-px flex-1 bg-border" />
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <div className="flex-1" />
                 <span>أو بالبريد الإلكتروني</span>
-                <div className="h-px flex-1 bg-border" />
+                <div className="flex-1" />
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -190,7 +189,7 @@ export default function AuthRoute({ onBack }: { onBack: () => void }) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full rounded-xl border border-border bg-card px-3 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="w-full rounded-xl bg-card px-3 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>
               </label>
@@ -206,13 +205,13 @@ export default function AuthRoute({ onBack }: { onBack: () => void }) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full rounded-xl border border-border bg-card px-3 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="w-full rounded-xl bg-card px-3 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>
               </label>
 
               {error && (
-                <p className="text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">
+                <p className="text-xs text-destructive bg-destructive/10 rounded-lg px-3 py-2">
                   {error}
                 </p>
               )}
@@ -221,7 +220,7 @@ export default function AuthRoute({ onBack }: { onBack: () => void }) {
                 type="submit"
                 disabled={loading}
                 className={cn(
-                  'flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground hover:brightness-110 disabled:opacity-60 transition-all cursor-pointer'
+                  'flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground hover:brightness-110 disabled:opacity-60 transition cursor-pointer'
                 )}
               >
                 {loading ? <Loader2 size={16} className="animate-spin" /> : <LogIn size={16} />}

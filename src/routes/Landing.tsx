@@ -1,121 +1,141 @@
-import { BookOpenText, Sparkles, WifiOff, RotateCcw, ArrowLeft, Moon } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, Minus, Plus } from 'lucide-react';
 
 const FEATURES = [
   {
-    Icon: BookOpenText,
-    title: 'مصحف كامل مع الحفظ',
-    desc: 'قراءة صفحة بصفحة مع التفسير الميسر، وتتبّع حفظك بخطة ختمة ذكية ومراجعة بالتكرار المتباعد.',
+    title: 'مصحف كامل للقراءة والحفظ',
+    desc: 'اقرأ صفحة بصفحة مع التفسير الميسر، وتابع حفظك بخطة ختمة ومراجعة بالتكرار المتباعد.',
   },
   {
-    Icon: Moon,
     title: 'أذكار وسبحة إلكترونية',
-    desc: 'أذكار الصباح والمساء والنوم والصلاة، مع تتبع يومي للتقدم وسبحة إلكترونية لا تحتاج شيئاً سوى إصبعك.',
+    desc: 'أذكار الصباح والمساء والنوم والصلاة، مع تتبّع يومي لتقدّمك وسبحة لا تحتاج سوى إصبعك.',
   },
   {
-    Icon: WifiOff,
     title: 'يعمل بلا إنترنت',
-    desc: 'كل شيء محفوظ على جهازك مباشرة — لا حاجة لحساب أو اتصال دائم بالشبكة لتقرأ أو تحفظ.',
+    desc: 'كل شيء محفوظ على جهازك. لا حاجة لحساب ولا لاتصال دائم لتقرأ أو تحفظ.',
   },
   {
-    Icon: RotateCcw,
     title: 'مزامنة اختيارية',
-    desc: 'أنشئ حساباً إن أردت متابعة تقدمك عبر أكثر من جهاز، أو تجاهل ذلك تماماً وابقَ محلياً.',
+    desc: 'أنشئ حساباً إن أردت متابعة تقدّمك على أكثر من جهاز، أو ابقَ محلياً تماماً.',
   },
 ];
 
+const SIZES = [1.5, 1.75, 2, 2.35, 2.75];
+
 export default function LandingRoute({ onEnter, onLogin }: { onEnter: () => void; onLogin: () => void }) {
+  const [size, setSize] = useState(2);
+
   return (
-    <div dir="rtl" className="min-h-screen bg-background text-foreground animate-in fade-in duration-500">
-      {/* Top bar */}
-      <div className="flex items-center justify-between px-5 py-4 sm:px-8">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 text-primary">
-            <BookOpenText size={18} />
-          </div>
-          <span className="font-arabic-title text-base font-bold">سكينة</span>
-        </div>
+    <div dir="rtl" className="min-h-dvh bg-background text-foreground animate-in fade-in duration-500">
+      <header className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+        <span className="font-arabic-title text-xl font-extrabold">سكينة</span>
         <button
           onClick={onLogin}
-          className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          className="h-11 rounded-full px-4 text-sm font-bold text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
         >
           تسجيل الدخول
         </button>
-      </div>
+      </header>
 
-      {/* Hero */}
-      <section className="relative overflow-hidden px-5 pt-10 pb-16 sm:px-8 sm:pt-16 sm:pb-24 text-center">
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] opacity-[0.35]"
-          style={{ background: 'radial-gradient(60% 60% at 50% 0%, var(--color-primary) 0%, transparent 70%)' }}
-        />
+      <main>
+        {/* Hero: the words on the left of the eye, the real reading page on the right */}
+        <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-20 pt-8 sm:px-8 md:grid-cols-2 md:gap-14 md:pb-28 md:pt-16">
+          <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
+            <h1 className="text-4xl font-black leading-[1.25] sm:text-6xl">
+              اقرأ القرآن
+              <br />
+              <span>بسكينة.</span>
+            </h1>
+            <p className="mt-6 max-w-md text-lg leading-8 text-foreground/80">
+              مصحف للقراءة والحفظ والمراجعة، وأذكارك اليومية في تطبيق واحد هادئ. يعمل من غير إنترنت ويحفظ تقدّمك أولاً بأول.
+            </p>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <button
+                onClick={onEnter}
+                className="flex h-14 items-center justify-center gap-2 rounded-full bg-primary px-9 text-base font-bold text-primary-foreground transition-transform duration-200 hover:brightness-110 active:scale-[0.98] cursor-pointer"
+              >
+                <span>ابدأ القراءة</span>
+                <ArrowLeft size={18} />
+              </button>
+              <button
+                onClick={onLogin}
+                className="h-14 rounded-full bg-secondary px-8 text-base font-bold text-foreground transition-colors hover:bg-secondary/70 cursor-pointer"
+              >
+                لدي حساب بالفعل
+              </button>
+            </div>
+          </div>
 
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1.5 text-xs font-bold text-primary animate-in fade-in slide-in-from-bottom-2 duration-500 ease-out">
-          <Sparkles size={13} />
-          <span>القرآن والأذكار في مكان واحد</span>
-        </span>
+          <figure
+            data-ui
+            className="animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out rounded-[2rem] bg-card px-6 pb-6 pt-8 sm:px-10 sm:pb-8 sm:pt-12"
+          >
+            <blockquote
+              className="font-arabic-quran text-center text-foreground transition-[font-size] duration-300 ease-out"
+              style={{ fontSize: `${size}rem`, lineHeight: 2.3 }}
+            >
+              ٱلَّذِينَ ءَامَنُوا۟ وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ ٱللَّهِ ۗ أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ
+            </blockquote>
+            <figcaption className="mt-6 flex items-center justify-between gap-4">
+              <span className="text-sm font-semibold text-muted-foreground">سورة الرعد · الآية ٢٨</span>
+              <div className="flex items-center gap-1" role="group" aria-label="حجم الخط">
+                <button
+                  onClick={() => setSize((s) => SIZES[Math.max(0, SIZES.indexOf(s) - 1)])}
+                  disabled={size === SIZES[0]}
+                  aria-label="تصغير الخط"
+                  className="flex size-11 items-center justify-center rounded-full bg-secondary text-foreground transition-colors hover:bg-secondary/70 active:scale-95 disabled:opacity-30 cursor-pointer"
+                >
+                  <Minus size={18} />
+                </button>
+                <button
+                  onClick={() => setSize((s) => SIZES[Math.min(SIZES.length - 1, SIZES.indexOf(s) + 1)])}
+                  disabled={size === SIZES[SIZES.length - 1]}
+                  aria-label="تكبير الخط"
+                  className="flex size-11 items-center justify-center rounded-full bg-secondary text-foreground transition-colors hover:bg-secondary/70 active:scale-95 disabled:opacity-30 cursor-pointer"
+                >
+                  <Plus size={18} />
+                </button>
+              </div>
+            </figcaption>
+          </figure>
+        </section>
 
-        <h1 className="mt-6 text-3xl sm:text-5xl font-black leading-tight max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
-          سكينة قلبك تبدأ
-          <br />
-          <span className="text-primary">بذكر الله</span>
-        </h1>
+        {/* What it does — plain type on a field of colour */}
+        <section className="bg-card py-20 md:py-28">
+          <div className="mx-auto max-w-6xl px-5 sm:px-8">
+            <h2 className="max-w-xl text-3xl font-black leading-snug sm:text-4xl">
+              كل ما تحتاجه لورد يومي ثابت
+            </h2>
+            <dl className="mt-12 grid gap-x-16 gap-y-12 md:grid-cols-2">
+              {FEATURES.map(({ title, desc }) => (
+                <div key={title}>
+                  <dt className="text-xl font-extrabold">{title}</dt>
+                  <dd className="mt-3 text-base leading-8 text-foreground/75">{desc}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
 
-        <p className="mt-5 max-w-lg mx-auto text-sm sm:text-base text-muted-foreground leading-relaxed animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
-          احفظ القرآن، راجع ما حفظته، واقرأ أذكارك اليومية — تطبيق واحد بسيط يعمل من غير إنترنت، ويحفظ تقدمك أولاً بأول.
-        </p>
-
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
+        {/* Close: the name returns, large */}
+        <section className="mx-auto max-w-6xl px-5 py-20 text-center sm:px-8 md:py-28">
+          <p className="font-arabic-title text-6xl font-black sm:text-8xl">سكينة</p>
           <button
             onClick={onEnter}
-            className="flex items-center gap-2 rounded-xl bg-primary px-7 py-3.5 text-sm font-bold text-primary-foreground shadow-sm hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer"
+            className="mt-10 inline-flex h-14 items-center justify-center gap-2 rounded-full bg-primary px-10 text-base font-bold text-primary-foreground transition-transform duration-200 hover:brightness-110 active:scale-[0.98] cursor-pointer"
           >
-            <span>ابدأ الآن</span>
-            <ArrowLeft size={16} />
+            <span>ابدأ القراءة</span>
+            <ArrowLeft size={18} />
           </button>
-          <button
-            onClick={onLogin}
-            className="rounded-xl border border-border px-7 py-3.5 text-sm font-bold text-foreground hover:bg-secondary transition-colors cursor-pointer"
-          >
-            لدي حساب بالفعل
-          </button>
-        </div>
-      </section>
+        </section>
+      </main>
 
-      {/* Mushaf preview strip */}
-      <section className="px-5 sm:px-8 -mt-6 mb-16">
-        <div className="mx-auto max-w-2xl rounded-3xl border border-border bg-card/60 backdrop-blur-xl p-6 sm:p-8 shadow-sm">
-          <p className="font-arabic-quran text-xl sm:text-2xl leading-loose text-center text-foreground/90">
-            ﴿ الَّذِينَ ءَامَنُوا وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ ٱللَّهِ ۗ أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ ﴾
-          </p>
-          <p className="mt-3 text-center text-xs text-muted-foreground">سورة الرعد، الآية 28</p>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="px-5 sm:px-8 pb-20">
-        <div className="mx-auto grid max-w-4xl grid-cols-1 sm:grid-cols-2 gap-4">
-          {FEATURES.map(({ Icon, title, desc }) => (
-            <div key={title} className="rounded-2xl border border-border bg-card/50 p-5 text-right">
-              <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Icon size={17} />
-              </div>
-              <h3 className="text-sm font-bold mb-1.5">{title}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <footer className="border-t border-border py-6 text-center text-[11px] text-muted-foreground space-y-2">
-        <div className="flex items-center justify-center gap-1.5 font-bold text-foreground/80">
-          <BookOpenText size={12} /> سكينة
-        </div>
-        <div className="flex items-center justify-center gap-3">
-          <a href="https://lifeos.ghassan.online/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+      <footer className="bg-card py-8 text-center text-sm text-muted-foreground">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 px-4">
+          <a href="https://lifeos.ghassan.online/" target="_blank" rel="noopener noreferrer" className="py-1 transition-colors hover:text-foreground">
             جزء من مشروع lifeOS
           </a>
-          <span className="text-border">•</span>
-          <a href="https://github.com/ghassanelgendy/sakina" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+          <a href="https://github.com/ghassanelgendy/sakina" target="_blank" rel="noopener noreferrer" className="py-1 transition-colors hover:text-foreground">
             الكود المصدري
           </a>
         </div>

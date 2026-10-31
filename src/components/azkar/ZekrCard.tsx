@@ -121,14 +121,14 @@ export function ZekrCard({
     <div
       onClick={handleTap}
       className={cn(
-        'group relative flex flex-col justify-between p-5 sm:p-7 rounded-2xl border transition-all duration-200 cursor-pointer select-none',
+        'group relative flex flex-col justify-between p-5 sm:p-7 rounded-2xl border transition duration-200 cursor-pointer select-none',
         isFinished
-          ? 'bg-card/40 border-emerald-500/30 opacity-80 shadow-none'
-          : 'bg-card hover:bg-accent/20 border-border hover:border-primary/40 shadow-sm hover:shadow-md'
+          ? 'bg-card/40 border-emerald-500/30 opacity-80 '
+          : 'bg-card hover:bg-accent/20 border-border hover:border-primary/40  '
       )}
     >
       {/* Top Meta Bar */}
-      <div className="flex items-center justify-between gap-2 mb-4 text-xs">
+      <div className="flex items-center justify-between gap-2 mb-4 text-[13px]">
         <div className="flex items-center gap-2">
           <span className="px-2.5 py-1 rounded-full font-medium bg-secondary text-muted-foreground">
             {index + 1} من {total}
@@ -189,7 +189,7 @@ export function ZekrCard({
 
       {/* Description & Reference Collapsible */}
       {(item.description || item.reference) && (
-        <div className="my-3 pt-3 border-t border-border/60">
+        <div className="my-3 pt-3">
           <button
             type="button"
             onClick={(e) => {
@@ -197,7 +197,7 @@ export function ZekrCard({
               setShowDetails((v) => !v);
             }}
             aria-expanded={showDetails}
-            className="flex items-center justify-between w-full rounded-lg text-xs text-muted-foreground hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex items-center justify-between w-full rounded-lg text-[13px] text-muted-foreground hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <span className="flex items-center gap-1.5 font-medium">
               <Info size={14} />
@@ -207,7 +207,7 @@ export function ZekrCard({
           </button>
 
           {showDetails && (
-            <div className="mt-2 text-xs text-muted-foreground space-y-1.5 bg-secondary/30 p-3 rounded-xl animate-in fade-in duration-150" dir="rtl" lang="ar">
+            <div className="mt-2 text-[13px] text-muted-foreground space-y-1.5 bg-secondary/30 p-3 rounded-xl animate-in fade-in duration-150" dir="rtl" lang="ar">
               {item.description && (
                 <p className="leading-relaxed">
                   <span className="font-semibold text-foreground">الفضيلة: </span>
@@ -215,7 +215,7 @@ export function ZekrCard({
                 </p>
               )}
               {item.reference && (
-                <p className="text-[11px] text-muted-foreground/80">
+                <p className="text-[13px] text-muted-foreground/80">
                   <span className="font-semibold text-foreground">المصدر: </span>
                   {item.reference}
                 </p>
@@ -226,7 +226,7 @@ export function ZekrCard({
       )}
 
       {/* Counter & Action Bottom Bar */}
-      <div className="flex items-center justify-between pt-4 mt-2 border-t border-border/60">
+      <div className="flex items-center justify-between pt-4 mt-2">
         <div className="flex items-center gap-2">
           {completedCount > 0 && (
             <button
@@ -242,7 +242,7 @@ export function ZekrCard({
               <RotateCcw size={14} />
             </button>
           )}
-          <span className="text-xs text-muted-foreground" lang="ar">
+          <span className="text-[13px] text-muted-foreground" lang="ar">
             {isFinished ? 'اكتمل التكرار' : `المتبقي: ${remaining}`}
           </span>
         </div>
@@ -258,7 +258,7 @@ export function ZekrCard({
             disabled={isFinished}
             aria-label={isFinished ? `اكتمل، ${targetCount} من ${targetCount}` : `عدّ الذكر، ${completedCount} من ${targetCount}`}
             className={cn(
-              'relative min-w-[76px] h-11 px-4 rounded-xl flex items-center justify-center gap-2 font-bold transition-all duration-150 select-none shadow-sm active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:active:scale-100',
+              'relative min-w-[76px] h-11 px-4 rounded-xl flex items-center justify-center gap-2 font-bold transition duration-150 select-none  active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:active:scale-100',
               isFinished
                 ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 cursor-default'
                 : 'bg-primary text-primary-foreground hover:brightness-105 cursor-pointer'
@@ -270,7 +270,7 @@ export function ZekrCard({
                 <span className="text-sm font-semibold">{targetCount}</span>
               </>
             ) : (
-              <span className="text-base font-extrabold tracking-tight font-mono">
+              <span className="text-base font-extrabold tracking-tight tabular-nums">
                 {completedCount} / {targetCount}
               </span>
             )}
@@ -282,7 +282,7 @@ export function ZekrCard({
       <div className="absolute bottom-0 left-0 right-0 h-1 bg-secondary/40 rounded-b-2xl overflow-hidden">
         <div
           className={cn(
-            'h-full transition-all duration-200',
+            'h-full transition duration-200',
             isFinished ? 'bg-emerald-500' : 'bg-primary'
           )}
           style={{ width: `${progressPct}%` }}

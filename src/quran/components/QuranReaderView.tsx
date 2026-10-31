@@ -31,6 +31,7 @@ import {
   ZoomIn,
   ZoomOut,
   Columns2,
+  WifiOff,
 } from 'lucide-react';
 import { Ayah, RepeatSettings, RatingGrade, MemorizationStatus } from '../types/quran';
 import { fetchSurahVerses, fetchPageVerses } from '../services/quranApi';
@@ -865,164 +866,107 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
   }, [pickerSearch]);
 
   return (
-    <div dir="rtl" className="mt-2.5 sm:mt-3.5 space-y-3 font-arabic-body text-right">
-      {/* 1. ULTRA-CLEAN iOS NATIVE HEADER BAR (Responsive, No Overflow) */}
-      <div className="w-full max-w-full overflow-hidden px-1.5 sm:px-2 py-1.5 rounded-2xl bg-card/90 backdrop-blur-2xl border border-border shadow-sm flex items-center justify-between gap-1 sm:gap-2 font-arabic-title">
-        {/* Right: Surah & Page Selector Pill Trigger */}
+    <div dir="rtl" className="mt-1 sm:mt-2 space-y-3 font-arabic-body text-right">
+      {/* 1. Reader bar — one clear row: where am I, how do I view, more options */}
+      <div className="flex items-center gap-2 font-arabic-title">
         <button
           type="button"
           onClick={() => setShowSurahPicker(true)}
-          className="flex items-center justify-center gap-1 px-1.5 sm:px-3 py-1.5 rounded-xl bg-secondary/60 hover:bg-secondary border border-border text-xs font-bold text-foreground transition-all cursor-pointer active:scale-95 leading-none shrink-0"
+          className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-full bg-secondary px-4 text-sm font-bold text-foreground transition-colors hover:bg-secondary/70 active:scale-[0.99] cursor-pointer"
           title={`فهرس القرآن - سورة ${effectiveSurah.name} (ص ${activePage})`}
         >
-          <Book className="size-3.5 text-emerald-400 shrink-0" strokeWidth={2.2} />
-          <span className="hidden sm:inline truncate">سورة {effectiveSurah.name}</span>
-          <span className="text-[10px] sm:text-[11px] text-emerald-400 font-mono shrink-0 font-bold">ص {activePage}</span>
-          <ChevronDown className="size-2.5 sm:size-3 text-muted-foreground shrink-0" />
+          <Book className="size-4 shrink-0 text-primary" strokeWidth={2} />
+          <span className="truncate">سورة {effectiveSurah.name}</span>
+          <span className="shrink-0 text-muted-foreground font-semibold tabular-nums">· صفحة {activePage}</span>
+          <ChevronDown className="mr-auto size-4 shrink-0 text-muted-foreground" />
         </button>
 
-        {/* Center: Segmented Pill (المصحف / الآيات) */}
-        <div className="flex items-center p-0.5 rounded-xl bg-secondary/80 border border-border text-[10px] sm:text-[11px] font-bold shrink-0">
-          <button
-            type="button"
-            onClick={() => setViewMode('page')}
-            className={`px-1.5 sm:px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-0.5 sm:gap-1 ${
-              viewMode === 'page'
-                ? 'bg-card text-emerald-400 shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <Book className="size-3 shrink-0" />
-            <span>المصحف</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setViewMode('ayah')}
-            className={`px-1.5 sm:px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-0.5 sm:gap-1 ${
-              viewMode === 'ayah'
-                ? 'bg-card text-emerald-400 shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <LayoutList className="size-3 shrink-0" />
-            <span>الآيات</span>
-          </button>
+        <div role="tablist" className="flex h-11 shrink-0 items-center rounded-full bg-secondary p-1 text-[13px] font-bold">
+          {([
+            { id: 'page' as const, label: 'المصحف', Icon: Book },
+            { id: 'ayah' as const, label: 'الآيات', Icon: LayoutList },
+          ]).map(({ id, label, Icon }) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={viewMode === id}
+              onClick={() => setViewMode(id)}
+              className={`flex h-9 items-center gap-1.5 rounded-full px-3 sm:px-4 transition-colors duration-200 cursor-pointer ${
+                viewMode === id ? 'bg-card text-foreground' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Icon className="hidden size-3.5 shrink-0 sm:block" />
+              <span>{label}</span>
+            </button>
+          ))}
         </div>
 
-        {/* Left: Tajweed, Tafseer, Fullscreen & Secondary Tools Sheet */}
-        <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
-          <button
-            type="button"
-            onClick={() => setShowTajweed(!showTajweed)}
-            className={`h-7 w-7 sm:h-8 sm:w-auto sm:px-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-              showTajweed
-                ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm'
-                : 'bg-secondary/60 text-muted-foreground border-border hover:bg-secondary'
-            }`}
-            title="تلوين أحرف التجويد"
-          >
-            <Palette className="size-3.5 shrink-0" />
-            <span className="hidden md:inline text-[11px]">التجويد</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowTranslation(!showTranslation)}
-            className={`h-7 w-7 sm:h-8 sm:w-auto sm:px-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-              showTranslation
-                ? 'bg-amber-600 text-white border-amber-500 shadow-sm'
-                : 'bg-secondary/60 text-muted-foreground border-border hover:bg-secondary'
-            }`}
-            title="عرض التفسير الميسر"
-          >
-            <BookOpen className="size-3.5 shrink-0" />
-            <span className="hidden md:inline text-[11px]">التفسير</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setIsFullscreen(!isFullscreen)}
-            className={`h-7 w-7 sm:h-8 sm:w-8 rounded-xl border flex items-center justify-center cursor-pointer transition-all active:scale-95 ${
-              isFullscreen
-                ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm'
-                : 'bg-secondary/60 text-muted-foreground hover:text-foreground border-border hover:bg-secondary'
-            }`}
-            title={isFullscreen ? 'إلغاء وضع ملء الشاشة' : 'وضع ملء الشاشة والمطالعة'}
-          >
-            {isFullscreen ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowToolsSheet(true)}
-            className="h-7 w-7 sm:h-8 sm:w-8 rounded-xl bg-secondary/60 hover:bg-secondary text-muted-foreground hover:text-foreground border border-border flex items-center justify-center cursor-pointer transition-all active:scale-95"
-            title="خيارات وإعدادات القراءة والتكرار"
-          >
-            <Settings2 className="size-3.5" />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setShowToolsSheet(true)}
+          aria-label="خيارات القراءة والتكرار"
+          className="flex size-11 shrink-0 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-colors hover:text-foreground active:scale-95 cursor-pointer"
+          title="خيارات وإعدادات القراءة والتكرار"
+        >
+          <Settings2 className="size-[18px]" />
+        </button>
       </div>
 
-      {/* 2. SLIM QUICK MARKERS & PAGE CONTROLS */}
-      <div className="w-full max-w-full overflow-x-auto no-scrollbar scroll-smooth flex items-center justify-between gap-1 text-[10px] sm:text-[11px] font-bold font-arabic-title py-0.5">
-        <div className="flex items-center gap-1 shrink-0">
+      {/* 2. Quick toggles and place-markers — one calm scrolling strip */}
+      <div className="no-scrollbar -mx-2 flex items-center gap-2 overflow-x-auto px-2 py-0.5 font-arabic-title text-[13px] font-bold sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+        {([
+          { on: showTajweed, set: () => setShowTajweed(!showTajweed), Icon: Palette, label: 'التجويد', title: 'تلوين أحرف التجويد' },
+          { on: showTranslation, set: () => setShowTranslation(!showTranslation), Icon: BookOpen, label: 'التفسير', title: 'عرض التفسير الميسر' },
+          { on: isFullscreen, set: () => setIsFullscreen(!isFullscreen), Icon: isFullscreen ? Minimize2 : Maximize2, label: 'ملء الشاشة', title: isFullscreen ? 'إلغاء وضع ملء الشاشة' : 'وضع ملء الشاشة والمطالعة' },
+        ]).map(({ on, set, Icon, label, title }) => (
+          <button
+            key={label}
+            type="button"
+            onClick={set}
+            aria-pressed={on}
+            title={title}
+            className={`flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 transition-colors duration-200 cursor-pointer ${
+              on ? 'bg-primary/15 text-primary' : 'bg-secondary text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Icon className="size-3.5 shrink-0" />
+            <span>{label}</span>
+          </button>
+        ))}
+
+        <span className="w-3 shrink-0" aria-hidden />
+
+        <button
+          type="button"
+          onClick={onSyncMemorization}
+          className="flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-amber-500/12 px-3.5 text-amber-400 transition-colors hover:bg-amber-500/20 active:scale-95 cursor-pointer"
+          title={`الانتقال إلى موضع الحفظ (ص ${memorizationPage})`}
+        >
+          <Target className="size-3.5 shrink-0" />
+          <span>الحفظ · ص {memorizationPage}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={onSyncReading}
+          className="flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/12 px-3.5 text-primary transition-colors hover:bg-primary/20 active:scale-95 cursor-pointer"
+          title={`الانتقال إلى موضع التلاوة (ص ${readingPage})`}
+        >
+          <Bookmark className="size-3.5 shrink-0" />
+          <span>التلاوة · ص {readingPage}</span>
+        </button>
+
+        {onOpenHalqahNote && (
           <button
             type="button"
-            onClick={onSyncMemorization}
-            className="px-2 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/25 transition-all cursor-pointer flex items-center gap-1 active:scale-95 whitespace-nowrap shrink-0"
-            title={`الانتقال إلى موضع الحفظ (ص ${memorizationPage})`}
+            onClick={onOpenHalqahNote}
+            className="flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-secondary px-3.5 text-muted-foreground transition-colors hover:text-foreground active:scale-95 cursor-pointer"
+            title="تدوين ملاحظة وتسميع الحلقة"
           >
-            <Target className="size-3 text-emerald-400 shrink-0" />
-            <span>الحفظ: ص {memorizationPage}</span>
+            <FileText className="size-3.5 shrink-0" />
+            <span>ملاحظة الحلقة</span>
           </button>
-
-          <button
-            type="button"
-            onClick={onSyncReading}
-            className="px-2 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/25 transition-all cursor-pointer flex items-center gap-1 active:scale-95 whitespace-nowrap shrink-0"
-            title={`الانتقال إلى موضع التلاوة (ص ${readingPage})`}
-          >
-            <Bookmark className="size-3 text-primary shrink-0" />
-            <span>التلاوة: ص {readingPage}</span>
-          </button>
-
-          {onOpenHalqahNote && (
-            <button
-              type="button"
-              onClick={onOpenHalqahNote}
-              className="px-2 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/25 transition-all cursor-pointer flex items-center gap-1 active:scale-95 whitespace-nowrap shrink-0"
-              title="تدوين ملاحظة وتسميع الحلقة"
-            >
-              <FileText className="size-3 text-amber-400 shrink-0" />
-              <span>ملاحظة الحلقة</span>
-            </button>
-          )}
-        </div>
-
-        {/* Page Switch Buttons */}
-        {viewMode === 'page' && (
-          <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground shrink-0 font-mono">
-            <button
-              type="button"
-              onClick={() => activePage > 1 && handlePageChange(activePage - 1)}
-              disabled={activePage <= 1}
-              className="h-6 px-1.5 sm:px-2 rounded-md bg-secondary/60 hover:bg-secondary text-foreground disabled:opacity-30 cursor-pointer flex items-center gap-0.5 border border-border shrink-0"
-            >
-              <ChevronRight className="size-3" />
-              <span className="font-arabic-title text-[9px] sm:text-[10px]">السابقة</span>
-            </button>
-            <span className="px-1 text-emerald-400 font-bold shrink-0">ص {activePage}</span>
-            <button
-              type="button"
-              onClick={() => activePage < 604 && handlePageChange(activePage + 1)}
-              disabled={activePage >= 604}
-              className="h-6 px-1.5 sm:px-2 rounded-md bg-secondary/60 hover:bg-secondary text-foreground disabled:opacity-30 cursor-pointer flex items-center gap-0.5 border border-border shrink-0"
-            >
-              <span className="font-arabic-title text-[9px] sm:text-[10px]">التالية</span>
-              <ChevronLeft className="size-3" />
-            </button>
-          </div>
         )}
       </div>
 
@@ -1030,7 +974,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
       {bookmarkToast && (
         <div className="pointer-events-none fixed inset-0 z-[300] flex items-start justify-center pt-16">
           <div
-            className={`flex items-center gap-1.5 rounded-full bg-emerald-600/95 text-white font-bold text-[11px] px-3.5 py-2 shadow-2xl shadow-black/20 transition-all duration-200 ease-out ${
+            className={`flex items-center gap-1.5 rounded-full bg-emerald-600/95 text-white font-bold text-xs px-3.5 py-2   transition duration-200 ease-out ${
               toastVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-1 scale-95'
             }`}
           >
@@ -1044,12 +988,12 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
       {showSurahPicker &&
         createPortal(
           <div
-            className="fixed inset-0 z-[10001] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-md transition-opacity animate-in fade-in duration-300"
+            className="fixed inset-0 z-[10001] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 transition-opacity animate-in fade-in duration-300"
             onClick={() => setShowSurahPicker(false)}
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="w-full sm:max-w-lg bg-card/95 backdrop-blur-2xl border-t sm:border border-border/70 rounded-t-[2.2rem] sm:rounded-3xl p-4 sm:p-6 space-y-3.5 shadow-2xl animate-in slide-in-from-bottom-8 duration-300 ease-out font-arabic-title h-[88vh] sm:h-[82vh] flex flex-col overscroll-contain text-right pb-safe transition-all"
+              className="w-full sm:max-w-lg bg-popover rounded-t-[2.2rem] sm:rounded-3xl p-4 sm:p-6 space-y-3.5 animate-in slide-in-from-bottom-8 duration-300 ease-out font-arabic-title h-[88vh] sm:h-[82vh] flex flex-col overscroll-contain text-right pb-safe transition"
               style={{
                 bottom: 'var(--keyboard-height, 0px)',
                 maxHeight: 'calc(90dvh - var(--keyboard-height, 0px))',
@@ -1060,7 +1004,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
               <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full mx-auto -mt-1 shrink-0" />
 
               {/* Modal Header */}
-              <div className="flex items-center justify-between border-b border-border pb-2.5 shrink-0">
+              <div className="flex items-center justify-between pb-2.5 shrink-0">
                 <div className="flex items-center gap-2.5 me-px">
                   <Book className="size-4 text-emerald-400 translate-x-0.5" />
                   <h3 className="text-sm font-bold text-foreground leading-tight">فهرس القرآن الكريم</h3>
@@ -1075,12 +1019,12 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
               </div>
 
               {/* Picker Segmented Tabs: [ السور | الأجزاء | الصفحة ] */}
-              <div className="grid grid-cols-3 gap-1 bg-secondary/60 p-1 rounded-xl border border-border text-xs font-bold shrink-0">
+              <div className="grid grid-cols-3 gap-1 bg-secondary/60 p-1 rounded-xl text-xs font-bold shrink-0">
                 <button
                   type="button"
                   onClick={() => setPickerTab('surahs')}
-                  className={`py-1.5 rounded-lg transition-all cursor-pointer ${
-                    pickerTab === 'surahs' ? 'bg-card text-emerald-400 shadow-sm' : 'text-muted-foreground'
+                  className={`py-1.5 rounded-lg transition cursor-pointer ${
+                    pickerTab === 'surahs' ? 'bg-card text-emerald-400 ' : 'text-muted-foreground'
                   }`}
                 >
                   السور (١١٤)
@@ -1088,8 +1032,8 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setPickerTab('juz')}
-                  className={`py-1.5 rounded-lg transition-all cursor-pointer ${
-                    pickerTab === 'juz' ? 'bg-card text-emerald-400 shadow-sm' : 'text-muted-foreground'
+                  className={`py-1.5 rounded-lg transition cursor-pointer ${
+                    pickerTab === 'juz' ? 'bg-card text-emerald-400 ' : 'text-muted-foreground'
                   }`}
                 >
                   الأجزاء (٣٠)
@@ -1097,8 +1041,8 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setPickerTab('page')}
-                  className={`py-1.5 rounded-lg transition-all cursor-pointer ${
-                    pickerTab === 'page' ? 'bg-card text-emerald-400 shadow-sm' : 'text-muted-foreground'
+                  className={`py-1.5 rounded-lg transition cursor-pointer ${
+                    pickerTab === 'page' ? 'bg-card text-emerald-400 ' : 'text-muted-foreground'
                   }`}
                 >
                   رقم الصفحة
@@ -1115,7 +1059,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                       value={pickerSearch}
                       onChange={(e) => setPickerSearch(e.target.value)}
                       placeholder="ابحث عن اسم السورة..."
-                      className="w-full pr-9 pl-3 py-2 bg-secondary/40 border border-border rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 font-arabic-body"
+                      className="w-full pr-9 pl-3 py-2 bg-secondary/40 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 font-arabic-body"
                       autoFocus
                     />
                   </div>
@@ -1130,20 +1074,20 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                           handlePageChange(s.pageStart);
                           setShowSurahPicker(false);
                         }}
-                        className={`w-full p-2.5 rounded-xl border flex items-center justify-between gap-2 transition-all cursor-pointer text-xs ${
+                        className={`w-full p-2.5 rounded-xl border flex items-center justify-between gap-2 transition cursor-pointer text-xs ${
                           s.id === effectiveSurah.id
                             ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400 font-bold'
                             : 'bg-secondary/20 border-border hover:bg-secondary/50 text-foreground'
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
-                          <span className="w-6 h-6 rounded-lg bg-secondary flex items-center justify-center font-mono text-[11px] font-bold">
+                          <span className="w-6 h-6 rounded-lg bg-secondary flex items-center justify-center tabular-nums text-xs font-bold">
                             {s.id}
                           </span>
                           <span>سورة {s.name}</span>
-                          <span className="text-[10px] text-muted-foreground">({s.type === 'Meccan' ? 'مكية' : 'مدنية'})</span>
+                          <span className="text-xs text-muted-foreground">({s.type === 'Meccan' ? 'مكية' : 'مدنية'})</span>
                         </div>
-                        <div className="flex items-center gap-3 text-[11px] text-muted-foreground font-mono">
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground tabular-nums">
                           <span>{s.versesCount} آيات</span>
                           <span className="text-emerald-400 font-bold">ص {s.pageStart}</span>
                         </div>
@@ -1164,19 +1108,19 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                         handlePageChange(j.page);
                         setShowSurahPicker(false);
                       }}
-                      className={`w-full p-3 rounded-xl border flex items-center justify-between gap-2 transition-all cursor-pointer text-xs ${
+                      className={`w-full p-3 rounded-xl border flex items-center justify-between gap-2 transition cursor-pointer text-xs ${
                         j.juz === currentJuzNumber
                           ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400 font-bold'
                           : 'bg-secondary/20 border-border hover:bg-secondary/50 text-foreground'
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-lg bg-secondary flex items-center justify-center font-mono text-[11px] font-bold">
+                        <span className="w-6 h-6 rounded-lg bg-secondary flex items-center justify-center tabular-nums text-xs font-bold">
                           {j.juz}
                         </span>
                         <span>الجزء {j.juz}</span>
                       </div>
-                      <span className="text-emerald-400 font-mono font-bold">ص {j.page}</span>
+                      <span className="text-emerald-400 tabular-nums font-bold">ص {j.page}</span>
                     </button>
                   ))}
                 </div>
@@ -1185,9 +1129,9 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
               {/* Tab 3: Direct Page Jump */}
               {pickerTab === 'page' && (
                 <div className="space-y-4 py-4">
-                  <div className="p-3 rounded-2xl bg-secondary/50 border border-border/70 flex items-center justify-between text-xs">
+                  <div className="p-3 rounded-2xl bg-secondary/50 flex items-center justify-between text-xs">
                     <span className="text-muted-foreground font-medium">الصفحة الحالية المعروضة:</span>
-                    <span className="font-extrabold text-emerald-400 font-mono">صفحة {activePage} (سورة {effectiveSurah.name})</span>
+                    <span className="font-extrabold text-emerald-400 tabular-nums">صفحة {activePage} (سورة {effectiveSurah.name})</span>
                   </div>
 
                   <div className="space-y-2">
@@ -1201,7 +1145,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                       value={pageInputVal}
                       onChange={(e) => setPageInputVal(e.target.value)}
                       placeholder={`الحالية: ${activePage}`}
-                      className="w-full p-3 bg-secondary/40 border border-border rounded-xl text-center font-mono text-lg font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      className="w-full p-3 bg-secondary/40 rounded-xl text-center tabular-nums text-lg font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       autoFocus
                     />
                   </div>
@@ -1216,7 +1160,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                       }
                     }}
                     disabled={!pageInputVal || Number(pageInputVal) < 1 || Number(pageInputVal) > 604}
-                    className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all disabled:opacity-40 cursor-pointer"
+                    className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition disabled:opacity-40 cursor-pointer"
                   >
                     الانتقال إلى الصفحة
                   </button>
@@ -1231,12 +1175,12 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
       {showToolsSheet &&
         createPortal(
           <div
-            className="fixed inset-0 z-[10001] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
+            className="fixed inset-0 z-[10001] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 animate-in fade-in duration-200"
             onClick={() => setShowToolsSheet(false)}
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="w-full sm:max-w-md bg-card/95 backdrop-blur-2xl border-t sm:border border-border/70 rounded-t-[2.2rem] sm:rounded-3xl p-5 space-y-4 shadow-2xl animate-in slide-in-from-bottom-6 duration-200 font-arabic-title max-h-[85vh] flex flex-col overscroll-contain text-right pb-safe transition-all"
+              className="w-full sm:max-w-md bg-popover rounded-t-[2.2rem] sm:rounded-3xl p-5 space-y-4 animate-in slide-in-from-bottom-6 duration-200 font-arabic-title max-h-[85vh] flex flex-col overscroll-contain text-right pb-safe transition"
               style={{
                 bottom: 'var(--keyboard-height, 0px)',
                 maxHeight: 'calc(90dvh - var(--keyboard-height, 0px))',
@@ -1246,7 +1190,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
               {/* iOS Drag Handle */}
               <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full mx-auto -mt-2 shrink-0" />
 
-              <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center justify-between pb-3">
                 <div className="flex items-center gap-2">
                   <Settings2 className="size-4 text-emerald-400" />
                   <h3 className="text-sm font-bold text-foreground">إعدادات وخيارات القراءة</h3>
@@ -1268,9 +1212,9 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setPageLayout('single')}
-                      className={`py-2 rounded-xl text-xs font-bold transition-all border ${
+                      className={`py-2 rounded-xl text-xs font-bold transition border ${
                         pageLayout === 'single'
-                          ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm'
+                          ? 'bg-emerald-600 text-white border-emerald-500 '
                           : 'bg-secondary/40 text-muted-foreground border-border hover:bg-secondary'
                       }`}
                     >
@@ -1279,9 +1223,9 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setPageLayout('all')}
-                      className={`py-2 rounded-xl text-xs font-bold transition-all border ${
+                      className={`py-2 rounded-xl text-xs font-bold transition border ${
                         pageLayout === 'all'
-                          ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm'
+                          ? 'bg-emerald-600 text-white border-emerald-500 '
                           : 'bg-secondary/40 text-muted-foreground border-border hover:bg-secondary'
                       }`}
                     >
@@ -1292,7 +1236,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
               )}
 
               {/* Repeat Range Controls */}
-              <div className="space-y-2 pt-2 border-t border-border">
+              <div className="space-y-2 pt-2">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
                     <SlidersHorizontal className="size-3.5 text-emerald-400" />
@@ -1305,7 +1249,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">من الآية:</span>
+                    <span className="text-xs text-muted-foreground">من الآية:</span>
                     <select
                       value={startAyah}
                       onChange={(e) => {
@@ -1313,7 +1257,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                         onStartAyahChange(val);
                         if (val > endAyah) onEndAyahChange(val);
                       }}
-                      className="w-full h-9 bg-secondary text-xs font-bold rounded-xl px-2.5 border border-border"
+                      className="w-full h-9 bg-secondary text-xs font-bold rounded-xl px-2.5"
                     >
                       {verses.map((a) => (
                         <option key={`start-${a.number}`} value={a.numberInSurah}>
@@ -1324,11 +1268,11 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                   </div>
 
                   <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">إلى الآية:</span>
+                    <span className="text-xs text-muted-foreground">إلى الآية:</span>
                     <select
                       value={endAyah}
                       onChange={(e) => onEndAyahChange(Number(e.target.value))}
-                      className="w-full h-9 bg-secondary text-xs font-bold rounded-xl px-2.5 border border-border"
+                      className="w-full h-9 bg-secondary text-xs font-bold rounded-xl px-2.5"
                     >
                       {verses.map((a) => (
                         <option
@@ -1345,19 +1289,19 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
               </div>
 
               {/* Blind Mode Quick Toggle */}
-              <div className="pt-2 border-t border-border flex items-center justify-between">
+              <div className="pt-2 flex items-center justify-between">
                 <div>
                   <span className="text-xs font-bold text-foreground block">اختبار الحفظ (تغطية الآيات)</span>
-                  <span className="text-[11px] text-muted-foreground">إخفاء الكلمات لإتاحة التسميع الذاتي</span>
+                  <span className="text-xs text-muted-foreground">إخفاء الكلمات لإتاحة التسميع الذاتي</span>
                 </div>
                 <button
                   type="button"
                   onClick={() =>
                     onChangeRepeatSettings({ ...repeatSettings, blindMode: !repeatSettings.blindMode })
                   }
-                  className={`h-8 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                  className={`h-8 px-3 rounded-xl border text-xs font-bold transition cursor-pointer ${
                     repeatSettings.blindMode
-                      ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                      ? 'bg-primary text-primary-foreground border-primary '
                       : 'bg-secondary text-muted-foreground border-border'
                   }`}
                 >
@@ -1368,7 +1312,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowToolsSheet(false)}
-                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md active:scale-95 transition-all cursor-pointer"
+                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs active:scale-95 transition cursor-pointer"
               >
                 تم
               </button>
@@ -1392,9 +1336,9 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
             if (pageLayout === 'single' && (pageLoading || pageVerses.length === 0)) {
               if (isPageOffline && pageVerses.length === 0) {
                 return (
-                  <div className="p-10 text-center border border-dashed border-border/80 rounded-3xl space-y-3 bg-card/60 font-arabic-body">
-                    <div className="size-14 rounded-full bg-secondary/80 flex items-center justify-center text-2xl mx-auto">
-                      📵
+                  <div className="p-10 text-center rounded-3xl space-y-3 bg-card/60 font-arabic-body">
+                    <div className="size-14 rounded-full bg-secondary flex items-center justify-center text-muted-foreground mx-auto">
+                      <WifiOff className="size-6" />
                     </div>
                     <h3 className="text-sm font-bold text-foreground font-arabic-title">
                       هذه الصفحة لم تُحمَّل بعد بدون إنترنت
@@ -1406,7 +1350,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                 );
               }
               return (
-                <div className="p-8 text-center text-xs font-bold text-muted-foreground border border-dashed border-border rounded-3xl space-y-3 bg-card/60">
+                <div className="p-8 text-center text-xs font-bold text-muted-foreground rounded-3xl space-y-3 bg-card/60">
                   <p className="text-sm">جاري تحميل آيات صفحة {activePage}...</p>
                 </div>
               );
@@ -1414,12 +1358,12 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
 
             if (pagesToRender.length === 0) {
               return (
-                <div className="p-8 text-center text-xs font-bold text-muted-foreground border border-dashed border-border rounded-3xl space-y-3 bg-card/60">
+                <div className="p-8 text-center text-xs font-bold text-muted-foreground rounded-3xl space-y-3 bg-card/60">
                   <p className="text-sm">جاري تحميل آيات سورة {effectiveSurah.name}...</p>
                   <button
                     type="button"
                     onClick={() => handlePageChange(effectiveSurah.pageStart)}
-                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs cursor-pointer shadow-md transition-all"
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs cursor-pointer transition"
                   >
                     الانتقال لبداية سورة {effectiveSurah.name} (ص {effectiveSurah.pageStart})
                   </button>
@@ -1443,28 +1387,16 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                         onTouchMove={handleTouchMove}
                         onTouchEnd={handleTouchEnd}
                         onDoubleClick={() => setIsFullscreen(true)}
-                        className="px-2.5 py-3 sm:px-5 sm:py-6 rounded-2xl sm:rounded-3xl border border-border bg-card/95 backdrop-blur-xl shadow-lg relative space-y-3 transition-all touch-pan-y"
+                        className="relative mx-auto max-w-3xl space-y-4 rounded-3xl bg-card px-4 pb-6 pt-5 sm:px-12 sm:pb-10 sm:pt-8 transition-colors touch-pan-y animate-in fade-in duration-300"
                       >
-                        {/* Breadcrumb + Swipe Hint Bar */}
-                        <div className="pb-2 mb-1 flex items-center justify-between text-[11px] text-muted-foreground font-arabic-title font-bold border-b border-border/40">
-                          <span className="flex items-center gap-1 text-amber-500 font-extrabold">
-                            <BookOpen className="size-3.5 text-amber-500 shrink-0" />
-                            <span>سورة {firstSurahOnPage.name}</span>
-                            <span className="text-muted-foreground/60 font-normal">•</span>
-                            <span className="px-1.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 font-extrabold text-[10px]">{pageNum}</span>
-                          </span>
-                          <span className="text-[10px] text-muted-foreground/70 flex items-center gap-1 select-none">
-                            <span>←</span>
-                            <span>اسحب للتنقل بين الصفحات</span>
-                            <span>→</span>
-                          </span>
-                          <span className="text-foreground/60 font-mono text-[10px]">
-                            الجزء {firstSurahOnPage.juzStart}
-                          </span>
+                        {/* Page header: surah on one side, juz on the other */}
+                        <div className="flex items-center justify-between font-arabic-title text-[13px] font-semibold text-muted-foreground">
+                          <span>سورة {firstSurahOnPage.name}</span>
+                          <span>الجزء {firstSurahOnPage.juzStart}</span>
                         </div>
 
                         {/* Continuous Mushaf Page Text with multi-surah banners */}
-                        <div className="dir-rtl text-justify font-arabic-quran text-2xl sm:text-3xl leading-[2.4] sm:leading-[2.8] text-foreground tracking-normal select-none font-bold">
+                        <div className="dir-rtl mushaf-page select-none">
                           {pageAyahs.map((ayah, idx) => {
                             const ayahSurah = SURAHS.find((s) => s.id === ayah.surahNumber) || firstSurahOnPage;
                             const prevAyah = pageAyahs[idx - 1];
@@ -1483,21 +1415,17 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                             return (
                               <React.Fragment key={`${ayah.surahNumber}-${ayah.numberInSurah}-${ayah.number}`}>
                                 {isNewSurahStart && (
-                                  <div className="w-full block my-4">
-                                    <div className="relative rounded-2xl border border-primary/25 bg-gradient-to-b from-primary/[0.08] to-transparent px-3 py-3 sm:py-4 text-center font-arabic-title">
-                                      <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-                                      <div className="absolute inset-x-8 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-                                      <div className="text-lg sm:text-2xl font-extrabold text-foreground tracking-wide">
+                                  <div className="block w-full my-6 sm:my-8">
+                                    <div className="rounded-2xl bg-primary/10 px-4 py-4 sm:py-5 text-center font-arabic-title">
+                                      <div className="text-xl sm:text-2xl font-extrabold text-foreground">
                                         سُورَةُ {ayahSurah.name}
                                       </div>
-                                      <div className="mt-1 text-[10px] font-bold text-primary/85 flex items-center justify-center gap-2">
-                                        <span>{ayahSurah.type === 'Meccan' ? 'مَكِّيَّةٌ' : 'مَدَنِيَّةٌ'}</span>
-                                        <span className="text-primary/35">•</span>
-                                        <span>آيَاتُهَا {ayahSurah.versesCount}</span>
+                                      <div className="mt-1 text-[13px] font-semibold text-primary">
+                                        {ayahSurah.type === 'Meccan' ? 'مَكِّيَّةٌ' : 'مَدَنِيَّةٌ'} · آيَاتُهَا {ayahSurah.versesCount}
                                       </div>
                                     </div>
                                     {ayahSurah.id !== 9 && ayahSurah.id !== 1 && (
-                                      <div className="text-center py-1 font-arabic-quran text-xl sm:text-2xl text-foreground/90 select-none tracking-normal">
+                                      <div className="pt-3 text-center font-arabic-quran text-[1.2em] text-foreground select-none">
                                         بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
                                       </div>
                                     )}
@@ -1513,11 +1441,11 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                         return next;
                                       });
                                     }}
-                                    className="inline-flex items-center gap-1 mx-1 px-2.5 py-0.5 rounded-full bg-secondary/80 border border-border/70 text-xs font-bold text-muted-foreground cursor-pointer hover:bg-secondary transition-all select-none align-middle shadow-sm"
+                                    className="inline-flex items-center gap-1.5 mx-1 px-3 py-1 rounded-full bg-secondary text-[13px] font-bold text-muted-foreground cursor-pointer hover:text-foreground transition-colors select-none align-middle font-arabic-title"
                                     title="اضغط لإظهار الآية"
                                   >
                                     <EyeOff className="size-3 text-muted-foreground" />
-                                    <span>﴿{ayah.numberInSurah}﴾ [مخفية - اضغط للإظهار]</span>
+                                    <span>آية {ayah.numberInSurah} مخفية · اضغط للإظهار</span>
                                   </span>
                                 ) : (
                                   <>
@@ -1534,29 +1462,27 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                       onPointerCancel={cancelLongPress}
                                       onPointerMove={cancelLongPress}
                                       onContextMenu={(e) => openAyahContextMenu(e, ayah.numberInSurah, ayahSurah, pageAyahs)}
-                                      className={`inline cursor-pointer rounded px-0.5 transition-colors tracking-normal font-bold ${
+                                      className={`ayah-text ${
                                         isMemMarker && isReadMarker
-                                          ? 'bg-gradient-to-r from-amber-500/20 to-primary/20 text-foreground border-b-2 border-amber-400'
+                                          ? 'hl-mem hl-read'
                                           : isMemMarker
-                                          ? 'bg-amber-500/15 text-foreground border-b-2 border-amber-500'
+                                          ? 'hl-mem'
                                           : isReadMarker
-                                          ? 'bg-primary/15 text-foreground border-b-2 border-primary'
+                                          ? 'hl-read'
                                           : isActive
-                                          ? 'border-b-2 border-emerald-500/80 dark:border-emerald-400/80 bg-emerald-500/10 text-foreground'
+                                          ? 'hl-active'
                                           : inStudyRange
-                                          ? 'bg-secondary/40 border-b border-border'
-                                          : 'hover:bg-accent/30'
-                                      } ${
-                                        pressingAyah === ayah.numberInSurah
-                                          ? 'bg-emerald-500/20 border-b-2 border-emerald-400'
+                                          ? ''
                                           : ''
+                                      } ${
+                                        pressingAyah === ayah.numberInSurah ? 'hl-active' : ''
                                       }`}
                                     >
                                       {repeatSettings.blindMode && (isActive ? isDelaying : !isAudioPlaying) ? (
                                         words.map((w, wIdx) => (
                                           <span
                                             key={wIdx}
-                                            className="inline mx-1 px-1 rounded transition-all duration-300 text-primary/20 bg-primary/20 border border-primary/30 blur-[6px] hover:blur-none hover:text-foreground hover:bg-transparent select-none cursor-pointer"
+                                            className="inline mx-1 px-1 rounded transition duration-300 text-primary/20 bg-primary/20 blur-[6px] hover:blur-none hover:text-foreground hover:bg-transparent select-none cursor-pointer"
                                           >
                                             {w}{' '}
                                           </span>
@@ -1578,21 +1504,19 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                       onPointerCancel={cancelLongPress}
                                       onPointerMove={cancelLongPress}
                                       onContextMenu={(e) => e.preventDefault()}
-                                      className={`inline-flex items-center justify-center min-w-[2rem] h-6 sm:h-7 px-1.5 mx-1 rounded-full text-xs font-bold font-mono align-middle cursor-pointer transition-colors whitespace-nowrap select-none ${
+                                      className={`ayah-end ${
                                         isMemWirdEnd
-                                          ? 'bg-amber-600 text-white font-black ring-1 ring-amber-500/50'
+                                          ? '!bg-amber-600 !text-white'
                                           : isMemMarker
-                                          ? 'bg-amber-500 text-zinc-950 font-black shadow-sm'
+                                          ? '!bg-amber-500 !text-zinc-950'
                                           : isReadMarker
-                                          ? 'bg-primary text-primary-foreground font-black shadow-sm'
+                                          ? '!bg-primary !text-primary-foreground'
                                           : isMemorized
-                                          ? 'bg-amber-500/10 text-amber-300 border border-amber-500/40'
-                                          : inStudyRange
-                                          ? 'bg-secondary text-foreground border border-border'
-                                          : 'border border-border/70 text-muted-foreground bg-secondary/30 hover:bg-secondary/60'
+                                          ? '!bg-amber-500/25'
+                                          : ''
                                       }`}
                                     >
-                                      ﴿{ayah.numberInSurah}﴾
+                                      {ayah.numberInSurah}
                                     </span>
                                   </>
                                 )}
@@ -1604,9 +1528,9 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                         {/* Active Ayah Quick Actions in Page Mode */}
                         {pageAyahs.some((a) => a.numberInSurah === currentAyahIndex && a.surahNumber === surahNumber) && (
                           <>
-                            <div className="border-t border-border/40 pt-2 flex items-center justify-between gap-2 flex-wrap text-xs">
-                              <div className="flex items-center gap-1.5 p-0.5 rounded-xl bg-secondary/60 border border-border/50">
-                                <span className="text-[11px] font-bold text-foreground px-2 py-0.5">
+                            <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-secondary p-2 font-arabic-title text-sm">
+                              <div className="flex flex-wrap items-center gap-1">
+                                <span className="px-2 text-[13px] font-bold text-foreground">
                                   آية {currentAyahIndex}:
                                 </span>
 
@@ -1622,7 +1546,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                         showBookmarkToast(sMeta.name, target.numberInSurah);
                                       }
                                     }}
-                                    className="px-2 py-0.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1 active:scale-95 cursor-pointer text-amber-400 hover:bg-amber-500/15"
+                                    className="h-9 px-3 rounded-full text-[13px] font-bold transition flex items-center gap-1 active:scale-95 cursor-pointer text-amber-400 hover:bg-amber-500/15"
                                     title="حفظ الآية في دفتر علامات القرآن بالملاحظات"
                                   >
                                     <BookmarkPlus className="size-3" />
@@ -1640,14 +1564,14 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                         onSetMemorizationMarker(target.surahNumber, target.numberInSurah, target.page);
                                       }
                                     }}
-                                    className={`px-2 py-0.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1 active:scale-95 cursor-pointer ${
+                                    className={`h-9 px-3 rounded-full text-[13px] font-bold transition flex items-center gap-1 active:scale-95 cursor-pointer ${
                                       memorizationMarker?.surahNumber === surahNumber && memorizationMarker?.ayahNumber === currentAyahIndex
-                                        ? 'bg-amber-600 text-white shadow-sm'
+                                        ? 'bg-amber-600 text-white '
                                         : 'text-amber-400 hover:bg-amber-500/15'
                                     }`}
                                   >
                                     <Target className="size-3" />
-                                    <span>{memorizationMarker?.surahNumber === surahNumber && memorizationMarker?.ayahNumber === currentAyahIndex ? '✓ موضع الحفظ' : 'موضع الحفظ'}</span>
+                                    <span>{memorizationMarker?.surahNumber === surahNumber && memorizationMarker?.ayahNumber === currentAyahIndex ? 'موضع الحفظ' : 'موضع الحفظ'}</span>
                                   </button>
                                 )}
 
@@ -1661,14 +1585,14 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                         onSetReadingMarker(target.surahNumber, target.numberInSurah, target.page);
                                       }
                                     }}
-                                    className={`px-2 py-0.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1 active:scale-95 cursor-pointer ${
+                                    className={`h-9 px-3 rounded-full text-[13px] font-bold transition flex items-center gap-1 active:scale-95 cursor-pointer ${
                                       readingMarker?.surahNumber === surahNumber && readingMarker?.ayahNumber === currentAyahIndex
-                                        ? 'bg-primary text-primary-foreground shadow-sm'
+                                        ? 'bg-primary text-primary-foreground '
                                         : 'text-primary hover:bg-primary/15'
                                     }`}
                                   >
                                     <Bookmark className="size-3" />
-                                    <span>{readingMarker?.surahNumber === surahNumber && readingMarker?.ayahNumber === currentAyahIndex ? '✓ موضع التلاوة' : 'موضع التلاوة'}</span>
+                                    <span>{readingMarker?.surahNumber === surahNumber && readingMarker?.ayahNumber === currentAyahIndex ? 'موضع التلاوة' : 'موضع التلاوة'}</span>
                                   </button>
                                 )}
                               </div>
@@ -1680,21 +1604,21 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                     e.stopPropagation();
                                     onMarkMemorized(surahNumber, currentAyahIndex, currentAyahIndex);
                                   }}
-                                  className={`px-2 py-1 rounded-lg font-bold border text-[11px] flex items-center gap-1 active:scale-95 cursor-pointer transition-all ${
+                                  className={`h-9 px-3.5 rounded-full font-bold text-[13px] flex items-center gap-1 active:scale-95 cursor-pointer transition ${
                                     getVerseMastery?.(surahNumber, currentAyahIndex)?.status === 'memorized'
-                                      ? 'bg-amber-500 text-black border-amber-500 shadow-sm'
-                                      : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/25'
+                                      ? 'bg-amber-500 text-zinc-950'
+                                      : 'bg-amber-500/12 hover:bg-amber-500/20 text-amber-400'
                                   }`}
                                 >
                                   <Award className={`size-3 ${getVerseMastery?.(surahNumber, currentAyahIndex)?.status === 'memorized' ? 'text-black' : 'text-amber-400'}`} />
-                                  <span>{getVerseMastery?.(surahNumber, currentAyahIndex)?.status === 'memorized' ? '✓ مُتقَن' : 'اعتماد كمُتقَن'}</span>
+                                  <span>{getVerseMastery?.(surahNumber, currentAyahIndex)?.status === 'memorized' ? 'مُتقَن' : 'اعتماد كمُتقَن'}</span>
                                 </button>
                               )}
                             </div>
 
                             {showTranslation && (
-                              <div className="text-xs text-foreground/90 leading-relaxed border-t border-border/30 pt-2 text-right dir-rtl font-arabic-body bg-secondary/30 p-2.5 rounded-xl border border-border/40">
-                                <span className="font-bold text-amber-400 block mb-0.5 text-[11px]">التفسير الميسر (آية {currentAyahIndex}):</span>
+                              <div className="text-right dir-rtl font-arabic-body text-[15px] leading-8 text-foreground rounded-2xl bg-secondary/60 p-4">
+                                <span className="font-bold text-amber-400 block mb-1 text-[13px]">التفسير الميسر (آية {currentAyahIndex}):</span>
                                 {pageAyahs.find((a) => a.numberInSurah === currentAyahIndex && a.surahNumber === surahNumber)?.translation}
                               </div>
                             )}
@@ -1702,12 +1626,35 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                         )}
 
                         {/* Slim bottom footer */}
-                        <div className="border-t border-border/30 pt-1.5 flex items-center justify-center text-[10px] text-muted-foreground/60 font-arabic-title font-bold select-none">
-                          <span>ـ {pageNum} ـ</span>
+                        <div className="flex items-center justify-center pt-2 font-arabic-title text-sm font-semibold text-muted-foreground tabular-nums select-none">
+                          {pageNum}
                         </div>
                       </div>
                     );
                   })}
+
+                {!isFullscreen && pageLayout === 'single' && (
+                  <div className="flex items-center justify-between gap-3 font-arabic-title">
+                    <button
+                      type="button"
+                      onClick={() => activePage > 1 && handlePageChange(activePage - 1)}
+                      disabled={activePage <= 1}
+                      className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-secondary text-sm font-bold text-foreground transition-colors hover:bg-secondary/70 active:scale-[0.98] disabled:opacity-30 cursor-pointer"
+                    >
+                      <ChevronRight className="size-4" />
+                      <span>الصفحة السابقة</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => activePage < 604 && handlePageChange(activePage + 1)}
+                      disabled={activePage >= 604}
+                      className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-secondary text-sm font-bold text-foreground transition-colors hover:bg-secondary/70 active:scale-[0.98] disabled:opacity-30 cursor-pointer"
+                    >
+                      <span>الصفحة التالية</span>
+                      <ChevronLeft className="size-4" />
+                    </button>
+                  </div>
+                )}
 
                 {/* DEDICATED IMMERSIVE FULLSCREEN MUSHAF PORTAL (Fills entire screen on PC & Mobile) */}
                 {isFullscreen &&
@@ -1718,22 +1665,22 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                       className="fixed inset-0 z-[9999] bg-background/98 text-foreground flex flex-col overflow-y-auto selection:bg-emerald-500/30 font-arabic-title animate-in fade-in duration-200"
                     >
                       {/* Desktop Fullscreen Sticky Header Controls (Hidden on Mobile to Avoid Notch / Status Bar Overlap) */}
-                      <header className="hidden sm:flex sticky top-0 z-30 bg-background/90 backdrop-blur-2xl border-b border-border/40 px-3 sm:px-6 py-2.5 items-center justify-between gap-2 shadow-sm font-arabic-title">
+                      <header className="hidden sm:flex sticky top-0 z-30 bg-background px-3 sm:px-6 py-2.5 items-center justify-between gap-2 font-arabic-title">
                         {/* Right: Surah & Page Selector Button */}
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
                             onClick={() => setShowSurahPicker(true)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-secondary/80 hover:bg-secondary border border-border text-xs font-bold text-foreground transition-all cursor-pointer active:scale-95 shadow-sm"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-secondary/80 hover:bg-secondary text-xs font-bold text-foreground transition cursor-pointer active:scale-95"
                             title={`سورة ${effectiveSurah.name} (ص ${activePage})`}
                           >
                             <Book className="size-4 text-emerald-400" />
                             <span className="font-bold">سورة {effectiveSurah.name}</span>
-                            <span className="text-[10px] text-emerald-400 font-mono">ص {activePage}</span>
+                            <span className="text-xs text-emerald-400 tabular-nums">ص {activePage}</span>
                             <ChevronDown className="size-3 text-muted-foreground" />
                           </button>
 
-                          <span className="hidden md:inline-flex px-2 py-1 rounded-lg bg-secondary/50 text-[11px] font-bold text-muted-foreground font-mono">
+                          <span className="hidden md:inline-flex px-2 py-1 rounded-lg bg-secondary/50 text-xs font-bold text-muted-foreground tabular-nums">
                             الجزء {currentJuzNumber}
                           </span>
                         </div>
@@ -1744,14 +1691,14 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                             type="button"
                             onClick={() => activePage > 1 && handlePageChange(activePage - 1)}
                             disabled={activePage <= 1}
-                            className="h-8 px-2.5 rounded-xl bg-secondary/70 hover:bg-secondary disabled:opacity-30 flex items-center gap-1 text-xs font-bold transition-all border border-border cursor-pointer active:scale-95"
+                            className="h-8 px-2.5 rounded-xl bg-secondary/70 hover:bg-secondary disabled:opacity-30 flex items-center gap-1 text-xs font-bold transition cursor-pointer active:scale-95"
                             title="الصفحة السابقة (ArrowLeft)"
                           >
                             <ChevronRight className="size-3.5" />
                             <span className="hidden sm:inline">السابقة</span>
                           </button>
 
-                          <span className="px-2 font-mono font-bold text-xs text-amber-400 min-w-[65px] text-center">
+                          <span className="px-2 tabular-nums font-bold text-xs text-amber-400 min-w-[65px] text-center">
                             ص {activePage}
                           </span>
 
@@ -1759,7 +1706,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                             type="button"
                             onClick={() => activePage < 604 && handlePageChange(activePage + 1)}
                             disabled={activePage >= 604}
-                            className="h-8 px-2.5 rounded-xl bg-secondary/70 hover:bg-secondary disabled:opacity-30 flex items-center gap-1 text-xs font-bold transition-all border border-border cursor-pointer active:scale-95"
+                            className="h-8 px-2.5 rounded-xl bg-secondary/70 hover:bg-secondary disabled:opacity-30 flex items-center gap-1 text-xs font-bold transition cursor-pointer active:scale-95"
                             title="الصفحة التالية (ArrowRight)"
                           >
                             <span className="hidden sm:inline">التالية</span>
@@ -1770,7 +1717,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                         {/* Left: Font Scaling, Tajweed, Tafsir & Exit Button */}
                         <div className="flex items-center gap-1.5">
                           {/* Font Scaler */}
-                          <div className="flex items-center bg-secondary/60 rounded-xl p-0.5 border border-border text-xs">
+                          <div className="flex items-center bg-secondary/60 rounded-xl p-0.5 text-xs">
                             <button
                               type="button"
                               onClick={() => updateFontSizeScale(-0.1)}
@@ -1779,7 +1726,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                             >
                               <ZoomOut className="size-3.5" />
                             </button>
-                            <span className="text-[10px] font-mono text-muted-foreground px-1.5">
+                            <span className="text-xs tabular-nums text-muted-foreground px-1.5">
                               {Math.round(fontSizeScale * 100)}%
                             </span>
                             <button
@@ -1796,37 +1743,37 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                           <button
                             type="button"
                             onClick={() => setShowTajweed(!showTajweed)}
-                            className={`h-8 px-2.5 rounded-xl border text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                            className={`h-8 px-2.5 rounded-xl border text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
                               showTajweed
-                                ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm'
+                                ? 'bg-emerald-600 text-white border-emerald-500 '
                                 : 'bg-secondary/70 text-muted-foreground border-border hover:bg-secondary'
                             }`}
                             title="تلوين أحرف التجويد"
                           >
                             <Palette className="size-3.5" />
-                            <span className="hidden md:inline text-[11px]">التجويد</span>
+                            <span className="hidden md:inline text-xs">التجويد</span>
                           </button>
 
                           {/* Tafsir Toggle */}
                           <button
                             type="button"
                             onClick={() => setShowTranslation(!showTranslation)}
-                            className={`h-8 px-2.5 rounded-xl border text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                            className={`h-8 px-2.5 rounded-xl border text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
                               showTranslation
-                                ? 'bg-amber-600 text-white border-amber-500 shadow-sm'
+                                ? 'bg-amber-600 text-white border-amber-500 '
                                 : 'bg-secondary/70 text-muted-foreground border-border hover:bg-secondary'
                             }`}
                             title="عرض التفسير الميسر"
                           >
                             <BookOpen className="size-3.5" />
-                            <span className="hidden md:inline text-[11px]">التفسير</span>
+                            <span className="hidden md:inline text-xs">التفسير</span>
                           </button>
 
                           {/* Exit Fullscreen Button */}
                           <button
                             type="button"
                             onClick={() => setIsFullscreen(false)}
-                            className="h-8 px-3 rounded-xl bg-red-600/90 hover:bg-red-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
+                            className="h-8 px-3 rounded-xl bg-red-600/90 hover:bg-red-600 text-white font-bold text-xs flex items-center gap-1.5 active:scale-95 transition cursor-pointer"
                             title="إلغاء وضع ملء الشاشة (Esc)"
                           >
                             <Minimize2 className="size-3.5" />
@@ -1850,14 +1797,14 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                           return (
                             <div
                               key={`fs-${pageNum}`}
-                              className="w-full flex-1 flex flex-col justify-between rounded-3xl border border-border/80 bg-card/60 backdrop-blur-md p-3 sm:p-8 md:p-10 shadow-2xl space-y-4 sm:space-y-6"
+                              className="mx-auto w-full max-w-4xl flex-1 flex flex-col justify-between rounded-3xl bg-card p-4 sm:p-10 md:p-14 space-y-4 sm:space-y-6"
                             >
                               {/* Fullscreen Mushaf Text (Dynamically scaled & pinchable) */}
                               <div
-                                className="dir-rtl text-justify font-arabic-quran text-foreground tracking-normal select-none font-bold flex-1 flex flex-col justify-evenly my-auto text-xl sm:text-3xl"
+                                className="dir-rtl mushaf-page select-none flex-1 flex flex-col justify-evenly my-auto"
                                 style={{
-                                  fontSize: `calc(1.35rem * ${fontSizeScale})`,
-                                  lineHeight: `calc(2.45 * ${fontSizeScale})`,
+                                  fontSize: `calc(1.6rem * ${fontSizeScale})`,
+                                  lineHeight: 2.3,
                                 }}
                               >
                                 <div>
@@ -1879,21 +1826,17 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                     return (
                                       <React.Fragment key={`fs-${ayah.surahNumber}-${ayah.numberInSurah}-${ayah.number}`}>
                                         {isNewSurahStart && (
-                                          <div className="w-full block my-4">
-                                            <div className="relative rounded-2xl border border-primary/25 bg-gradient-to-b from-primary/[0.08] to-transparent px-3 py-3 sm:py-4 text-center font-arabic-title">
-                                              <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-                                              <div className="absolute inset-x-8 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-                                              <div className="text-xl sm:text-3xl font-extrabold text-foreground tracking-wide">
+                                          <div className="block w-full my-6 sm:my-8">
+                                            <div className="rounded-2xl bg-primary/10 px-4 py-4 sm:py-5 text-center font-arabic-title">
+                                              <div className="text-xl sm:text-3xl font-extrabold text-foreground">
                                                 سُورَةُ {ayahSurah.name}
                                               </div>
-                                              <div className="mt-1 text-xs font-bold text-primary/85 flex items-center justify-center gap-2">
-                                                <span>{ayahSurah.type === 'Meccan' ? 'مَكِّيَّةٌ' : 'مَدَنِيَّةٌ'}</span>
-                                                <span className="text-primary/35">•</span>
-                                                <span>آيَاتُهَا {ayahSurah.versesCount}</span>
+                                              <div className="mt-1 text-sm font-semibold text-primary">
+                                                {ayahSurah.type === 'Meccan' ? 'مَكِّيَّةٌ' : 'مَدَنِيَّةٌ'} · آيَاتُهَا {ayahSurah.versesCount}
                                               </div>
                                             </div>
                                             {ayahSurah.id !== 9 && ayahSurah.id !== 1 && (
-                                              <div className="text-center py-2 font-arabic-quran text-xl sm:text-2xl text-foreground/90 select-none tracking-normal">
+                                              <div className="pt-3 text-center font-arabic-quran text-[1.2em] text-foreground select-none">
                                                 بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
                                               </div>
                                             )}
@@ -1909,11 +1852,11 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                                 return next;
                                               });
                                             }}
-                                            className="inline-flex items-center gap-1 mx-1 px-2.5 py-0.5 rounded-full bg-secondary/80 border border-border/70 text-xs font-bold text-muted-foreground cursor-pointer hover:bg-secondary transition-all select-none align-middle shadow-sm"
+                                            className="inline-flex items-center gap-1.5 mx-1 px-3 py-1 rounded-full bg-secondary text-[13px] font-bold text-muted-foreground cursor-pointer hover:text-foreground transition-colors select-none align-middle font-arabic-title"
                                             title="اضغط لإظهار الآية"
                                           >
                                             <EyeOff className="size-3 text-muted-foreground" />
-                                            <span>﴿{ayah.numberInSurah}﴾ [مخفية]</span>
+                                            <span>آية {ayah.numberInSurah} مخفية</span>
                                           </span>
                                         ) : (
                                           <>
@@ -1930,29 +1873,25 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                               onPointerCancel={cancelLongPress}
                                               onPointerMove={cancelLongPress}
                                               onContextMenu={(e) => e.preventDefault()}
-                                              className={`inline cursor-pointer rounded px-0.5 transition-colors tracking-normal font-bold ${
+                                              className={`ayah-text ${
                                                 isMemMarker && isReadMarker
-                                                  ? 'bg-gradient-to-r from-amber-500/20 to-primary/20 text-foreground border-b-2 border-amber-400'
+                                                  ? 'hl-mem hl-read'
                                                   : isMemMarker
-                                                  ? 'bg-amber-500/15 text-foreground border-b-2 border-amber-500'
+                                                  ? 'hl-mem'
                                                   : isReadMarker
-                                                  ? 'bg-primary/15 text-foreground border-b-2 border-primary'
+                                                  ? 'hl-read'
                                                   : isActive
-                                                  ? 'border-b-2 border-emerald-500/80 dark:border-emerald-400/80 bg-emerald-500/10 text-foreground'
+                                                  ? 'hl-active'
                                                   : inStudyRange
-                                                  ? 'bg-secondary/40 border-b border-border'
-                                                  : 'hover:bg-accent/30'
-                                              } ${
-                                                pressingAyah === ayah.numberInSurah
-                                                  ? 'bg-emerald-500/20 border-b-2 border-emerald-400'
+                                                  ? ''
                                                   : ''
-                                              }`}
+                                              } ${pressingAyah === ayah.numberInSurah ? 'hl-active' : ''}`}
                                             >
                                               {repeatSettings.blindMode && isActive ? (
                                                 words.map((w, wIdx) => (
                                                   <span
                                                     key={wIdx}
-                                                    className="inline mx-1 px-1 rounded transition-all duration-300 text-primary/20 bg-primary/20 border border-primary/30 blur-[6px] hover:blur-none hover:text-foreground hover:bg-transparent select-none cursor-pointer"
+                                                    className="inline mx-1 px-1 rounded transition duration-300 text-primary/20 bg-primary/20 blur-[6px] hover:blur-none hover:text-foreground hover:bg-transparent select-none cursor-pointer"
                                                     title="انقر لإظهار الكلمة"
                                                   >
                                                     {w}{' '}
@@ -1975,21 +1914,19 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                               onPointerCancel={cancelLongPress}
                                               onPointerMove={cancelLongPress}
                                               onContextMenu={(e) => e.preventDefault()}
-                                              className={`inline-flex items-center justify-center min-w-[2rem] h-6 sm:h-8 px-1.5 mx-1 rounded-full text-xs font-bold font-mono align-middle cursor-pointer transition-colors whitespace-nowrap select-none ${
+                                              className={`ayah-end ${
                                                 isMemWirdEnd
-                                                  ? 'bg-amber-600 text-white font-black ring-1 ring-amber-500/50'
+                                                  ? '!bg-amber-600 !text-white'
                                                   : isMemMarker
-                                                  ? 'bg-amber-500 text-zinc-950 font-black shadow-sm'
+                                                  ? '!bg-amber-500 !text-zinc-950'
                                                   : isReadMarker
-                                                  ? 'bg-primary text-primary-foreground font-black shadow-sm'
+                                                  ? '!bg-primary !text-primary-foreground'
                                                   : isMemorized
-                                                  ? 'bg-amber-500/10 text-amber-300 border border-amber-500/40'
-                                                  : inStudyRange
-                                                  ? 'bg-secondary text-foreground border border-border'
-                                                  : 'border border-border/70 text-muted-foreground bg-secondary/30 hover:bg-secondary/60'
+                                                  ? '!bg-amber-500/25'
+                                                  : ''
                                               }`}
                                             >
-                                              ﴿{ayah.numberInSurah}﴾
+                                              {ayah.numberInSurah}
                                             </span>
                                           </>
                                         )}
@@ -2001,8 +1938,8 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
 
                               {/* Fullscreen Active Ayah Quick Actions */}
                               {pageAyahs.some((a) => a.numberInSurah === currentAyahIndex && a.surahNumber === surahNumber) && (
-                                <div className="border-t border-border/40 pt-3 flex items-center justify-between gap-2 flex-wrap text-xs">
-                                  <div className="flex items-center gap-1.5 p-1 rounded-xl bg-secondary/70 border border-border/50">
+                                <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-secondary p-2 font-arabic-title text-sm">
+                                  <div className="flex flex-wrap items-center gap-1">
                                     <span className="text-xs font-bold text-foreground px-2">
                                       آية {currentAyahIndex}:
                                     </span>
@@ -2019,7 +1956,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                             showBookmarkToast(sMeta.name, target.numberInSurah);
                                           }
                                         }}
-                                        className="px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 active:scale-95 cursor-pointer text-amber-400 hover:bg-amber-500/15"
+                                        className="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 active:scale-95 cursor-pointer text-amber-400 hover:bg-amber-500/15"
                                         title="حفظ الآية في دفتر علامات القرآن بالملاحظات"
                                       >
                                         <BookmarkPlus className="size-3.5" />
@@ -2037,14 +1974,14 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                             onSetMemorizationMarker(target.surahNumber, target.numberInSurah, target.page);
                                           }
                                         }}
-                                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 active:scale-95 cursor-pointer ${
+                                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 active:scale-95 cursor-pointer ${
                                           memorizationMarker?.surahNumber === surahNumber && memorizationMarker?.ayahNumber === currentAyahIndex
-                                            ? 'bg-amber-600 text-white shadow-sm'
+                                            ? 'bg-amber-600 text-white '
                                             : 'text-amber-400 hover:bg-amber-500/15'
                                         }`}
                                       >
                                         <Target className="size-3.5" />
-                                        <span>{memorizationMarker?.surahNumber === surahNumber && memorizationMarker?.ayahNumber === currentAyahIndex ? '✓ موضع الحفظ' : 'موضع الحفظ'}</span>
+                                        <span>{memorizationMarker?.surahNumber === surahNumber && memorizationMarker?.ayahNumber === currentAyahIndex ? 'موضع الحفظ' : 'موضع الحفظ'}</span>
                                       </button>
                                     )}
 
@@ -2058,14 +1995,14 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                             onSetReadingMarker(target.surahNumber, target.numberInSurah, target.page);
                                           }
                                         }}
-                                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 active:scale-95 cursor-pointer ${
+                                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 active:scale-95 cursor-pointer ${
                                           readingMarker?.surahNumber === surahNumber && readingMarker?.ayahNumber === currentAyahIndex
-                                            ? 'bg-primary text-primary-foreground shadow-sm'
+                                            ? 'bg-primary text-primary-foreground '
                                             : 'text-primary hover:bg-primary/15'
                                         }`}
                                       >
                                         <Bookmark className="size-3.5" />
-                                        <span>{readingMarker?.surahNumber === surahNumber && readingMarker?.ayahNumber === currentAyahIndex ? '✓ موضع التلاوة' : 'موضع التلاوة'}</span>
+                                        <span>{readingMarker?.surahNumber === surahNumber && readingMarker?.ayahNumber === currentAyahIndex ? 'موضع التلاوة' : 'موضع التلاوة'}</span>
                                       </button>
                                     )}
                                   </div>
@@ -2077,14 +2014,14 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                                         e.stopPropagation();
                                         onMarkMemorized(surahNumber, currentAyahIndex, currentAyahIndex);
                                       }}
-                                      className={`px-3 py-1.5 rounded-xl font-bold border text-xs flex items-center gap-1.5 active:scale-95 cursor-pointer transition-all ${
+                                      className={`px-3 py-1.5 rounded-xl font-bold border text-xs flex items-center gap-1.5 active:scale-95 cursor-pointer transition ${
                                         getVerseMastery?.(surahNumber, currentAyahIndex)?.status === 'memorized'
-                                          ? 'bg-amber-500 text-black border-amber-500 shadow-sm'
-                                          : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/25'
+                                          ? 'bg-amber-500 text-zinc-950'
+                                          : 'bg-amber-500/12 hover:bg-amber-500/20 text-amber-400'
                                       }`}
                                     >
                                       <Award className={`size-3.5 ${getVerseMastery?.(surahNumber, currentAyahIndex)?.status === 'memorized' ? 'text-black' : 'text-amber-400'}`} />
-                                      <span>{getVerseMastery?.(surahNumber, currentAyahIndex)?.status === 'memorized' ? '✓ مُتقَن' : 'اعتماد كمُتقَن'}</span>
+                                      <span>{getVerseMastery?.(surahNumber, currentAyahIndex)?.status === 'memorized' ? 'مُتقَن' : 'اعتماد كمُتقَن'}</span>
                                     </button>
                                   )}
                                 </div>
@@ -2092,16 +2029,16 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
 
                               {/* Tafsir in Fullscreen */}
                               {showTranslation && (
-                                <div className="text-xs sm:text-sm text-foreground/90 leading-relaxed border-t border-border/30 pt-3 text-right dir-rtl font-arabic-body bg-secondary/30 p-3 rounded-2xl border border-border/40">
+                                <div className="text-xs sm:text-sm text-foreground/90 leading-relaxed pt-3 text-right dir-rtl font-arabic-body bg-secondary/30 p-3 rounded-2xl">
                                   <span className="font-bold text-amber-400 block mb-1 text-xs">التفسير الميسر (آية {currentAyahIndex}):</span>
                                   {pageAyahs.find((a) => a.numberInSurah === currentAyahIndex && a.surahNumber === surahNumber)?.translation}
                                 </div>
                               )}
 
                               {/* Fullscreen Page Footer Ornament */}
-                              <div className="border-t border-border/30 pt-3 flex items-center justify-between text-xs text-muted-foreground/70 font-arabic-title select-none">
+                              <div className="pt-3 flex items-center justify-between text-xs text-muted-foreground/70 font-arabic-title select-none">
                                 <span>سورة {firstSurahOnPage.name}</span>
-                                <span className="font-bold text-amber-400 font-mono text-sm">ـ {pageNum} ـ</span>
+                                <span className="font-bold text-amber-400 tabular-nums text-sm">ـ {pageNum} ـ</span>
                                 <span>الجزء {firstSurahOnPage.juzStart}</span>
                               </div>
                             </div>
@@ -2113,14 +2050,14 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                       <div
                         dir="rtl"
                         className={`fixed z-50 sm:hidden font-arabic-title text-foreground
-                          transition-all duration-500 ease-[cubic-bezier(0.25,1,0.3,1)] will-change-transform
+                          transition duration-500 ease-[cubic-bezier(0.25,1,0.3,1)] will-change-transform
                           bottom-[calc(14px+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2
                           w-[90%] max-w-[380px] h-[50px] rounded-full px-2.5 flex items-center justify-between
                           border border-white/30 dark:border-white/10
                           ${
                             isFsBarShrunk
-                              ? 'scale-[0.78] translate-y-[8px] opacity-55 bg-white/45 dark:bg-[#141416]/55 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.15)]'
-                              : 'scale-100 translate-y-0 opacity-100 bg-white/75 dark:bg-[#141416]/85 backdrop-blur-2xl shadow-[0_8px_30px_rgba(0,0,0,0.25)]'
+                              ? 'scale-[0.78] translate-y-[8px] opacity-55 bg-popover '
+                              : 'scale-100 translate-y-0 opacity-100 bg-popover '
                           }`}
                       >
                         {/* 1. Page Navigation & Picker */}
@@ -2129,7 +2066,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                             type="button"
                             onClick={() => activePage > 1 && handlePageChange(activePage - 1)}
                             disabled={activePage <= 1}
-                            className="size-7 rounded-full bg-secondary/80 disabled:opacity-30 flex items-center justify-center cursor-pointer active:scale-90 transition-all border border-border shrink-0"
+                            className="size-7 rounded-full bg-secondary/80 disabled:opacity-30 flex items-center justify-center cursor-pointer active:scale-90 transition shrink-0"
                             title="الصفحة السابقة"
                           >
                             <ChevronRight className="size-3.5" />
@@ -2138,10 +2075,10 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                           <button
                             type="button"
                             onClick={() => setShowSurahPicker(true)}
-                            className="px-2 py-1 rounded-xl bg-secondary/80 flex items-center gap-0.5 text-[11px] font-bold border border-border cursor-pointer active:scale-95 text-amber-400 shrink-0"
+                            className="px-2 py-1 rounded-xl bg-secondary/80 flex items-center gap-0.5 text-xs font-bold cursor-pointer active:scale-95 text-amber-400 shrink-0"
                             title="فهرس السور والصفحات"
                           >
-                            <span className="font-mono">ص {activePage}</span>
+                            <span className="tabular-nums">ص {activePage}</span>
                             <ChevronDown className="size-2.5 text-muted-foreground" />
                           </button>
 
@@ -2149,7 +2086,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                             type="button"
                             onClick={() => activePage < 604 && handlePageChange(activePage + 1)}
                             disabled={activePage >= 604}
-                            className="size-7 rounded-full bg-secondary/80 disabled:opacity-30 flex items-center justify-center cursor-pointer active:scale-90 transition-all border border-border shrink-0"
+                            className="size-7 rounded-full bg-secondary/80 disabled:opacity-30 flex items-center justify-center cursor-pointer active:scale-90 transition shrink-0"
                             title="الصفحة التالية"
                           >
                             <ChevronLeft className="size-3.5" />
@@ -2162,7 +2099,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                             <button
                               type="button"
                               onClick={onPrevAyah}
-                              className="size-7 rounded-full bg-secondary/80 flex items-center justify-center cursor-pointer active:scale-90 text-muted-foreground hover:text-foreground border border-border shrink-0"
+                              className="size-7 rounded-full bg-secondary/80 flex items-center justify-center cursor-pointer active:scale-90 text-muted-foreground hover:text-foreground shrink-0"
                               title="الآية السابقة"
                             >
                               <SkipForward className="size-3" />
@@ -2173,7 +2110,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                             <button
                               type="button"
                               onClick={onTogglePlayPause}
-                              className="size-8 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center cursor-pointer active:scale-90 shadow-md transition-all shrink-0"
+                              className="size-8 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center cursor-pointer active:scale-90 transition shrink-0"
                               title={isAudioPlaying ? 'إيقاف مؤقت' : 'تشغيل التلاوة'}
                             >
                               {isAudioPlaying ? <Pause className="size-3.5 fill-white" /> : <Play className="size-3.5 fill-white translate-x-[-1px]" />}
@@ -2184,7 +2121,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                             <button
                               type="button"
                               onClick={onNextAyah}
-                              className="size-7 rounded-full bg-secondary/80 flex items-center justify-center cursor-pointer active:scale-90 text-muted-foreground hover:text-foreground border border-border shrink-0"
+                              className="size-7 rounded-full bg-secondary/80 flex items-center justify-center cursor-pointer active:scale-90 text-muted-foreground hover:text-foreground shrink-0"
                               title="الآية التالية"
                             >
                               <SkipBack className="size-3" />
@@ -2194,7 +2131,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                           <button
                             type="button"
                             onClick={() => setShowToolsSheet(true)}
-                            className="size-7 rounded-full bg-secondary/80 flex items-center justify-center cursor-pointer active:scale-90 text-muted-foreground hover:text-foreground border border-border shrink-0"
+                            className="size-7 rounded-full bg-secondary/80 flex items-center justify-center cursor-pointer active:scale-90 text-muted-foreground hover:text-foreground shrink-0"
                             title="إعدادات الصوت والتكرار"
                           >
                             <SlidersHorizontal className="size-3 text-emerald-400" />
@@ -2206,7 +2143,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                           <button
                             type="button"
                             onClick={() => setIsFullscreen(false)}
-                            className="size-7 rounded-full bg-rose-600/90 hover:bg-rose-600 text-white flex items-center justify-center cursor-pointer active:scale-90 transition-all shadow-md shrink-0"
+                            className="size-7 rounded-full bg-rose-600/90 hover:bg-rose-600 text-white flex items-center justify-center cursor-pointer active:scale-90 transition shrink-0"
                             title="خروج من ملء الشاشة"
                           >
                             <Minimize2 className="size-3" />
@@ -2245,13 +2182,13 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                 onPointerCancel={cancelLongPress}
                 onPointerMove={cancelLongPress}
                 onContextMenu={(e) => openAyahContextMenu(e, ayah.numberInSurah, currentSurah, verses)}
-                className={`p-3.5 sm:p-5 rounded-2xl border transition-all cursor-pointer relative ${
+                className={`p-3.5 sm:p-5 rounded-2xl border transition cursor-pointer relative ${
                   isMemWirdEnd
-                    ? 'border-emerald-500 ring-2 ring-emerald-500/40 bg-emerald-950/20 shadow-lg'
+                    ? 'border-emerald-500 ring-2 ring-emerald-500/40 bg-emerald-950/20 '
                     : isMemMarker
-                    ? 'border-emerald-500 bg-emerald-950/20 ring-2 ring-emerald-500/40 shadow-lg'
+                    ? 'border-emerald-500 bg-emerald-950/20 ring-2 ring-emerald-500/40 '
                     : isReadMarker
-                    ? 'border-primary bg-primary/20 ring-2 ring-primary/40 shadow-lg'
+                    ? 'border-primary bg-primary/20 ring-2 ring-primary/40 '
                     : isActive
                     ? 'border-emerald-500/80 bg-emerald-500/10'
                     : inStudyRange
@@ -2266,30 +2203,30 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                 {/* Verse Header Info */}
                 <div className="flex items-center justify-between mb-2 text-xs text-muted-foreground font-sans flex-wrap gap-2">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary text-foreground font-bold text-[11px]">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary text-foreground font-bold text-xs">
                       الآية {ayah.numberInSurah} (ص {ayah.page})
                     </span>
 
                     {isMemMarker && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold text-[10px]">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xs">
                         <Target className="size-2.5" /> موضع الحفظ
                       </span>
                     )}
 
                     {isReadMarker && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/40 font-bold text-[10px]">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/20 text-primary font-bold text-xs">
                         <Bookmark className="size-2.5" /> موضع التلاوة
                       </span>
                     )}
 
                     {isMemorized && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold text-[10px]">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xs">
                         مُتقَن
                       </span>
                     )}
 
                     {isActive && isAudioPlaying && (
-                      <span className="text-[11px] font-bold text-emerald-400 animate-pulse flex items-center gap-1">
+                      <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
                         <Volume2 className="size-3.5" /> جاري التلاوة...
                       </span>
                     )}
@@ -2307,13 +2244,13 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                         return next;
                       });
                     }}
-                    className="p-3 rounded-xl bg-secondary/60 border border-border/70 flex items-center justify-between text-xs text-muted-foreground cursor-pointer hover:bg-secondary transition-all"
+                    className="p-3 rounded-xl bg-secondary/60 flex items-center justify-between text-xs text-muted-foreground cursor-pointer hover:bg-secondary transition"
                   >
                     <span className="flex items-center gap-2 font-bold font-arabic-title">
                       <EyeOff className="size-3.5 text-muted-foreground" />
                       <span>الآية {ayah.numberInSurah} مخفية لهذه الجلسة</span>
                     </span>
-                    <span className="text-[11px] underline">اضغط للإظهار</span>
+                    <span className="text-xs underline">اضغط للإظهار</span>
                   </div>
                 ) : repeatSettings.blindMode && isActive && (!isAudioPlaying || isDelaying) ? (
                   <BlindModeOverlay
@@ -2327,7 +2264,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
                 ) : (
                   <div className="dir-rtl text-right font-arabic-quran text-2xl sm:text-3xl leading-[2.2] sm:leading-[2.5] text-foreground tracking-normal select-none font-bold">
                     {ayah.textUthmani}
-                    <span className="inline-flex items-center justify-center min-w-[2rem] h-7 sm:h-8 px-1.5 mx-1.5 rounded-full border border-emerald-500/40 text-emerald-400 font-mono text-xs font-bold align-middle whitespace-nowrap select-none">
+                    <span className="inline-flex items-center justify-center min-w-[2rem] h-7 sm:h-8 px-1.5 mx-1.5 rounded-full text-emerald-400 tabular-nums text-xs font-bold align-middle whitespace-nowrap select-none">
                       ﴿{ayah.numberInSurah}﴾
                     </span>
                   </div>
@@ -2335,8 +2272,8 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
 
                 {/* Tafsir Al-Muyassar Display */}
                 {!hiddenAyahs.has(ayah.number) && showTranslation && ayah.translation && (
-                  <div className="mt-3 text-xs text-foreground/90 leading-relaxed border-t border-border/30 pt-2.5 text-right dir-rtl font-arabic-body bg-secondary/30 p-2.5 rounded-xl border border-border/40">
-                    <span className="font-bold text-amber-400 block mb-0.5 text-[11px]">التفسير الميسر:</span>
+                  <div className="mt-3 text-xs text-foreground/90 leading-relaxed pt-2.5 text-right dir-rtl font-arabic-body bg-secondary/30 p-2.5 rounded-xl">
+                    <span className="font-bold text-amber-400 block mb-1 text-[13px]">التفسير الميسر:</span>
                     {ayah.translation}
                   </div>
                 )}
@@ -2350,7 +2287,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
       {ayahContextMenu &&
         createPortal(
           <div
-            className="fixed inset-0 z-[10002] flex items-center justify-center p-4 bg-background/80 md:bg-black/50 backdrop-blur-md animate-in fade-in duration-150 transition-opacity"
+            className="fixed inset-0 z-[10002] flex items-center justify-center p-4 bg-background/80 md:bg-black/50 animate-in fade-in duration-150 transition-opacity"
             onClick={() => {
               setAyahContextMenu(null);
               setHoveredMenuAction(null);
@@ -2380,12 +2317,12 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
               className="relative z-10 w-full max-w-[340px] flex flex-col items-center select-none animate-in zoom-in-95 fade-in duration-150 ease-out font-arabic-title space-y-2.5"
             >
               {/* Ayah Preview Card */}
-              <div className="w-full bg-card/95 border border-border/80 backdrop-blur-xl rounded-2xl p-4 shadow-xl text-right space-y-2">
+              <div className="w-full bg-card/95 rounded-2xl p-4 text-right space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-emerald-500">
-                    سورة {ayahContextMenu.surah.name} — الآية {ayahContextMenu.ayah.numberInSurah}
+                    سورة {ayahContextMenu.surah.name} · الآية {ayahContextMenu.ayah.numberInSurah}
                   </span>
-                  <span className="text-[10px] text-muted-foreground font-mono bg-secondary/80 px-2 py-0.5 rounded-full border border-border/40">
+                  <span className="text-xs text-muted-foreground tabular-nums bg-secondary/80 px-2 py-0.5 rounded-full">
                     صفحة {ayahContextMenu.ayah.page || activePage}
                   </span>
                 </div>
@@ -2395,12 +2332,12 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
               </div>
 
               {/* Action List */}
-              <div className="w-full bg-card/95 border border-border/80 backdrop-blur-xl rounded-2xl divide-y divide-border/50 overflow-hidden shadow-xl text-right">
+              <div className="w-full bg-card/95 rounded-2xl space-y-0.5 overflow-hidden text-right">
                 {([
                   { id: 'mem_checkpoint', label: 'تحديد كعلامة حفظ', icon: <Target className="size-4 text-amber-500" /> },
                   { id: 'read_checkpoint', label: 'تحديد كعلامة قراءة وتلاوة', icon: <BookOpen className="size-4 text-primary" /> },
                   { id: 'bookmark', label: 'حفظ الآية في الملاحظات', icon: <BookmarkPlus className="size-4 text-emerald-500" /> },
-                  { id: 'tafseer', label: 'تفسير الآية (التفسير الميسر)', icon: <Sparkles className="size-4 text-violet-500" /> },
+                  { id: 'tafseer', label: 'تفسير الآية (التفسير الميسر)', icon: <Sparkles className="size-4 text-primary" /> },
                   { id: 'hide', label: 'إخفاء الآية (لهذه الجلسة)', icon: <EyeOff className="size-4 text-muted-foreground" /> },
                 ] as const).map((item) => {
                   const isHovered = hoveredMenuAction === item.id;
@@ -2431,32 +2368,32 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
       {tafseerAyah &&
         createPortal(
           <div
-            className="fixed inset-0 z-[10003] flex items-end justify-center bg-black/65 backdrop-blur-md animate-in fade-in duration-300"
+            className="fixed inset-0 z-[10003] flex items-end justify-center bg-black/65 animate-in fade-in duration-300"
             onClick={() => setTafseerAyah(null)}
             dir="rtl"
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg bg-card/95 backdrop-blur-2xl border-t border-border/70 rounded-t-[2.2rem] p-5 space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-300 ease-out max-h-[75vh] flex flex-col font-arabic-body text-right"
+              className="w-full max-w-lg bg-popover rounded-t-[2.2rem] p-5 space-y-4 animate-in slide-in-from-bottom duration-300 ease-out max-h-[75vh] flex flex-col font-arabic-body text-right"
             >
               <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full mx-auto -mt-1 shrink-0" />
-              <div className="flex items-center justify-between border-b border-border pb-2.5 shrink-0">
+              <div className="flex items-center justify-between pb-2.5 shrink-0">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="size-4 text-violet-400" />
+                  <Sparkles className="size-4 text-primary" />
                   <h3 className="text-sm font-bold text-foreground font-arabic-title">
-                    تفسير سورة {tafseerAyah.surah.name} — آية {tafseerAyah.ayah.numberInSurah}
+                    تفسير سورة {tafseerAyah.surah.name} · آية {tafseerAyah.ayah.numberInSurah}
                   </h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setTafseerAyah(null)}
-                  className="h-7 w-7 rounded-full bg-secondary hover:bg-secondary/80 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition-all active:scale-90"
+                  className="h-7 w-7 rounded-full bg-secondary hover:bg-secondary/80 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition active:scale-90"
                 >
                   <X className="size-3.5" />
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 text-right">
-                <div className="p-3.5 rounded-2xl bg-secondary/40 border border-border/40 font-arabic-quran text-xl leading-loose text-foreground">
+                <div className="p-3.5 rounded-2xl bg-secondary/40 font-arabic-quran text-xl leading-loose text-foreground">
                   ﴿{tafseerAyah.ayah.textUthmani}﴾
                 </div>
                 <div className="space-y-1">
@@ -2469,7 +2406,7 @@ export const QuranReaderView: React.FC<QuranReaderViewProps> = ({
               <button
                 type="button"
                 onClick={() => setTafseerAyah(null)}
-                className="w-full py-3 rounded-2xl bg-secondary hover:bg-secondary/80 text-foreground font-bold text-xs transition-all cursor-pointer shrink-0 active:scale-98"
+                className="w-full py-3 rounded-2xl bg-secondary hover:bg-secondary/80 text-foreground font-bold text-xs transition cursor-pointer shrink-0 active:scale-98"
               >
                 إغلاق
               </button>

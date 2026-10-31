@@ -86,7 +86,7 @@ export function TasbihCounterModal({ isOpen, onClose }: { isOpen: boolean; onClo
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background animate-in fade-in duration-200"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -94,9 +94,9 @@ export function TasbihCounterModal({ isOpen, onClose }: { isOpen: boolean; onClo
       aria-modal="true"
       aria-labelledby="tasbih-modal-title"
     >
-      <div className="relative w-full max-w-md bg-card border border-border rounded-2xl p-6 shadow-2xl flex flex-col items-center select-none">
+      <div className="relative w-full max-w-md bg-card rounded-2xl p-6 flex flex-col items-center select-none">
         {/* Header */}
-        <div className="w-full flex items-center justify-between pb-3 border-b border-border">
+        <div className="w-full flex items-center justify-between pb-3">
           <h2 id="tasbih-modal-title" className="text-lg font-semibold flex items-center gap-2">
             <span lang="ar">السبحة الإلكترونية</span>
             <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">Digital Tasbih</span>
@@ -123,9 +123,9 @@ export function TasbihCounterModal({ isOpen, onClose }: { isOpen: boolean; onClo
                 }}
                 aria-pressed={isSelected}
                 className={cn(
-                  'px-3 py-1.5 text-xs rounded-lg whitespace-nowrap transition-all border shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                  'px-3 py-1.5 text-xs rounded-lg whitespace-nowrap transition border shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   isSelected
-                    ? 'bg-primary text-primary-foreground border-primary font-medium shadow-sm'
+                    ? 'bg-primary text-primary-foreground border-primary font-medium '
                     : 'bg-secondary/60 hover:bg-secondary text-muted-foreground border-transparent'
                 )}
               >
@@ -173,7 +173,7 @@ export function TasbihCounterModal({ isOpen, onClose }: { isOpen: boolean; onClo
           tabIndex={0}
           aria-label={`عدّاد التسبيح، ${tasbihCount}${tasbihTarget > 0 ? ` من أصل ${tasbihTarget}` : ''}`}
           className={cn(
-            'relative cursor-pointer w-56 h-56 rounded-full flex flex-col items-center justify-center transition-all duration-150 active:scale-95 my-2 shadow-inner group focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring',
+            'relative cursor-pointer w-56 h-56 rounded-full flex flex-col items-center justify-center transition duration-150 active:scale-95 my-2  group focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring',
             isCompletedAnim ? 'ring-4 ring-emerald-500 bg-emerald-500/10' : 'hover:bg-primary/5'
           )}
         >
@@ -199,12 +199,12 @@ export function TasbihCounterModal({ isOpen, onClose }: { isOpen: boolean; onClo
                 strokeDasharray={circumference}
                 strokeDashoffset={strokeDashoffset}
                 strokeLinecap="round"
-                className="text-primary transition-all duration-150"
+                className="text-primary transition duration-150"
               />
             )}
           </svg>
 
-          <span className="text-5xl sm:text-6xl font-extrabold tracking-tight font-mono text-foreground select-none" aria-live="polite">
+          <span className="text-5xl sm:text-6xl font-extrabold tracking-tight tabular-nums text-foreground select-none" aria-live="polite">
             {tasbihCount}
           </span>
           {tasbihTarget > 0 && (
@@ -212,13 +212,13 @@ export function TasbihCounterModal({ isOpen, onClose }: { isOpen: boolean; onClo
               من أصل {tasbihTarget}
             </span>
           )}
-          <span className="text-[11px] text-muted-foreground/60 mt-3 group-hover:text-primary transition-colors">
+          <span className="text-xs text-muted-foreground/60 mt-3 group-hover:text-primary transition-colors">
             انقر هنا أو اضغط المسطرة (Space)
           </span>
         </div>
 
         {/* Control Toolbar */}
-        <div className="w-full flex items-center justify-between pt-4 mt-2 border-t border-border text-sm">
+        <div className="w-full flex items-center justify-between pt-4 mt-2 text-sm">
           <div className="flex items-center gap-1">
             <button
               onClick={toggleHaptic}

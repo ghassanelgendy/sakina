@@ -8,6 +8,14 @@ select,
 textarea {
   font-family: 'Cairo', sans-serif;
 }
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* One smooth cross-fade when the theme flips */
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
 
 html,
 body {
@@ -28,9 +36,11 @@ body.dark {
   font-family: 'Cairo', sans-serif;
 }
 .font-arabic-quran {
-  font-family: 'Scheherazade New', 'Amiri', serif;
+  font-family: 'Amiri Quran', 'Scheherazade New', 'Amiri', serif;
   line-height: 2.1;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
+  font-feature-settings: 'liga', 'calt', 'kern';
+  font-kerning: normal;
 }
 /* Ornate Ruqaa-style calligraphy — for short decorative display text (verses,
    branding moments), not body copy: it's much harder to read at small sizes. */
@@ -141,50 +151,184 @@ body.dark {
   background-clip: padding-box;
 }
 
-/* Sakina (سكينة) — calm teal/emerald theme. Dark is default. */
+/* ===========================================================================
+   Sakina (سكينة) — a quiet reading room.
+   Day  : mushaf paper, deep ink-green text, the brand green only on small marks.
+   Night: ink-green dark, depth made by lightness steps, not borders or shadows.
+   One accent (green) + one restrained gold used only for memorisation.
+   =========================================================================== */
 @theme {
   --font-sans: 'Cairo', sans-serif;
-  --color-background: hsl(192 28% 6%);
-  --color-foreground: hsl(150 12% 95%);
-  --color-card: hsl(192 24% 9%);
-  --color-card-foreground: hsl(150 12% 95%);
-  --color-popover: hsl(192 24% 10.5%);
-  --color-popover-foreground: hsl(150 12% 95%);
-  --color-primary: hsl(160 48% 46%);
-  --color-primary-foreground: hsl(192 30% 7%);
-  --color-secondary: hsl(192 16% 15%);
-  --color-secondary-foreground: hsl(150 12% 95%);
-  --color-muted: hsl(192 16% 15%);
-  --color-muted-foreground: hsl(180 8% 62%);
-  --color-accent: hsl(160 30% 18%);
-  --color-accent-foreground: hsl(150 12% 95%);
-  --color-destructive: hsl(0 62.8% 30.6%);
+
+  --color-background: hsl(165 22% 6.5%);
+  --color-foreground: hsl(150 10% 93%);
+  --color-card: hsl(165 16% 9.5%);
+  --color-card-foreground: hsl(150 10% 93%);
+  --color-popover: hsl(165 16% 12%);
+  --color-popover-foreground: hsl(150 10% 93%);
+  --color-primary: hsl(160 42% 50%);
+  --color-primary-foreground: hsl(165 30% 6%);
+  --color-secondary: hsl(165 12% 13.5%);
+  --color-secondary-foreground: hsl(150 10% 93%);
+  --color-muted: hsl(165 12% 13.5%);
+  --color-muted-foreground: hsl(165 8% 66%);
+  --color-accent: hsl(160 26% 17%);
+  --color-accent-foreground: hsl(150 10% 93%);
+  --color-destructive: hsl(0 55% 42%);
   --color-destructive-foreground: hsl(0 0% 98%);
-  --color-border: hsl(192 14% 16%);
-  --color-input: hsl(192 14% 16%);
-  --color-ring: hsl(160 48% 46%);
+  --color-border: hsl(165 10% 17%);
+  --color-input: hsl(165 10% 17%);
+  --color-ring: hsl(160 42% 50%);
   --radius-xl: 0.9rem;
+
+  /* Legacy hard-coded palette classes (emerald-* / amber-*) now resolve to the
+     two roles above, so ~170 old usages calm down without touching each one. */
+  --color-emerald-200: var(--sk-accent-text);
+  --color-emerald-300: var(--sk-accent-text);
+  --color-emerald-400: var(--sk-accent-text);
+  --color-emerald-500: var(--color-primary);
+  --color-emerald-600: var(--sk-accent-solid);
+  --color-emerald-950: var(--sk-accent-deep);
+  --color-amber-300: var(--sk-gold-text);
+  --color-amber-400: var(--sk-gold-text);
+  --color-amber-500: var(--sk-gold);
+  --color-amber-600: var(--sk-gold-solid);
+
+  --ease-quiet: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-/* Light theme overrides (applied when html has class "light") */
+:root {
+  --sk-accent-text: hsl(160 42% 64%);
+  --sk-accent-solid: hsl(162 48% 30%);
+  --sk-accent-deep: hsl(162 30% 12%);
+  --sk-gold-text: hsl(40 52% 66%);
+  --sk-gold: hsl(40 55% 55%);
+  --sk-gold-solid: hsl(36 60% 36%);
+  --sk-page: hsl(165 16% 9.5%);
+}
+
+/* Day theme (class "light" on <html>) */
 html.light {
-  --color-background: hsl(150 25% 98%);
-  --color-foreground: hsl(192 25% 10%);
-  --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(192 25% 10%);
-  --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(192 25% 10%);
-  --color-primary: hsl(160 55% 30%);
-  --color-primary-foreground: hsl(0 0% 100%);
-  --color-secondary: hsl(155 20% 94%);
-  --color-secondary-foreground: hsl(192 25% 10%);
-  --color-muted: hsl(155 20% 94%);
-  --color-muted-foreground: hsl(190 8% 42%);
-  --color-accent: hsl(160 35% 90%);
-  --color-accent-foreground: hsl(160 55% 22%);
-  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-background: hsl(80 12% 94.5%);
+  --color-foreground: hsl(165 28% 9%);
+  --color-card: hsl(80 22% 98.5%);
+  --color-card-foreground: hsl(165 28% 9%);
+  --color-popover: hsl(80 22% 99%);
+  --color-popover-foreground: hsl(165 28% 9%);
+  --color-primary: hsl(162 55% 27%);
+  --color-primary-foreground: hsl(80 22% 98.5%);
+  --color-secondary: hsl(80 10% 90%);
+  --color-secondary-foreground: hsl(165 28% 9%);
+  --color-muted: hsl(80 10% 90%);
+  --color-muted-foreground: hsl(165 10% 36%);
+  --color-accent: hsl(155 28% 88%);
+  --color-accent-foreground: hsl(162 55% 20%);
+  --color-destructive: hsl(0 66% 44%);
   --color-destructive-foreground: hsl(0 0% 98%);
-  --color-border: hsl(155 15% 88%);
-  --color-input: hsl(155 15% 88%);
-  --color-ring: hsl(160 55% 30%);
+  --color-border: hsl(80 8% 84%);
+  --color-input: hsl(80 8% 84%);
+  --color-ring: hsl(162 55% 27%);
+
+  --sk-accent-text: hsl(162 58% 22%);
+  --sk-accent-solid: hsl(162 55% 27%);
+  --sk-accent-deep: hsl(155 28% 90%);
+  --sk-gold-text: hsl(34 70% 28%);
+  --sk-gold: hsl(38 66% 46%);
+  --sk-gold-solid: hsl(34 70% 34%);
+  --sk-page: hsl(80 22% 98.5%);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-primary) 28%, transparent);
+}
+
+/* Visible, calm keyboard focus everywhere */
+:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ---------- Reading surface ---------- */
+.mushaf-page {
+  font-family: 'Amiri Quran', 'Scheherazade New', 'Amiri', serif;
+  font-weight: 400;
+  font-size: var(--mushaf-size, 1.75rem);
+  line-height: 2.25;
+  color: var(--color-foreground);
+  text-align: justify;
+  text-align-last: center;
+  text-wrap: pretty;
+  word-spacing: 0.04em;
+}
+@media (min-width: 640px) {
+  .mushaf-page {
+    font-size: var(--mushaf-size-lg, 2.15rem);
+    line-height: 2.3;
+  }
+}
+/* Ayah-end ornament: a quiet circled number in the text flow */
+.ayah-end {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.9em;
+  height: 1.9em;
+  margin-inline: 0.18em;
+  padding-inline: 0.25em;
+  border-radius: 999px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.42em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  vertical-align: middle;
+  color: var(--sk-gold-text);
+  background: color-mix(in srgb, var(--sk-gold) 14%, transparent);
+  transition: background-color 0.2s var(--ease-quiet), color 0.2s var(--ease-quiet);
+  cursor: pointer;
+  user-select: none;
+}
+.ayah-end:hover {
+  background: color-mix(in srgb, var(--sk-gold) 26%, transparent);
+}
+.ayah-text {
+  border-radius: 0.35em;
+  padding-inline: 0.06em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition: background-color 0.25s var(--ease-quiet);
+  cursor: pointer;
+}
+/* Marker-style highlights: fill the lower part of the glyph box only,
+   so wrapped lines never look boxed in */
+.ayah-text.hl-active,
+.ayah-text.hl-mem,
+.ayah-text.hl-read {
+  box-shadow: inset 0 -0.55em 0 0 var(--hl);
+}
+.hl-active { --hl: color-mix(in srgb, var(--color-primary) 22%, transparent); }
+.hl-read { --hl: color-mix(in srgb, var(--color-primary) 26%, transparent); }
+.hl-mem { --hl: color-mix(in srgb, var(--sk-gold) 28%, transparent); }
+.ayah-text:hover {
+  background: color-mix(in srgb, var(--color-primary) 7%, transparent);
+}
+
+/* Soft, quick press feedback on anything tappable */
+button,
+[role='button'],
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Motion: everything respects reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

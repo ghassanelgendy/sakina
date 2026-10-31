@@ -144,7 +144,7 @@ export async function downloadAndCacheFullQuran(
   // Already fully cached on this device — skip the ~2 large network requests entirely.
   const alreadyCached = await idbCountQuranPages();
   if (alreadyCached >= TOTAL_MUSHAF_PAGES) {
-    onProgress?.('done', 100, 'المصحف كامل متاح بالفعل بدون إنترنت على هذا الجهاز ✓');
+    onProgress?.('done', 100, 'المصحف كامل متاح بالفعل بدون إنترنت على هذا الجهاز');
     return;
   }
 
@@ -227,7 +227,7 @@ export async function downloadAndCacheFullQuran(
 
   await setMultiplePagesToIdb(pagesArray);
 
-  onProgress?.('done', 100, 'تم تنزيل وحفظ جميع الصفحات (604 صفحة) والتفسير بنجاح ✓');
+  onProgress?.('done', 100, 'تم تنزيل وحفظ جميع الصفحات (604 صفحة) والتفسير بنجاح');
 }
 
 /**
