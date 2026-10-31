@@ -607,7 +607,7 @@ export const QuranMemorizerMain: React.FC<LifeOSIntegrationProps> = ({
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-sm rounded-2xl bg-popover p-6 space-y-5 text-center overscroll-contain animate-in fade-in slide-in-from-bottom-5 duration-300 ease-out"
+              className="w-full max-w-sm rounded-3xl bg-popover p-6 space-y-5 text-center overscroll-contain animate-in fade-in slide-in-from-bottom-5 duration-300 ease-out"
             >
               <p className="text-sm font-bold text-primary">حديث اليوم في فضل القرآن</p>
 
@@ -619,7 +619,7 @@ export const QuranMemorizerMain: React.FC<LifeOSIntegrationProps> = ({
 
               <button
                 onClick={() => setShowHadithModal(false)}
-                className="w-full h-12 rounded-lg bg-primary text-primary-foreground text-sm font-bold active:scale-[0.98] transition-transform cursor-pointer"
+                className="w-full h-12 rounded-full bg-primary text-primary-foreground text-sm font-bold active:scale-[0.98] transition-transform cursor-pointer"
               >
                 متابعة القراءة
               </button>

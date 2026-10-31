@@ -84,13 +84,13 @@ export const RevisionScheduler: React.FC<RevisionSchedulerProps> = ({
 
       {/* View 1: Spaced Repetition Due Queue */}
       {revisionType === 'spaced' && (
-        <div className="p-5 rounded-2xl bg-card space-y-4">
+        <div className="p-5 rounded-3xl bg-card space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
               <Clock className="size-4 text-amber-500" />
               جدول المراجعة اليومية المتباعدة (ورد التثبيت)
             </h3>
-            <span className="text-[13px] font-bold px-3 py-1 rounded-lg bg-amber-500/10 text-amber-400">
+            <span className="text-[13px] font-bold px-3 py-1 rounded-full bg-amber-500/10 text-amber-400">
               {dueReviews.length} مقطع مستحق
             </span>
           </div>
@@ -143,7 +143,7 @@ export const RevisionScheduler: React.FC<RevisionSchedulerProps> = ({
 
       {/* View 2: Cumulative Review Mode (مراجعة تراكمية) */}
       {revisionType === 'cumulative' && (
-        <div className="p-5 rounded-2xl bg-emerald-950/10 space-y-4">
+        <div className="p-5 rounded-3xl bg-emerald-950/10 space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-bold text-foreground flex items-center gap-2">

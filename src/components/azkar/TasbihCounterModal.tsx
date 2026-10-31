@@ -99,7 +99,7 @@ export function TasbihCounterModal({ isOpen, onClose }: { isOpen: boolean; onClo
         <div className="w-full flex items-center justify-between pb-3">
           <h2 id="tasbih-modal-title" className="text-lg font-semibold flex items-center gap-2">
             <span lang="ar">السبحة الإلكترونية</span>
-            <span className="text-xs px-2 py-0.5 rounded-lg bg-primary/10 text-primary font-medium">Digital Tasbih</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">Digital Tasbih</span>
           </h2>
           <button
             onClick={onClose}

@@ -133,7 +133,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
           md:bottom-5 md:w-[min(92%,42rem)] md:max-w-[42rem] md:h-16 md:px-5
           flex items-center justify-between
           ${isBarHidden || forceSmall
-            ? 'scale-[0.78] translate-y-[10px] opacity-95 bg-popover'
+            ? 'scale-[0.78] translate-y-[10px] opacity-55 bg-popover'
             : 'scale-100 translate-y-0 opacity-100 bg-popover'}
           border border-border/50
            dark:
@@ -167,7 +167,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
             {/* Compact Mobile Sheikh & Ayah Pill */}
             <div
               onClick={() => setShowSettingsDrawer(true)}
-              className="flex items-center gap-1.5 text-xs md:text-xs bg-secondary/50 md:bg-transparent hover:bg-secondary/70 md:hover:bg-transparent px-2 py-1 md:p-0 rounded-lg cursor-pointer active:scale-95 transition truncate"
+              className="flex items-center gap-1.5 text-xs md:text-xs bg-secondary/50 md:bg-transparent hover:bg-secondary/70 md:hover:bg-transparent px-2 py-1 md:p-0 rounded-full cursor-pointer active:scale-95 transition truncate"
             >
               <span className="md:hidden text-primary font-bold truncate max-w-[70px]">
                 {getSheikhLastName(reciter)}
@@ -244,7 +244,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
           {/* Settings Drawer Trigger — one button opens the full settings sheet on any screen size */}
           <button
             onClick={() => setShowSettingsDrawer(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 md:px-3 rounded-lg bg-secondary/60 hover:bg-secondary text-foreground text-xs md:text-xs font-bold active:scale-95 transition cursor-pointer shrink-0"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 md:px-3 rounded-full bg-secondary/60 hover:bg-secondary text-foreground text-xs md:text-xs font-bold active:scale-95 transition cursor-pointer shrink-0"
             title="إعدادات الصوت والتكرار"
           >
             <SlidersHorizontal size={13} className="text-primary" />
@@ -263,7 +263,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
           <div
             onClick={(e) => e.stopPropagation()}
             dir="rtl"
-            className="w-full max-w-md rounded-t-2xl bg-popover p-6 space-y-4 text-right pb-safe animate-in slide-in-from-bottom duration-300 ease-out fill-mode-both transition"
+            className="w-full max-w-md rounded-t-[2.5rem] bg-popover p-6 space-y-4 text-right pb-safe animate-in slide-in-from-bottom duration-300 ease-out fill-mode-both transition"
             style={{
               bottom: 'var(--keyboard-height, 0px)',
               maxHeight: 'calc(90dvh - var(--keyboard-height, 0px))',
@@ -420,7 +420,7 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
                     <div className="text-xs opacity-80 font-normal">تكرار الآية ٣ مرات ← سكوت للتسميع مغمضاً ← ربط من أول السورة ← الآية التالية</div>
                   </div>
                 </div>
-                {repeatSettings.cumulativeMemorizationMode && <span className="text-xs font-black bg-white/20 px-2 py-0.5 rounded-lg">مُفعّل</span>}
+                {repeatSettings.cumulativeMemorizationMode && <span className="text-xs font-black bg-white/20 px-2 py-0.5 rounded-full">مُفعّل</span>}
               </button>
 
               <div className="grid grid-cols-2 gap-2 pt-1">

@@ -71,12 +71,15 @@ export default function App() {
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
       <nav className="sticky top-0 z-30 bg-background">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-4 sm:gap-3 sm:px-6">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-3 sm:gap-3 sm:px-6">
           <div className="flex items-center gap-2.5 shrink-0">
-            <span className="font-display text-[26px] font-bold leading-none text-foreground">سكينة</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <BookOpenText size={17} />
+            </div>
+            <span className="hidden font-arabic-title text-base font-bold text-foreground sm:inline">سكينة</span>
           </div>
 
-          <div role="tablist" className="flex items-stretch gap-1 shrink-0 h-14">
+          <div role="tablist" className="flex items-center gap-1 rounded-full bg-secondary p-1 shrink-0">
             {([
               { id: 'quran' as const, label: 'القرآن الكريم' },
               { id: 'azkar' as const, label: 'الأذكار' },
@@ -87,17 +90,13 @@ export default function App() {
                 aria-selected={tab === id}
                 onClick={() => setTab(id)}
                 className={cn(
-                  'relative px-3 sm:px-5 text-[15px] font-bold transition-colors duration-200 cursor-pointer',
-                  tab === id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  'rounded-full px-4 sm:px-5 h-9 text-sm font-bold transition-colors duration-200 cursor-pointer',
+                  tab === id
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 {label}
-                <span
-                  className={cn(
-                    'absolute inset-x-3 sm:inset-x-5 bottom-0 h-[3px] rounded-t bg-primary transition-transform duration-300 ease-out origin-center',
-                    tab === id ? 'scale-x-100' : 'scale-x-0'
-                  )}
-                />
               </button>
             ))}
           </div>
