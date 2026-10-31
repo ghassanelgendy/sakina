@@ -44,7 +44,7 @@ export interface ZekrFocusProps {
   onToggleFavoritesOnly?: () => void;
 }
 
-const R = 48;
+const R = 44;
 const C = 2 * Math.PI * R;
 
 interface Ripple {
@@ -233,42 +233,41 @@ export function ZekrFocus({
   if (allDone) {
     return (
       <div
-        className="flex h-full min-h-[30rem] flex-col items-center justify-center gap-6 px-6 text-center animate-in fade-in duration-300"
+        className="flex h-full min-h-[26rem] flex-col items-center justify-center gap-5 px-6 text-center animate-in fade-in duration-300"
         dir="rtl"
       >
-        <div className="relative flex size-24 items-center justify-center rounded-full bg-primary/15 text-primary animate-celebrate animate-ring-glow">
-          <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping opacity-20" />
-          <Check size={44} strokeWidth={3} className="animate-float" />
+        <div className="relative flex size-20 items-center justify-center rounded-full bg-primary/15 text-primary animate-celebrate">
+          <Check size={38} strokeWidth={3} className="animate-float" />
         </div>
-        <div className="space-y-2">
-          <h2 className="font-arabic-quran text-3xl sm:text-4xl font-bold text-foreground">تَقَبَّلَ اللَّهُ مِنْكَ</h2>
-          <p className="text-base text-muted-foreground">
+        <div className="space-y-1.5">
+          <h2 className="font-arabic-quran text-2xl sm:text-3xl font-bold text-foreground">تَقَبَّلَ اللَّهُ مِنْكَ</h2>
+          <p className="text-sm text-muted-foreground">
             أتممت جميع أذكار {currentCategoryName ? `(${currentCategoryName})` : 'هذا القسم'} بنجاح ({items.length} ذكراً)
           </p>
         </div>
-        <div className="flex w-full max-w-xs flex-col gap-2.5 pt-2">
+        <div className="flex w-full max-w-xs flex-col gap-2 pt-1">
           {onNextCategory && (
             <button
               onClick={onNextCategory}
-              className="flex h-13 items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-base font-bold text-primary-foreground transition-all duration-200 hover:brightness-110 active:scale-95 cursor-pointer shadow-md shadow-primary/20"
+              className="flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-bold text-primary-foreground transition-all duration-200 hover:brightness-110 active:scale-95 cursor-pointer"
             >
               <span>{nextCategoryName ? `الانتقال إلى ${nextCategoryName}` : 'القسم التالي'}</span>
-              <ChevronLeft size={20} />
+              <ChevronLeft size={18} />
             </button>
           )}
           <button
             onClick={onRestartAll}
-            className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-secondary px-5 text-[15px] font-bold text-foreground transition-all duration-200 hover:bg-secondary/80 active:scale-95 cursor-pointer"
+            className="flex h-11 items-center justify-center gap-2 rounded-xl bg-secondary px-5 text-sm font-bold text-foreground transition-all duration-200 hover:bg-secondary/80 active:scale-95 cursor-pointer"
           >
-            <RotateCcw size={16} />
+            <RotateCcw size={15} />
             <span>إعادة قراءة هذا القسم</span>
           </button>
           {onSelectCategory && (
             <button
               onClick={() => setShowCategorySheet(true)}
-              className="flex h-11 items-center justify-center gap-1.5 rounded-xl text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="flex h-10 items-center justify-center gap-1.5 rounded-xl text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
-              <Layers size={16} />
+              <Layers size={15} />
               <span>اختيار قسم آخر</span>
             </button>
           )}
@@ -287,37 +286,37 @@ export function ZekrFocus({
 
   return (
     <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none" dir="rtl">
-      {/* Top Header Bar */}
-      <div className="flex shrink-0 items-center justify-between gap-2 px-3 pt-2 pb-1.5">
+      {/* Top Header Bar - sleek and compact */}
+      <div className="flex shrink-0 items-center justify-between gap-2 px-3 pt-1.5 pb-1">
         {/* Category button (tap to open switcher bottom sheet) */}
         <button
           type="button"
           onClick={() => setShowCategorySheet(true)}
-          className="flex items-center gap-1.5 rounded-full bg-secondary/80 hover:bg-secondary px-3.5 py-1.5 text-xs sm:text-sm font-bold text-foreground transition-all active:scale-95 cursor-pointer border border-border/50 max-w-[210px] sm:max-w-xs truncate"
+          className="flex items-center gap-1.5 rounded-full bg-secondary/80 hover:bg-secondary px-3 py-1 text-xs font-bold text-foreground transition-all active:scale-95 cursor-pointer border border-border/40 max-w-[190px] sm:max-w-xs truncate"
           aria-label="اختيار قسم الأذكار"
         >
           <span className="truncate">{showFavoritesOnly ? 'المفضلة' : currentCategoryName || item.category}</span>
-          <ChevronDown size={14} className="shrink-0 text-muted-foreground" />
+          <ChevronDown size={13} className="shrink-0 text-muted-foreground" />
         </button>
 
         {/* Counter Badge */}
-        <div className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary tabular-nums">
+        <div className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary tabular-nums">
           <span>{safeIndex + 1}</span>
-          <span className="opacity-60">/</span>
+          <span className="opacity-50">/</span>
           <span>{items.length}</span>
         </div>
 
         {/* Action icons */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5">
           {onOpenTasbih && (
             <button
               type="button"
               onClick={onOpenTasbih}
               aria-label="السبحة الإلكترونية"
               title="السبحة الإلكترونية"
-              className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-all active:scale-90 cursor-pointer"
+              className="flex size-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-all active:scale-90 cursor-pointer"
             >
-              <Sparkles size={17} />
+              <Sparkles size={16} />
             </button>
           )}
 
@@ -326,9 +325,9 @@ export function ZekrFocus({
             onClick={toggleSound}
             aria-label={soundEnabled ? 'كتم الصوت' : 'تفعيل صوت الإتمام'}
             title={soundEnabled ? 'كتم الصوت' : 'تفعيل صوت الإتمام'}
-            className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-all active:scale-90 cursor-pointer"
+            className="flex size-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-all active:scale-90 cursor-pointer"
           >
-            {soundEnabled ? <Volume2 size={17} className="text-primary" /> : <VolumeX size={17} />}
+            {soundEnabled ? <Volume2 size={16} className="text-primary" /> : <VolumeX size={16} />}
           </button>
 
           <button
@@ -338,11 +337,11 @@ export function ZekrFocus({
             aria-label="حفظ في المفضلة"
             title="حفظ في المفضلة"
             className={cn(
-              'flex size-9 items-center justify-center rounded-full transition-all active:scale-90 cursor-pointer',
+              'flex size-8 items-center justify-center rounded-full transition-all active:scale-90 cursor-pointer',
               isFavorite(item.id) ? 'text-amber-500 bg-amber-500/15' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
             )}
           >
-            <Bookmark size={17} fill={isFavorite(item.id) ? 'currentColor' : 'none'} className={isFavorite(item.id) ? 'animate-celebrate' : ''} />
+            <Bookmark size={16} fill={isFavorite(item.id) ? 'currentColor' : 'none'} className={isFavorite(item.id) ? 'animate-celebrate' : ''} />
           </button>
 
           <button
@@ -350,15 +349,15 @@ export function ZekrFocus({
             onClick={() => setShowSettingsSheet(true)}
             aria-label="إعدادات القراءة والخط"
             title="إعدادات القراءة والخط"
-            className="flex size-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-all active:scale-90 cursor-pointer"
+            className="flex size-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-all active:scale-90 cursor-pointer"
           >
-            <Settings2 size={17} />
+            <Settings2 size={16} />
           </button>
         </div>
       </div>
 
-      {/* Segment progress bar at the top */}
-      <div className="shrink-0 px-3 py-1" role="tablist" aria-label="أذكار هذا القسم">
+      {/* Segment progress bar at the top - thin line */}
+      <div className="shrink-0 px-3 py-0.5" role="tablist" aria-label="أذكار هذا القسم">
         <div className="flex gap-1 overflow-x-hidden">
           {items.map((it, i) => {
             const isDone = (counts[it.id] || 0) >= it.count;
@@ -370,15 +369,15 @@ export function ZekrFocus({
                 aria-selected={isCurrent}
                 aria-label={`الذكر ${i + 1}${isDone ? ' (مكتمل)' : ''}`}
                 onClick={() => go(i)}
-                className="group flex h-4 flex-1 items-center cursor-pointer py-1"
+                className="group flex h-3 flex-1 items-center cursor-pointer"
               >
                 <span
                   className={cn(
-                    'h-1.5 w-full rounded-full transition-all duration-300',
+                    'h-1 w-full rounded-full transition-all duration-300',
                     isDone
                       ? 'bg-primary'
                       : isCurrent
-                      ? 'bg-foreground/80 scale-y-125'
+                      ? 'bg-foreground/80'
                       : 'bg-secondary'
                   )}
                 />
@@ -388,7 +387,7 @@ export function ZekrFocus({
         </div>
       </div>
 
-      {/* Main Thekr Reading Area (Takes majority of screen) */}
+      {/* Main Thekr Reading Area - Takes MAXIMUM room */}
       <div
         key={item.id}
         onClick={onCardClick}
@@ -397,7 +396,7 @@ export function ZekrFocus({
         }}
         onTouchEnd={onTouchEnd}
         className={cn(
-          'relative flex flex-1 min-h-0 flex-col items-center justify-center px-4 py-2 cursor-pointer overflow-hidden transition-all duration-200',
+          'relative flex flex-1 min-h-0 flex-col items-center justify-center px-4 py-1 sm:px-6 cursor-pointer overflow-hidden transition-all duration-200',
           slideDirection === 'next'
             ? 'animate-slide-in-right'
             : slideDirection === 'prev'
@@ -419,11 +418,11 @@ export function ZekrFocus({
           />
         ))}
 
-        {/* Scrollable container for the text */}
-        <div className="relative z-10 flex w-full max-w-2xl flex-1 flex-col items-center justify-center overflow-y-auto overscroll-contain px-2 sm:px-4 py-2 text-center">
+        {/* Scrollable container for the text - spacious & centered */}
+        <div className="relative z-10 flex w-full max-w-2xl flex-1 flex-col items-center justify-center overflow-y-auto overscroll-contain px-2 sm:px-6 py-2 text-center my-auto">
           <p
             className={cn(
-              'font-arabic-quran whitespace-pre-line text-foreground select-none leading-[2.2] sm:leading-[2.35] tracking-normal transition-all duration-150',
+              'font-arabic-quran whitespace-pre-line text-foreground select-none leading-[2.1] sm:leading-[2.25] tracking-normal transition-all duration-150',
               sizeClass
             )}
             lang="ar"
@@ -433,23 +432,23 @@ export function ZekrFocus({
 
           {/* Collapsible Fadl & Reference */}
           {(item.description || item.reference) && (
-            <div className="mt-3 w-full max-w-md pt-1" onClick={(e) => e.stopPropagation()}>
+            <div className="mt-2.5 w-full max-w-md pt-0.5" onClick={(e) => e.stopPropagation()}>
               <button
                 type="button"
                 onClick={() => setShowDetails((v) => !v)}
                 aria-expanded={showDetails}
-                className="mx-auto flex h-8 items-center gap-1.5 rounded-full bg-secondary/60 hover:bg-secondary px-3 text-[12px] font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
+                className="mx-auto flex h-7 items-center gap-1.5 rounded-full bg-secondary/60 hover:bg-secondary px-2.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-all cursor-pointer"
               >
-                <Info size={13} className="text-primary" />
+                <Info size={12} className="text-primary" />
                 <span>الفضل والمصدر</span>
                 <ChevronDown
-                  size={13}
+                  size={12}
                   className={cn('transition-transform duration-200', showDetails && 'rotate-180')}
                 />
               </button>
 
               {showDetails && (
-                <div className="mt-2 space-y-1.5 rounded-2xl bg-secondary/80 p-3.5 text-[13px] leading-6 text-foreground/90 text-right animate-in fade-in zoom-in-95 duration-200 shadow-sm border border-border/50">
+                <div className="mt-1.5 space-y-1 rounded-2xl bg-secondary/80 p-3 text-xs leading-5 text-foreground/90 text-right animate-in fade-in zoom-in-95 duration-200 border border-border/40">
                   {item.description && (
                     <p>
                       <span className="font-bold text-primary">الفضل: </span>
@@ -457,7 +456,7 @@ export function ZekrFocus({
                     </p>
                   )}
                   {item.reference && (
-                    <p className="text-muted-foreground text-xs pt-1 border-t border-border/40">
+                    <p className="text-muted-foreground text-[11px] pt-1 border-t border-border/40">
                       <span className="font-semibold text-foreground">المصدر: </span>
                       {item.reference}
                     </p>
@@ -472,56 +471,51 @@ export function ZekrFocus({
             type="button"
             onClick={share}
             aria-label="مشاركة الذكر"
-            className="mt-2 inline-flex items-center gap-1 text-[11px] text-muted-foreground/70 hover:text-foreground transition-colors cursor-pointer py-1 px-2 rounded-lg"
+            className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-muted-foreground/60 hover:text-foreground transition-colors cursor-pointer py-0.5 px-2 rounded-lg"
           >
-            <Share2 size={12} />
+            <Share2 size={11} />
             <span>مشاركة</span>
           </button>
         </div>
       </div>
 
-      {/* Prominent Tactile Counter & Bottom Thumb Navigation */}
-      <div className="shrink-0 flex flex-col items-center justify-center px-4 pt-1 pb-3 sm:pb-4 gap-1">
-        <div className="flex w-full max-w-sm items-center justify-between gap-3">
+      {/* Compact Tactile Counter & Bottom Navigation */}
+      <div className="shrink-0 flex flex-col items-center justify-center px-4 pt-1 pb-2 sm:pb-3 gap-0.5">
+        <div className="flex w-full max-w-xs items-center justify-between gap-3">
           {/* Previous Dhikr Button */}
           <button
             type="button"
             onClick={() => go(safeIndex - 1, 'prev')}
             disabled={safeIndex === 0}
             aria-label="الذكر السابق"
-            className="flex size-13 sm:size-14 items-center justify-center rounded-2xl bg-secondary text-foreground disabled:opacity-20 transition-all duration-150 active:scale-90 cursor-pointer hover:bg-secondary/80 shadow-sm"
+            className="flex size-10 sm:size-11 items-center justify-center rounded-xl bg-secondary text-foreground disabled:opacity-20 transition-all duration-150 active:scale-90 cursor-pointer hover:bg-secondary/80"
           >
-            <ChevronRight size={26} />
+            <ChevronRight size={20} />
           </button>
 
-          {/* The Hero Counter Button */}
+          {/* Compact Counter Button */}
           <div className="relative flex flex-col items-center">
             <button
               type="button"
               onClick={count}
               aria-label={finished ? 'اكتمل الذكر' : `عدّ الذكر، ${current} من ${item.count}`}
-              className={cn(
-                'relative flex size-28 sm:size-32 items-center justify-center rounded-full bg-card cursor-pointer transition-all duration-150 active:scale-90 shadow-lg tap-press select-none',
-                !finished && 'animate-ring-glow',
-                isCompletedNow && 'ring-4 ring-primary ring-offset-2 ring-offset-background'
-              )}
+              className="relative flex size-[72px] sm:size-[78px] items-center justify-center rounded-full bg-card border border-border/60 cursor-pointer transition-transform duration-150 active:scale-90 tap-press select-none"
             >
-              {/* SVG Circular Progress Ring */}
+              {/* SVG Circular Progress Ring - clean without cut-off glow */}
               <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90 pointer-events-none" aria-hidden>
-                <circle cx="50" cy="50" r={R} fill="none" strokeWidth="5.5" className="stroke-secondary/70" />
+                <circle cx="50" cy="50" r={R} fill="none" strokeWidth="4.5" className="stroke-secondary/60" />
                 <circle
                   cx="50"
                   cy="50"
                   r={R}
                   fill="none"
-                  strokeWidth="5.5"
+                  strokeWidth="4.5"
                   strokeLinecap="round"
                   className="stroke-primary"
                   strokeDasharray={C}
                   strokeDashoffset={C * (1 - pct)}
                   style={{
                     transition: 'stroke-dashoffset 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                    filter: pct > 0 ? 'drop-shadow(0 0 6px color-mix(in srgb, var(--color-primary) 70%, transparent))' : undefined,
                   }}
                 />
               </svg>
@@ -529,20 +523,20 @@ export function ZekrFocus({
               {/* Inside Counter Content */}
               {finished ? (
                 <div className="flex flex-col items-center justify-center animate-celebrate text-primary">
-                  <Check size={42} strokeWidth={3} />
-                  <span className="text-[11px] font-bold mt-0.5">مكتمل</span>
+                  <Check size={26} strokeWidth={3} />
+                  <span className="text-[10px] font-bold mt-0.5">مكتمل</span>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center leading-none">
                   <span
                     className={cn(
-                      'text-4xl sm:text-5xl font-black font-sans tabular-nums text-foreground select-none transition-transform',
+                      'text-2xl sm:text-3xl font-black font-sans tabular-nums text-foreground select-none transition-transform',
                       isPopping && 'animate-counter-pop text-primary'
                     )}
                   >
                     {item.count - current}
                   </span>
-                  <span className="mt-1 text-[11px] font-bold text-muted-foreground tracking-wide select-none">
+                  <span className="mt-0.5 text-[10px] font-bold text-muted-foreground select-none">
                     من {item.count}
                   </span>
                 </div>
@@ -550,18 +544,18 @@ export function ZekrFocus({
             </button>
 
             {/* Sub-label under counter: Reset or Tap hint */}
-            <div className="h-6 mt-1 flex items-center justify-center">
+            <div className="h-5 flex items-center justify-center">
               {current > 0 ? (
                 <button
                   type="button"
                   onClick={() => onReset(item.id)}
-                  className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer active:scale-95 px-2 py-0.5 rounded-full hover:bg-secondary"
+                  className="flex items-center gap-1 text-[10px] font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer active:scale-95 px-2 py-0.5 rounded-full hover:bg-secondary"
                 >
-                  <RotateCcw size={11} />
+                  <RotateCcw size={10} />
                   <span>تصفير</span>
                 </button>
               ) : (
-                <span className="text-[11px] font-medium text-muted-foreground/70 animate-pulse">
+                <span className="text-[10px] text-muted-foreground/60">
                   {finished ? '' : 'اضغط للعدّ'}
                 </span>
               )}
@@ -574,9 +568,9 @@ export function ZekrFocus({
             onClick={() => go(safeIndex + 1, 'next')}
             disabled={safeIndex >= items.length - 1}
             aria-label="الذكر التالي"
-            className="flex size-13 sm:size-14 items-center justify-center rounded-2xl bg-secondary text-foreground disabled:opacity-20 transition-all duration-150 active:scale-90 cursor-pointer hover:bg-secondary/80 shadow-sm"
+            className="flex size-10 sm:size-11 items-center justify-center rounded-xl bg-secondary text-foreground disabled:opacity-20 transition-all duration-150 active:scale-90 cursor-pointer hover:bg-secondary/80"
           >
-            <ChevronLeft size={26} />
+            <ChevronLeft size={20} />
           </button>
         </div>
       </div>

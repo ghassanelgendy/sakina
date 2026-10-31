@@ -185,18 +185,6 @@ body.dark {
   animation: float-gentle 3.5s ease-in-out infinite;
 }
 
-@keyframes ring-glow {
-  0%, 100% {
-    filter: drop-shadow(0 0 2px color-mix(in srgb, var(--color-primary) 30%, transparent));
-  }
-  50% {
-    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--color-primary) 65%, transparent));
-  }
-}
-.animate-ring-glow {
-  animation: ring-glow 3s ease-in-out infinite;
-}
-
 @keyframes icon-pop {
   from { transform: rotate(-45deg) scale(0.85); opacity: 0; }
   to { transform: rotate(0deg) scale(1); opacity: 1; }
