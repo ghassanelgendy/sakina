@@ -242,10 +242,10 @@ export default function AzkarRoute() {
 
       <div className="mx-auto max-w-6xl space-y-6 px-4 pt-6 sm:px-6">
         {!searchQuery && !showFavoritesOnly && (
-          <div className="relative flex flex-col justify-between gap-4 overflow-hidden rounded-3xl bg-primary/10 p-5 sm:flex-row sm:items-center sm:p-6">
+          <div className="relative flex flex-col justify-between gap-4 overflow-hidden rounded-2xl bg-primary/10 p-5 sm:flex-row sm:items-center sm:p-6">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="rounded-full bg-primary px-2.5 py-0.5 text-[13px] font-semibold text-primary-foreground">{contextual.badge}</span>
+                <span className="rounded-lg bg-primary px-2.5 py-0.5 text-[13px] font-semibold text-primary-foreground">{contextual.badge}</span>
                 <span className="text-[13px] text-muted-foreground">{contextual.reason}</span>
               </div>
               <h2 className="font-arabic-quran text-xl font-bold text-foreground sm:text-2xl" lang="ar" dir="rtl">

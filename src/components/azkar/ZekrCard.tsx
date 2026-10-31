@@ -130,11 +130,11 @@ export function ZekrCard({
       {/* Top Meta Bar */}
       <div className="flex items-center justify-between gap-2 mb-4 text-[13px]">
         <div className="flex items-center gap-2">
-          <span className="px-2.5 py-1 rounded-full font-medium bg-secondary text-muted-foreground">
+          <span className="px-2.5 py-1 rounded-lg font-medium bg-secondary text-muted-foreground">
             {index + 1} من {total}
           </span>
           {isFinished && (
-            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded-full">
+            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded-lg">
               <Check size={13} strokeWidth={3} />
               <span>تم الإتمام</span>
             </span>

@@ -55,7 +55,7 @@ export function Guide({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4">
       <div
         dir="rtl"
-        className="w-full sm:max-w-md rounded-t-[2rem] sm:rounded-3xl bg-card p-6 space-y-5 text-right animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-300"
+        className="w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl bg-card p-6 space-y-5 text-right animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-300"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">

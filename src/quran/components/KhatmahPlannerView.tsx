@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { PageMap } from './PageMap';
 import { createPortal } from 'react-dom';
 import {
   Target,
@@ -484,18 +485,52 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
 
       <OfflineDownload />
 
+      {/* THE MAP: all 604 pages, one row per juz */}
+      <section className="mushaf-frame p-5 sm:p-8">
+        <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
+          <div className="space-y-5 md:pt-2">
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground">أنت الآن في</p>
+              <p className="font-display text-6xl font-bold leading-tight sm:text-7xl">
+                صفحة <span className="tabular-nums">{readingWird.currentPage}</span>
+              </p>
+              <p className="mt-1 text-[15px] text-foreground/80">
+                سورة {getSurahForPage(readingWird.currentPage).name} · الجزء {getSurahForPage(readingWird.currentPage).juzStart}
+              </p>
+              <p className="text-[15px] text-muted-foreground">
+                بقي {Math.max(0, 604 - readingWird.currentPage)} صفحة للختمة
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] font-semibold text-muted-foreground">
+              <span className="flex items-center gap-1.5"><i className="size-3 rounded-[2px] bg-primary" />قرأت</span>
+              {plan && <span className="flex items-center gap-1.5"><i className="size-3 rounded-[2px] bg-amber-500" />حفظت</span>}
+              <span className="flex items-center gap-1.5"><i className="size-3 rounded-[2px] bg-foreground" />موضعك</span>
+            </div>
+            <p className="max-w-xs text-[13px] leading-6 text-muted-foreground">اضغط أي مربع لفتح الصفحة. كل صف جزء، وكل مربع صفحة.</p>
+          </div>
+          <div className="w-full md:max-w-[28rem]">
+            <PageMap
+              readPage={readingWird.currentPage}
+              memPage={plan?.currentPage}
+              memReverse={isReversePlan(plan)}
+              onOpen={(page) => onOpenReader?.(page)}
+            />
+          </div>
+        </div>
+      </section>
+
       {/* DUAL WIRDS DISPLAY: ورد الحفظ + ورد التلاوة والقراءة */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         
         {/* 1. Memorization Wird (ورد الحفظ والتكرار) */}
-        <div className="p-6 rounded-3xl bg-emerald-950/20 space-y-3 active:scale-[0.99] transition">
+        <div className="p-6 rounded-2xl bg-emerald-950/20 space-y-3 active:scale-[0.99] transition">
           <div className="flex items-center justify-between">
             <h3 className="text-[13px] font-bold text-emerald-400 flex items-center gap-2 font-arabic-title">
               <Target className="size-4 text-emerald-400 shrink-0" />
               <span>ورد الحفظ الجديد والتكرار</span>
             </h3>
             {plan && (
-              <span className="text-[13px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">
+              <span className="text-[13px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-400">
                 {plan.pagesPerDay} صفحة / يومياً
               </span>
             )}
@@ -625,13 +660,13 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
         </div>
 
         {/* 2. Reading & Tilawah Wird (ورد التلاوة والقراءة اليومية) */}
-        <div className="p-6 rounded-3xl bg-primary/10 space-y-3 active:scale-[0.99] transition">
+        <div className="p-6 rounded-2xl bg-primary/10 space-y-3 active:scale-[0.99] transition">
           <div className="flex items-center justify-between">
             <h3 className="text-[13px] font-bold text-primary flex items-center gap-2 font-arabic-title">
               <BookOpen className="size-4 text-primary shrink-0" />
               <span>ورد التلاوة والقراءة اليومية</span>
             </h3>
-            <span className="text-[13px] font-bold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary">
+            <span className="text-[13px] font-bold px-2.5 py-0.5 rounded-lg bg-primary/10 text-primary">
               {readingWird.pagesPerDay} صفحة يومياً
             </span>
           </div>
@@ -753,7 +788,7 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
       <div className="grid grid-cols-1 gap-4">
 
         {/* Sheikh Recitation Sessions & Notes for Mistakes */}
-        <div className="p-4 md:p-6 rounded-3xl bg-popover space-y-3">
+        <div className="p-4 md:p-6 rounded-2xl bg-popover space-y-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <div className="size-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -854,7 +889,7 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg rounded-t-[2.5rem] sm:rounded-3xl bg-popover p-6 space-y-4 overflow-y-auto max-h-[85vh] sm:max-h-[90vh] overscroll-contain pb-safe animate-in slide-in-from-bottom-5 duration-200 transition"
+              className="w-full max-w-lg rounded-t-2xl sm:rounded-2xl bg-popover p-6 space-y-4 overflow-y-auto max-h-[85vh] sm:max-h-[90vh] overscroll-contain pb-safe animate-in slide-in-from-bottom-5 duration-200 transition"
               style={{
                 bottom: 'var(--keyboard-height, 0px)',
                 maxHeight: 'calc(90dvh - var(--keyboard-height, 0px))',
@@ -998,7 +1033,7 @@ export const KhatmahPlannerView: React.FC<KhatmahPlannerViewProps> = ({
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg rounded-t-[2.5rem] sm:rounded-3xl bg-popover p-6 space-y-4 overflow-y-auto max-h-[85vh] sm:max-h-[90vh] overscroll-contain pb-safe animate-in slide-in-from-bottom-5 duration-200 transition"
+              className="w-full max-w-lg rounded-t-2xl sm:rounded-2xl bg-popover p-6 space-y-4 overflow-y-auto max-h-[85vh] sm:max-h-[90vh] overscroll-contain pb-safe animate-in slide-in-from-bottom-5 duration-200 transition"
               style={{
                 bottom: 'var(--keyboard-height, 0px)',
                 maxHeight: 'calc(90dvh - var(--keyboard-height, 0px))',

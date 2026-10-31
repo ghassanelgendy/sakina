@@ -28,10 +28,10 @@ export default function LandingRoute({ onEnter, onLogin }: { onEnter: () => void
   return (
     <div dir="rtl" className="min-h-dvh bg-background text-foreground animate-in fade-in duration-500">
       <header className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
-        <span className="font-arabic-title text-xl font-extrabold">سكينة</span>
+        <span className="font-display text-2xl font-bold">سكينة</span>
         <button
           onClick={onLogin}
-          className="h-11 rounded-full px-4 text-sm font-bold text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+          className="h-11 rounded-lg px-4 text-sm font-bold text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
         >
           تسجيل الدخول
         </button>
@@ -41,7 +41,7 @@ export default function LandingRoute({ onEnter, onLogin }: { onEnter: () => void
         {/* Hero: the words on the left of the eye, the real reading page on the right */}
         <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-20 pt-8 sm:px-8 md:grid-cols-2 md:gap-14 md:pb-28 md:pt-16">
           <div className="animate-in fade-in slide-in-from-bottom-5 duration-500 ease-out">
-            <h1 className="text-4xl font-black leading-[1.25] sm:text-6xl">
+            <h1 className="text-5xl font-bold leading-[1.3] sm:text-7xl">
               اقرأ القرآن
               <br />
               <span>بسكينة.</span>
@@ -52,14 +52,14 @@ export default function LandingRoute({ onEnter, onLogin }: { onEnter: () => void
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
               <button
                 onClick={onEnter}
-                className="flex h-14 items-center justify-center gap-2 rounded-full bg-primary px-9 text-base font-bold text-primary-foreground transition-transform duration-200 hover:brightness-110 active:scale-[0.98] cursor-pointer"
+                className="flex h-14 items-center justify-center gap-2 rounded-lg bg-primary px-9 text-base font-bold text-primary-foreground transition-transform duration-200 hover:brightness-110 active:scale-[0.98] cursor-pointer"
               >
                 <span>ابدأ القراءة</span>
                 <ArrowLeft size={18} />
               </button>
               <button
                 onClick={onLogin}
-                className="h-14 rounded-full bg-secondary px-8 text-base font-bold text-foreground transition-colors hover:bg-secondary/70 cursor-pointer"
+                className="h-14 rounded-lg bg-secondary px-8 text-base font-bold text-foreground transition-colors hover:bg-secondary/70 cursor-pointer"
               >
                 لدي حساب بالفعل
               </button>
@@ -68,7 +68,7 @@ export default function LandingRoute({ onEnter, onLogin }: { onEnter: () => void
 
           <figure
             data-ui
-            className="animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out rounded-[2rem] bg-card px-6 pb-6 pt-8 sm:px-10 sm:pb-8 sm:pt-12"
+            className="animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out mushaf-frame px-6 pb-6 pt-8 sm:px-10 sm:pb-8 sm:pt-12"
           >
             <blockquote
               className="font-arabic-quran text-center text-foreground transition-[font-size] duration-300 ease-out"
@@ -119,10 +119,10 @@ export default function LandingRoute({ onEnter, onLogin }: { onEnter: () => void
 
         {/* Close: the name returns, large */}
         <section className="mx-auto max-w-6xl px-5 py-20 text-center sm:px-8 md:py-28">
-          <p className="font-arabic-title text-6xl font-black sm:text-8xl">سكينة</p>
+          <p className="font-display text-7xl font-bold sm:text-9xl">سكينة</p>
           <button
             onClick={onEnter}
-            className="mt-10 inline-flex h-14 items-center justify-center gap-2 rounded-full bg-primary px-10 text-base font-bold text-primary-foreground transition-transform duration-200 hover:brightness-110 active:scale-[0.98] cursor-pointer"
+            className="mt-10 inline-flex h-14 items-center justify-center gap-2 rounded-lg bg-primary px-10 text-base font-bold text-primary-foreground transition-transform duration-200 hover:brightness-110 active:scale-[0.98] cursor-pointer"
           >
             <span>ابدأ القراءة</span>
             <ArrowLeft size={18} />

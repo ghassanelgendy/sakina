@@ -13,7 +13,7 @@ export function About({ onClose }: { onClose: () => void }) {
       <div
         dir="rtl"
         onClick={(e) => e.stopPropagation()}
-        className="w-full sm:max-w-lg max-h-[88vh] overflow-y-auto rounded-t-[2rem] sm:rounded-3xl bg-card p-6 space-y-5 text-right"
+        className="w-full sm:max-w-lg max-h-[88vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl bg-card p-6 space-y-5 text-right"
       >
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold flex items-center gap-2">

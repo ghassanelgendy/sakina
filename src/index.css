@@ -32,8 +32,18 @@ body.dark {
   min-height: 100dvh;
 }
 
-.font-arabic-title,
 .font-arabic-body {
+  font-family: 'Cairo', sans-serif;
+}
+/* Display face: geometric kufic for titles, the wordmark and big figures */
+h1, h2, h3,
+.font-arabic-title,
+.font-display {
+  font-family: 'Reem Kufi', 'Cairo', sans-serif;
+  letter-spacing: 0;
+}
+.font-arabic-title button, button.font-arabic-title,
+.font-arabic-title [role='tab'] {
   font-family: 'Cairo', sans-serif;
 }
 .font-arabic-quran {
@@ -333,3 +343,44 @@ a {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- The mushaf as the interface ---------- */
+/* A printed page: paper, and a double-ruled gold frame like the madani mushaf */
+.mushaf-frame {
+  background: var(--color-card);
+  border: 5px double color-mix(in srgb, var(--sk-gold) 60%, transparent);
+  border-radius: 6px;
+}
+/* Surah banner: an elongated hexagonal cartouche, gold rim + tinted field */
+.cartouche {
+  --notch: 18px;
+  position: relative;
+  padding: 2px;
+  background: color-mix(in srgb, var(--sk-gold) 70%, transparent);
+  clip-path: polygon(var(--notch) 0, calc(100% - var(--notch)) 0, 100% 50%, calc(100% - var(--notch)) 100%, var(--notch) 100%, 0 50%);
+}
+.cartouche > div {
+  background: var(--sk-cart);
+  clip-path: polygon(var(--notch) 0, calc(100% - var(--notch)) 0, 100% 50%, calc(100% - var(--notch)) 100%, var(--notch) 100%, 0 50%);
+}
+:root { --sk-cart: hsl(162 30% 14%); }
+html.light { --sk-cart: hsl(150 26% 90%); }
+
+/* Khatmah map: 604 pages, one row per juz */
+.page-map {
+  display: grid;
+  grid-template-columns: 1.75rem repeat(23, minmax(0, 1fr));
+  gap: 3px;
+  align-items: center;
+}
+.page-cell {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--color-foreground) 9%, transparent);
+  transition: transform 0.15s var(--ease-quiet), background-color 0.2s;
+  cursor: pointer;
+}
+.page-cell:hover { transform: scale(1.35); }
+.page-cell[data-s='read'] { background: var(--color-primary); }
+.page-cell[data-s='mem'] { background: var(--sk-gold); }
+.page-cell[data-s='here'] { background: var(--color-foreground); transform: scale(1.3); }
