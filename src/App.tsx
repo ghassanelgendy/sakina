@@ -9,6 +9,7 @@ import LandingRoute from './routes/Landing';
 import AuthRoute from './routes/Auth';
 import { Guide, shouldShowGuideOnEntry } from './components/Guide';
 import { About } from './components/About';
+import { trackPageView } from './lib/gtag';
 
 type Tab = 'quran' | 'azkar';
 type View = 'landing' | 'auth' | 'app';
@@ -47,6 +48,7 @@ export default function App() {
 
   useEffect(() => {
     localStorage.setItem('active_tab', tab);
+    trackPageView(`/${tab}`, tab === 'quran' ? 'القرآن الكريم' : 'الأذكار');
   }, [tab]);
 
   useEffect(() => {

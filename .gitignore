@@ -7,3 +7,12 @@ dist
 *.tsbuildinfo
 .vercel
 .env*
+
+# Python & MCP
+.venv/
+tools/*/.venv/
+tools/**/service-account*.json
+tools/**/credentials*.json
+__pycache__/
+*.py[cod]
+*$py.class
