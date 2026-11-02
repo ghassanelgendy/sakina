@@ -187,8 +187,8 @@ export default function AzkarRoute() {
   }
 
   return (
-    <div className={cn('bg-background text-foreground', desktopViewMode === 'list' ? 'min-h-dvh pb-24 md:pb-10' : 'pb-4')}>
-      <div className={cn('z-20 bg-background', desktopViewMode === 'list' && 'sticky top-14')}>
+    <div className={cn('bg-background text-foreground', effectiveViewMode === 'list' ? 'min-h-dvh pb-24 md:pb-10' : 'pb-4')}>
+      <div className={cn('z-20 bg-background', effectiveViewMode === 'list' && 'sticky top-14')}>
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-4 sm:h-16 sm:gap-4 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="hidden h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary sm:flex">
@@ -204,7 +204,7 @@ export default function AzkarRoute() {
               onClick={() => changeDesktopView(desktopViewMode === 'focus' ? 'list' : 'focus')}
               aria-label={desktopViewMode === 'focus' ? 'عرض القائمة' : 'عرض ذكر واحد'}
               title={desktopViewMode === 'focus' ? 'عرض القائمة' : 'عرض ذكر واحد'}
-              className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-all duration-150 hover:bg-secondary hover:text-foreground cursor-pointer active:scale-90"
+              className="hidden sm:flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-all duration-150 hover:bg-secondary hover:text-foreground cursor-pointer active:scale-90"
             >
               {desktopViewMode === 'focus' ? <LayoutList size={19} /> : <GalleryHorizontal size={19} />}
             </button>
@@ -329,7 +329,7 @@ export default function AzkarRoute() {
         )}
       </div>
 
-      {desktopViewMode === 'focus' ? (
+      {effectiveViewMode === 'focus' ? (
         <div className="mx-auto flex h-[calc(100dvh-7.5rem)] min-h-[32rem] max-w-3xl flex-col gap-3 px-4 pb-3 pt-1 sm:px-6">
           {(showSearch || searchQuery) && (
             <div className="relative shrink-0 animate-in fade-in duration-200">

@@ -17,6 +17,28 @@ type View = 'landing' | 'auth' | 'app';
 const ENTERED_KEY = 'sakina_entered_v1';
 const GUIDE_SEEN_KEY = 'sakina_guide_seen_v1';
 
+function getInitialRoute(): { view: View; tab: Tab } {
+  if (typeof window === 'undefined') {
+    return { view: 'app', tab: 'quran' };
+  }
+  const cleanPath = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+  if (cleanPath === 'azkar') {
+    return { view: 'app', tab: 'azkar' };
+  }
+  if (cleanPath === 'quran') {
+    return { view: 'app', tab: 'quran' };
+  }
+  if (cleanPath === 'auth') {
+    return { view: 'auth', tab: (localStorage.getItem('active_tab') as Tab) || 'quran' };
+  }
+  const entered = localStorage.getItem(ENTERED_KEY);
+  const savedTab = (localStorage.getItem('active_tab') as Tab) || 'quran';
+  return {
+    view: entered ? 'app' : 'landing',
+    tab: savedTab,
+  };
+}
+
 function shouldShowGuideOnEntry(): boolean {
   try {
     return !localStorage.getItem(GUIDE_SEEN_KEY);
@@ -52,23 +74,36 @@ function useTheme() {
 }
 
 export default function App() {
-  const [tab, setTab] = useState<Tab>(() => (localStorage.getItem('active_tab') as Tab) || 'quran');
-  const [view, setView] = useState<View>(() => {
-    try {
-      return localStorage.getItem(ENTERED_KEY) ? 'app' : 'landing';
-    } catch {
-      return 'app';
-    }
-  });
+  const [initial] = useState(() => getInitialRoute());
+  const [tab, setTab] = useState<Tab>(initial.tab);
+  const [view, setView] = useState<View>(initial.view);
   const { theme, toggleTheme } = useTheme();
   const { user, isConfigured } = useAuth();
   const [showGuide, setShowGuide] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   useAzkarRealtime();
 
+  const navigate = (newView: View, newTab: Tab) => {
+    setView(newView);
+    setTab(newTab);
+    localStorage.setItem('active_tab', newTab);
+    let path = '/';
+    if (newView === 'auth') path = '/auth';
+    else if (newView === 'app') path = `/${newTab}`;
+    if (window.location.pathname !== path) {
+      window.history.pushState({ view: newView, tab: newTab }, '', path);
+    }
+  };
+
   useEffect(() => {
-    localStorage.setItem('active_tab', tab);
-  }, [tab]);
+    const onPopState = () => {
+      const current = getInitialRoute();
+      setView(current.view);
+      setTab(current.tab);
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
 
   useEffect(() => {
     if (view === 'app' && shouldShowGuideOnEntry()) {
@@ -78,13 +113,13 @@ export default function App() {
 
   const enterApp = () => {
     try { localStorage.setItem(ENTERED_KEY, '1'); } catch {}
-    setView('app');
+    navigate('app', tab);
   };
 
   if (view === 'landing') {
     return (
       <Suspense fallback={<RouteLoadingFallback />}>
-        <LandingRoute onEnter={enterApp} onLogin={() => setView('auth')} />
+        <LandingRoute onEnter={enterApp} onLogin={() => navigate('auth', tab)} />
       </Suspense>
     );
   }
@@ -117,7 +152,7 @@ export default function App() {
                 key={id}
                 role="tab"
                 aria-selected={tab === id}
-                onClick={() => setTab(id)}
+                onClick={() => navigate('app', id)}
                 className={cn(
                   'rounded-full px-4 sm:px-5 h-9 text-sm font-bold transition-all duration-200 cursor-pointer active:scale-95',
                   tab === id
@@ -149,7 +184,7 @@ export default function App() {
               </span>
             </button>
             <button
-              onClick={() => setView('auth')}
+              onClick={() => navigate('auth', tab)}
               aria-label="الحساب"
               className={cn(
                 'flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 cursor-pointer active:scale-90',
