@@ -1,19 +1,40 @@
-import { useEffect, useState } from 'react';
-import { BookOpenText, Sun, Moon, UserCircle2, HelpCircle, Github, Layers } from 'lucide-react';
+import { useEffect, useState, lazy, Suspense } from 'react';
+import { BookOpenText, Sun, Moon, UserCircle2, HelpCircle, Github, Layers, Loader2 } from 'lucide-react';
 import { cn } from './lib/utils';
 import { useAuth } from './hooks/useAuth';
 import { useAzkarRealtime } from './hooks/useAzkar';
-import QuranRoute from './routes/Quran';
-import AzkarRoute from './routes/Azkar';
-import LandingRoute from './routes/Landing';
-import AuthRoute from './routes/Auth';
-import { Guide, shouldShowGuideOnEntry } from './components/Guide';
-import { About } from './components/About';
+
+const QuranRoute = lazy(() => import('./routes/Quran'));
+const AzkarRoute = lazy(() => import('./routes/Azkar'));
+const LandingRoute = lazy(() => import('./routes/Landing'));
+const AuthRoute = lazy(() => import('./routes/Auth'));
+const Guide = lazy(() => import('./components/Guide').then(m => ({ default: m.Guide })));
+const About = lazy(() => import('./components/About').then(m => ({ default: m.About })));
 
 type Tab = 'quran' | 'azkar';
 type View = 'landing' | 'auth' | 'app';
 
 const ENTERED_KEY = 'sakina_entered_v1';
+const GUIDE_SEEN_KEY = 'sakina_guide_seen_v1';
+
+function shouldShowGuideOnEntry(): boolean {
+  try {
+    return !localStorage.getItem(GUIDE_SEEN_KEY);
+  } catch {
+    return false;
+  }
+}
+
+function RouteLoadingFallback() {
+  return (
+    <div className="flex min-h-[50vh] items-center justify-center p-8">
+      <div className="flex flex-col items-center gap-3 text-muted-foreground animate-pulse">
+        <Loader2 className="size-7 animate-spin text-primary" />
+        <span className="font-arabic text-sm">جاري التحميل...</span>
+      </div>
+    </div>
+  );
+}
 
 function useTheme() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -61,11 +82,19 @@ export default function App() {
   };
 
   if (view === 'landing') {
-    return <LandingRoute onEnter={enterApp} onLogin={() => setView('auth')} />;
+    return (
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <LandingRoute onEnter={enterApp} onLogin={() => setView('auth')} />
+      </Suspense>
+    );
   }
 
   if (view === 'auth') {
-    return <AuthRoute onBack={enterApp} />;
+    return (
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <AuthRoute onBack={enterApp} />
+      </Suspense>
+    );
   }
 
   return (
@@ -137,7 +166,9 @@ export default function App() {
       <h1 className="sr-only">{tab === 'quran' ? 'سكينة، القرآن الكريم' : 'سكينة، الأذكار'}</h1>
 
       <main key={tab} className="flex-1 animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out">
-        {tab === 'quran' ? <QuranRoute /> : <AzkarRoute />}
+        <Suspense fallback={<RouteLoadingFallback />}>
+          {tab === 'quran' ? <QuranRoute /> : <AzkarRoute />}
+        </Suspense>
       </main>
 
       <footer className={cn("mt-12 bg-card py-8 text-center text-xs text-muted-foreground", tab === 'azkar' && 'hidden md:block')} dir="rtl">
@@ -170,8 +201,10 @@ export default function App() {
         </div>
       </footer>
 
-      {showGuide && <Guide onClose={() => setShowGuide(false)} />}
-      {showAbout && <About onClose={() => setShowAbout(false)} />}
+      <Suspense fallback={null}>
+        {showGuide && <Guide onClose={() => setShowGuide(false)} />}
+        {showAbout && <About onClose={() => setShowAbout(false)} />}
+      </Suspense>
     </div>
   );
 }
