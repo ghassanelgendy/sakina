@@ -3,16 +3,6 @@
     "supabase": {
       "type": "http",
       "url": "https://mcp.supabase.com/mcp?project_ref=bmtferzfciuawaqrivws&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching"
-    },
-    "google-analytics": {
-      "command": "/bin/bash",
-      "args": [
-        "scripts/run-google-analytics-mcp.sh"
-      ],
-      "env": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "/home/ghesso/.config/google-analytics-mcp/service-account.json",
-        "GOOGLE_CLOUD_PROJECT": "sapient-fabric-513321-h1"
-      }
     }
   }
 }

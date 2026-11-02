@@ -7,11 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
-    "ga:mcp": "bash scripts/run-google-analytics-mcp.sh",
-    "ga:test": "python3 scripts/test-google-analytics-mcp.py",
-    "ga:query": "node scripts/query-google-analytics.mjs",
-    "ga:setup": "bash tools/google-analytics-mcp/setup.sh"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.114.0",
