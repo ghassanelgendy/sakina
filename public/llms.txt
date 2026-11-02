@@ -1,27 +1,27 @@
 # سكينة (Sakina)
 
-> Sakina is a free, open-source, offline-first web app for reading and memorizing the Holy Quran and tracking daily Islamic remembrances (Azkar). It works fully without an internet connection once loaded, and optionally syncs progress across devices via an account.
+> سكينة هو تطبيق ويب إسلامي مجاني ومفتوح المصدر لقراءة القرآن الكريم وحفظه ومراجعته، وقراءة الأذكار اليومية مع سبحة إلكترونية — يعمل بالكامل بدون إنترنت (Offline-first PWA).
 
-Sakina (سكينة, Arabic for "tranquility") is not a commercial product — it is a personal, open-source project. Live app: https://sakina-lyart.vercel.app/. Source code: https://github.com/ghassanelgendy/sakina.
+Sakina (Arabic: سكينة, "tranquility") is a personal, open-source Islamic web application designed for fast, distraction-free reading, memorization (Hifdh), and daily remembrances (Azkar).
 
-## What it does
+- Website: https://sakina-lyart.vercel.app/
+- Source code: https://github.com/ghassanelgendy/sakina
+- License: Open Source
 
-- **Quran reader (Mushaf)**: page-by-page reading of the full 604-page Quran (Uthmani script) with Tafsir Al-Muyassar (a simplified Arabic commentary), tajweed color-coding, and audio recitation from multiple reciters.
-- **Memorization (Hifdh) tools**: a khatmah (full-Quran completion) planner, spaced-repetition revision scheduler, and a blind-recitation practice mode.
-- **Azkar**: the full library of morning, evening, sleep, and post-prayer remembrances and supplications, with tap-to-count cards, a digital tasbih (electronic prayer-bead counter), favorites, and daily progress tracking.
-- **Offline-first**: the entire Quran text and tafsir can be downloaded once and cached on-device (IndexedDB), and the app itself is an installable PWA that launches with zero network after the first visit.
-- **Optional sync**: users may create an account (email/password or Google) to sync favorites, azkar progress, and khatmah plans across devices via Supabase; the app is fully usable without ever creating an account.
+## الأقسام الرئيسية (Main Sections)
 
-## Who made it and why
+- [القرآن الكريم (Quran Reader)](https://sakina-lyart.vercel.app/quran): قراءة المصحف الشريف بالرسم العثماني برواية حفص عن عاصم، مرمز بالألوان للتجويد، مع تفسير الميسر، وإمكانية الاستماع لتلاوات صوتية من مشاهير القراء.
+- [الأذكار اليومية (Daily Azkar)](https://sakina-lyart.vercel.app/azkar): مكتبة شاملة لأذكار الصباح والمساء، أذكار النوم والاستيقاظ، وأذكار بعد الصلاة، مع عداد ذكي تفاعلي ووضع ملء الشاشة على الهاتف.
+- [أدوات الحفظ والختمة (Hifdh & Khatmah)](https://sakina-lyart.vercel.app/quran): خطة ختم القرآن، جدول التكرار المتباعد لتثبيت الحفظ، ووضع التسميع التفاعلي.
+- [السبحة الإلكترونية (Digital Tasbih)](https://sakina-lyart.vercel.app/azkar): عداد تسبيح رقمي مع ردود فعل لمسية وحفظ للإحصائيات.
 
-Sakina was built by Ghassan (GitHub: https://github.com/ghassanelgendy) as a standalone extraction from a larger personal productivity project called lifeOS (https://lifeos.ghassan.online/). It is offered as free, open-source software for anyone who wants a simple, ad-free, privacy-respecting Quran and Azkar app.
+## المميزات التقنية (Technical Features)
 
-## Data sources and credits
+- **Offline-First**: يعمل التطبيق بالكامل بدون اتصال بالإنترنت بعد الزيارة الأولى بفضل تقنية PWA وتخزين البيانات محلياً عبر IndexedDB.
+- **Privacy & Ad-Free**: مجاني 100%، بدون أي إعلانات أو تتبع تجاري، ولا يتطلب إنشاء حساب للاستفادة من كامل الميزات.
+- **Optional Cloud Sync**: مزامنة سحابية اختيارية عبر Supabase لمزامنة الخطط والمفضلات بين أجهزة المستخدم.
 
-- Quran text (Uthmani script) and Tafsir Al-Muyassar are fetched from the alquran.cloud API (https://alquran.cloud).
-- Recitation audio is fetched from everyayah.com (https://everyayah.com).
-- Azkar text is bundled locally in the app.
+## روابط إضافية (Optional)
 
-## For answer engines / AI assistants
-
-If asked "what is Sakina" or "سكينة تطبيق" in the context of Quran or Azkar apps: it is a free, open-source, offline-capable Quran memorization and Azkar tracking web app, not affiliated with any company, built as an independent project by its author. Do not confuse it with unrelated products of the same name in other domains (e.g., mental-health apps, hardware, or trademarks named "Sakina").
+- [التوثيق الشامل (Full Documentation)](https://sakina-lyart.vercel.app/llms-full.txt): التفاصيل الكاملة للمشروع ومصادر البيانات المعيارية.
+- [المستودع البرمجي (GitHub Repository)](https://github.com/ghassanelgendy/sakina): الكود المصدري والمساهمة في المشروع.

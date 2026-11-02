@@ -63,7 +63,29 @@
     </script>
   </head>
   <body class="bg-background text-foreground antialiased font-sans">
-    <div id="root"></div>
+    <div id="root">
+      <div style="max-width: 680px; margin: 40px auto; padding: 20px; font-family: system-ui, -apple-system, sans-serif; line-height: 1.8; text-align: right;">
+        <h1 style="font-size: 24px; color: #1c6b52; margin-bottom: 12px;">سكينة — القرآن الكريم والأذكار بلا إنترنت</h1>
+        <p style="color: #4b5563; margin-bottom: 20px;">
+          سكينة هو تطبيق إسلامي مجاني ومفتوح المصدر يتيح تلاوة القرآن الكريم بالرسم العثماني، والاستماع لتلاوات خاشعة، وتدبر تفسير الميسر، وحفظ الأذكار اليومية مع عداد إلكتروني ذكي — يعمل بالكامل دون الحاجة لاتصال بالإنترنت.
+        </p>
+        <h2 style="font-size: 18px; color: #1f2937; margin-bottom: 8px;">أبرز المميزات:</h2>
+        <ul style="color: #4b5563; padding-right: 20px; margin-bottom: 24px;">
+          <li><strong>المصحف الشريف:</strong> قراءة صفحات المصحف برواية حفص عن عاصم، مرمز للتجويد مع تفسير الميسر.</li>
+          <li><strong>الأذكار والسبحة:</strong> أذكار الصباح والمساء والنوم والصلاة مع وضع ملء الشاشة وعداد ذكي.</li>
+          <li><strong>أدوات الحفظ:</strong> خطة الختمة وتتبع الإنجاز ونظام التكرار المتباعد لتثبيت الحفظ.</li>
+          <li><strong>يعمل دون إنترنت:</strong> تطبيق PWA سريع وخفيف يخزن البيانات محلياً وبدون أي إعلانات.</li>
+        </ul>
+        <p style="font-size: 14px; color: #6b7280;">
+          للمزيد: <a href="https://github.com/ghassanelgendy/sakina" style="color: #1c6b52; text-decoration: underline;">المستودع المفتوح على GitHub</a> | <a href="/llms.txt" style="color: #1c6b52; text-decoration: underline;">ملف LLMs.txt</a>
+        </p>
+      </div>
+    </div>
+    <noscript>
+      <div style="text-align: center; padding: 20px; background-color: #fef3c7; color: #92400e;">
+        يتطلب تطبيق سكينة تفعيل الجافاسكريبت للحصول على التجربة التفاعلية الكاملة وتخزين البيانات دون إنترنت.
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
