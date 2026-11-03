@@ -6,12 +6,15 @@ import { useAzkarRealtime } from './hooks/useAzkar';
 
 const QuranRoute = lazy(() => import('./routes/Quran'));
 const AzkarRoute = lazy(() => import('./routes/Azkar'));
+const AudioRoute = lazy(() => import('./routes/Audio'));
 const LandingRoute = lazy(() => import('./routes/Landing'));
 const AuthRoute = lazy(() => import('./routes/Auth'));
 const Guide = lazy(() => import('./components/Guide').then(m => ({ default: m.Guide })));
 const About = lazy(() => import('./components/About').then(m => ({ default: m.About })));
+import { GlobalAudioController } from './components/audio/GlobalAudioController';
+import { FloatingAudioPlayer } from './components/audio/FloatingAudioPlayer';
 
-type Tab = 'quran' | 'azkar';
+type Tab = 'quran' | 'azkar' | 'audio';
 type View = 'landing' | 'auth' | 'app';
 
 const ENTERED_KEY = 'sakina_entered_v1';
@@ -27,6 +30,9 @@ function getInitialRoute(): { view: View; tab: Tab } {
   }
   if (cleanPath === 'quran') {
     return { view: 'app', tab: 'quran' };
+  }
+  if (cleanPath === 'audio') {
+    return { view: 'app', tab: 'audio' };
   }
   if (cleanPath === 'auth') {
     return { view: 'auth', tab: (localStorage.getItem('active_tab') as Tab) || 'quran' };
@@ -143,10 +149,11 @@ export default function App() {
             <span className="hidden font-arabic-title text-base font-bold text-foreground sm:inline">سكينة</span>
           </div>
 
-          <div role="tablist" className="flex items-center gap-1 rounded-full bg-secondary p-1 shrink-0">
+          <div role="tablist" className="flex items-center gap-1 rounded-full bg-secondary p-1 shrink-0 overflow-x-auto max-w-[calc(100vw-120px)] sm:max-w-none no-scrollbar">
             {([
               { id: 'quran' as const, label: 'القرآن الكريم' },
               { id: 'azkar' as const, label: 'الأذكار' },
+              { id: 'audio' as const, label: 'صوتيات وبودكاست' },
             ]).map(({ id, label }) => (
               <button
                 key={id}
@@ -154,7 +161,7 @@ export default function App() {
                 aria-selected={tab === id}
                 onClick={() => navigate('app', id)}
                 className={cn(
-                  'rounded-full px-4 sm:px-5 h-9 text-sm font-bold transition-all duration-200 cursor-pointer active:scale-95',
+                  'rounded-full px-3 sm:px-5 h-9 text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer active:scale-95 whitespace-nowrap',
                   tab === id
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
@@ -198,13 +205,18 @@ export default function App() {
         </div>
       </nav>
 
-      <h1 className="sr-only">{tab === 'quran' ? 'سكينة، القرآن الكريم' : 'سكينة، الأذكار'}</h1>
+      <h1 className="sr-only">
+        {tab === 'quran' ? 'سكينة، القرآن الكريم' : tab === 'azkar' ? 'سكينة، الأذكار' : 'سكينة، صوتيات وبودكاست'}
+      </h1>
 
       <main key={tab} className="flex-1 animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out">
         <Suspense fallback={<RouteLoadingFallback />}>
-          {tab === 'quran' ? <QuranRoute /> : <AzkarRoute />}
+          {tab === 'quran' ? <QuranRoute /> : tab === 'azkar' ? <AzkarRoute /> : <AudioRoute />}
         </Suspense>
       </main>
+
+      <GlobalAudioController />
+      <FloatingAudioPlayer />
 
       <footer className={cn("mt-12 bg-card py-8 text-center text-xs text-muted-foreground", tab === 'azkar' && 'hidden md:block')} dir="rtl">
         <div className="mb-3 font-arabic-title text-base font-bold text-foreground">سكينة</div>
