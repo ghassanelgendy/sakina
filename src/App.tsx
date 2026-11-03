@@ -12,7 +12,8 @@ const AuthRoute = lazy(() => import('./routes/Auth'));
 const Guide = lazy(() => import('./components/Guide').then(m => ({ default: m.Guide })));
 const About = lazy(() => import('./components/About').then(m => ({ default: m.About })));
 import { GlobalAudioController } from './components/audio/GlobalAudioController';
-import { FloatingAudioPlayer } from './components/audio/FloatingAudioPlayer';
+import { UnifiedAudioBar } from './components/audio/UnifiedAudioBar';
+import { useAudioStore } from './stores/useAudioStore';
 
 type Tab = 'quran' | 'azkar' | 'audio';
 type View = 'landing' | 'auth' | 'app';
@@ -87,7 +88,12 @@ export default function App() {
   const { user, isConfigured } = useAuth();
   const [showGuide, setShowGuide] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const setCurrentAudioTab = useAudioStore((s) => s.setCurrentTab);
   useAzkarRealtime();
+
+  useEffect(() => {
+    setCurrentAudioTab(tab);
+  }, [tab, setCurrentAudioTab]);
 
   const navigate = (newView: View, newTab: Tab) => {
     setView(newView);
@@ -216,7 +222,7 @@ export default function App() {
       </main>
 
       <GlobalAudioController />
-      <FloatingAudioPlayer />
+      <UnifiedAudioBar />
 
       <footer className={cn("mt-12 bg-card py-8 text-center text-xs text-muted-foreground", tab === 'azkar' && 'hidden md:block')} dir="rtl">
         <div className="mb-3 font-arabic-title text-base font-bold text-foreground">سكينة</div>

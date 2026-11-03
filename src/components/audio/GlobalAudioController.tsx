@@ -4,11 +4,13 @@ import { useAudioStore } from '../../stores/useAudioStore';
 export function GlobalAudioController() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const activeSource = useAudioStore((s) => s.activeSource);
   const currentTrack = useAudioStore((s) => s.currentTrack);
   const isPlaying = useAudioStore((s) => s.isPlaying);
   const playbackRate = useAudioStore((s) => s.playbackRate);
   const currentTime = useAudioStore((s) => s.currentTime);
   const sleepTimerEndsAt = useAudioStore((s) => s.sleepTimerEndsAt);
+  const quranState = useAudioStore((s) => s.quranState);
 
   const setIsPlaying = useAudioStore((s) => s.setIsPlaying);
   const setCurrentTime = useAudioStore((s) => s.setCurrentTime);
@@ -17,8 +19,11 @@ export function GlobalAudioController() {
   const prevTrack = useAudioStore((s) => s.prevTrack);
   const skip = useAudioStore((s) => s.skip);
   const setSleepTimer = useAudioStore((s) => s.setSleepTimer);
+  const toggleQuranPlay = useAudioStore((s) => s.toggleQuranPlay);
+  const nextQuranAyah = useAudioStore((s) => s.nextQuranAyah);
+  const prevQuranAyah = useAudioStore((s) => s.prevQuranAyah);
 
-  // Initialize Audio element
+  // Initialize HTML5 Audio element for Podcasts & Historic Tracks
   useEffect(() => {
     const audio = new Audio();
     audio.preload = 'metadata';
@@ -72,7 +77,7 @@ export function GlobalAudioController() {
     }
   }, [currentTrack]);
 
-  // Handle Play / Pause
+  // Handle Play / Pause for Podcast Audio
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !currentTrack) return;
@@ -102,26 +107,45 @@ export function GlobalAudioController() {
     }
   }, [currentTime]);
 
-  // Media Session API for Lockscreen and System Media Controls
+  // Media Session API for Lockscreen and System Media Controls (Dynamic: Quran vs Podcast)
   useEffect(() => {
-    if (!('mediaSession' in navigator) || !currentTrack) return;
+    if (!('mediaSession' in navigator)) return;
 
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: currentTrack.title,
-      artist: currentTrack.reciterOrSpeaker,
-      album: currentTrack.categoryLabel,
-      artwork: [
-        { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-        { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
-      ],
-    });
+    if (activeSource === 'quran' && quranState) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: `سورة ${quranState.surahName || quranState.surahNumber} — آية ${quranState.currentAyahIndex}`,
+        artist: quranState.reciter.name,
+        album: 'القرآن الكريم — سكينة',
+        artwork: [
+          { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+        ],
+      });
 
-    navigator.mediaSession.setActionHandler('play', () => setIsPlaying(true));
-    navigator.mediaSession.setActionHandler('pause', () => setIsPlaying(false));
-    navigator.mediaSession.setActionHandler('seekbackward', () => skip(-15));
-    navigator.mediaSession.setActionHandler('seekforward', () => skip(15));
-    navigator.mediaSession.setActionHandler('previoustrack', () => prevTrack());
-    navigator.mediaSession.setActionHandler('nexttrack', () => nextTrack());
+      navigator.mediaSession.setActionHandler('play', () => toggleQuranPlay());
+      navigator.mediaSession.setActionHandler('pause', () => toggleQuranPlay());
+      navigator.mediaSession.setActionHandler('previoustrack', () => prevQuranAyah());
+      navigator.mediaSession.setActionHandler('nexttrack', () => nextQuranAyah());
+      navigator.mediaSession.setActionHandler('seekbackward', null);
+      navigator.mediaSession.setActionHandler('seekforward', null);
+    } else if (activeSource === 'podcast' && currentTrack) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: currentTrack.title,
+        artist: currentTrack.reciterOrSpeaker,
+        album: currentTrack.categoryLabel,
+        artwork: [
+          { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+        ],
+      });
+
+      navigator.mediaSession.setActionHandler('play', () => setIsPlaying(true));
+      navigator.mediaSession.setActionHandler('pause', () => setIsPlaying(false));
+      navigator.mediaSession.setActionHandler('seekbackward', () => skip(-15));
+      navigator.mediaSession.setActionHandler('seekforward', () => skip(15));
+      navigator.mediaSession.setActionHandler('previoustrack', () => prevTrack());
+      navigator.mediaSession.setActionHandler('nexttrack', () => nextTrack());
+    }
 
     return () => {
       navigator.mediaSession.setActionHandler('play', null);
@@ -131,7 +155,18 @@ export function GlobalAudioController() {
       navigator.mediaSession.setActionHandler('previoustrack', null);
       navigator.mediaSession.setActionHandler('nexttrack', null);
     };
-  }, [currentTrack, nextTrack, prevTrack, setIsPlaying, skip]);
+  }, [
+    activeSource,
+    currentTrack,
+    quranState,
+    nextTrack,
+    prevTrack,
+    setIsPlaying,
+    skip,
+    toggleQuranPlay,
+    nextQuranAyah,
+    prevQuranAyah,
+  ]);
 
   // Sleep Timer Check
   useEffect(() => {

@@ -5,7 +5,7 @@ import { Reciter, RepeatSettings, HifdhRecord, LifeOSIntegrationProps, KhatmahPl
 import { RECITERS, SURAHS } from '../services/quranData';
 import { useQuranAudio } from '../hooks/useQuranAudio';
 import { useQuranMemorizer } from '../hooks/useQuranMemorizer';
-import { AudioPlayerBar } from './AudioPlayerBar';
+import { useAudioStore } from '../../stores/useAudioStore';
 import { QuranReaderView } from './QuranReaderView';
 import { RevisionScheduler } from './RevisionScheduler';
 import { KhatmahPlannerView } from './KhatmahPlannerView';
@@ -276,6 +276,61 @@ export const QuranMemorizerMain: React.FC<LifeOSIntegrationProps> = ({
       );
     } catch {}
   }, [activeTab, selectedSurah, startAyah, endAyah, audio.currentAyahIndex]);
+
+  // Sync Quran audio controls with the app-wide unified audio system
+  const registerQuranAudio = useAudioStore((s) => s.registerQuranAudio);
+  const unregisterQuranAudio = useAudioStore((s) => s.unregisterQuranAudio);
+
+  useEffect(() => {
+    const currentSurahObj = SURAHS.find((s) => s.id === selectedSurah);
+    registerQuranAudio({
+      reciter,
+      surahNumber: selectedSurah,
+      surahName: currentSurahObj?.name,
+      startAyah,
+      endAyah,
+      currentAyahIndex: audio.currentAyahIndex,
+      isPlaying: audio.isPlaying,
+      isDelaying: audio.isDelaying,
+      currentVerseRepeat: audio.currentVerseRepeat,
+      currentRangeLoop: audio.currentRangeLoop,
+      playbackRate: audio.playbackRate,
+      repeatSettings,
+      onSelectReciter: setReciter,
+      onTogglePlayPause: audio.togglePlayPause,
+      onStop: audio.stop,
+      onNext: audio.nextAyah,
+      onPrev: audio.prevAyah,
+      onChangeSpeed: audio.changePlaybackRate,
+      onChangeRepeatSettings: setRepeatSettings,
+    });
+  }, [
+    registerQuranAudio,
+    reciter,
+    selectedSurah,
+    startAyah,
+    endAyah,
+    audio.currentAyahIndex,
+    audio.isPlaying,
+    audio.isDelaying,
+    audio.currentVerseRepeat,
+    audio.currentRangeLoop,
+    audio.playbackRate,
+    repeatSettings,
+    setReciter,
+    audio.togglePlayPause,
+    audio.stop,
+    audio.nextAyah,
+    audio.prevAyah,
+    audio.changePlaybackRate,
+    setRepeatSettings,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      unregisterQuranAudio();
+    };
+  }, [unregisterQuranAudio]);
 
   const handleSelectReviewItem = (record: HifdhRecord) => {
     setSelectedSurah(record.surahNumber);
@@ -701,30 +756,6 @@ export const QuranMemorizerMain: React.FC<LifeOSIntegrationProps> = ({
             allRecords={memorizerStore.records}
             onSelectReview={handleSelectReviewItem}
             onGradeReview={memorizerStore.reviewRecord}
-          />
-        )}
-
-        {/* Sticky Audio Player Bar — only on the reader tab so it never covers
-            the khatmah / revision action buttons. Hidden while the
-            reader is fullscreen since that view renders its own bottom bar. */}
-        {activeTab === 'reader' && !readerFullscreen && (
-          <AudioPlayerBar
-            reciter={reciter}
-            onSelectReciter={setReciter}
-            isPlaying={audio.isPlaying}
-            isDelaying={audio.isDelaying}
-            currentAyahIndex={audio.currentAyahIndex}
-            currentVerseRepeat={audio.currentVerseRepeat}
-            currentRangeLoop={audio.currentRangeLoop}
-            playbackRate={audio.playbackRate}
-            repeatSettings={repeatSettings}
-            onChangeRepeatSettings={setRepeatSettings}
-            onTogglePlayPause={audio.togglePlayPause}
-            onStop={audio.stop}
-            onNext={audio.nextAyah}
-            onPrev={audio.prevAyah}
-            onChangeSpeed={audio.changePlaybackRate}
-            forceSmall={readerFullscreen}
           />
         )}
       </main>
