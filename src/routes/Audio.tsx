@@ -7,19 +7,20 @@ import {
   Radio,
   Clock,
   Sparkles,
-  BookOpen,
   Headphones,
   Check,
   DownloadCloud,
+  Tag,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { AUDIO_CATALOG } from '../data/audioCatalog';
+import { AUDIO_CATALOG, PODCAST_TOPICS, MINSHAWI_TOPICS } from '../data/audioCatalog';
 import type { AudioCategory, AudioTrack } from '../types/audio';
 import { useAudioStore } from '../stores/useAudioStore';
 
 export default function AudioRoute() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<'all' | AudioCategory>('all');
+  const [selectedCategory, setSelectedCategory] = useState<'all' | AudioCategory>('podcasts');
+  const [selectedTopic, setSelectedTopic] = useState<string>('all');
 
   const currentTrack = useAudioStore((s) => s.currentTrack);
   const isPlaying = useAudioStore((s) => s.isPlaying);
@@ -29,30 +30,57 @@ export default function AudioRoute() {
   const markTrackOffline = useAudioStore((s) => s.markTrackOffline);
 
   const categories = [
-    { id: 'all' as const, label: 'الكل' },
+    { id: 'podcasts' as const, label: 'بودكاست ديني 🤍' },
     { id: 'minshawi' as const, label: 'تراث المنشاوي' },
-    { id: 'podcasts' as const, label: 'بودكاست ديني' },
+    { id: 'all' as const, label: 'جميع الصوتيات' },
   ];
+
+  const availableTopics = useMemo(() => {
+    if (selectedCategory === 'podcasts') {
+      return PODCAST_TOPICS;
+    }
+    if (selectedCategory === 'minshawi') {
+      return MINSHAWI_TOPICS;
+    }
+    return [];
+  }, [selectedCategory]);
+
+  const handleCategorySelect = (catId: 'all' | AudioCategory) => {
+    setSelectedCategory(catId);
+    setSelectedTopic('all');
+  };
 
   const filteredTracks = useMemo(() => {
     return AUDIO_CATALOG.filter((track) => {
       const matchesCategory = selectedCategory === 'all' || track.category === selectedCategory;
       if (!matchesCategory) return false;
 
+      if (selectedTopic !== 'all' && track.topicId !== selectedTopic) {
+        return false;
+      }
+
       if (!searchQuery.trim()) return true;
       const q = searchQuery.toLowerCase().trim();
       return (
         track.title.toLowerCase().includes(q) ||
         track.reciterOrSpeaker.toLowerCase().includes(q) ||
+        track.topicLabel.toLowerCase().includes(q) ||
         track.description.toLowerCase().includes(q) ||
         (track.dateOrLocation && track.dateOrLocation.toLowerCase().includes(q))
       );
     });
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, selectedTopic, searchQuery]);
 
   const featuredTrack = useMemo(() => {
-    return AUDIO_CATALOG.find((t) => t.isFeatured && (selectedCategory === 'all' || t.category === selectedCategory));
-  }, [selectedCategory]);
+    return (
+      AUDIO_CATALOG.find(
+        (t) =>
+          t.isFeatured &&
+          (selectedCategory === 'all' || t.category === selectedCategory) &&
+          (selectedTopic === 'all' || t.topicId === selectedTopic)
+      ) || (selectedTopic !== 'all' ? filteredTracks[0] : undefined)
+    );
+  }, [selectedCategory, selectedTopic, filteredTracks]);
 
   const handleTrackClick = (track: AudioTrack) => {
     if (currentTrack?.id === track.id) {
@@ -106,7 +134,7 @@ export default function AudioRoute() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ابحث: سورة يوسف، المنشاوي، الصلاة..."
+            placeholder="ابحث: التوبة، ضغوط الحياة، المنشاوي..."
             aria-label="البحث في الصوتيات"
             className="w-full rounded-2xl bg-card border border-border/80 py-2.5 pr-10 pl-9 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
             dir="rtl"
@@ -123,14 +151,14 @@ export default function AudioRoute() {
         </div>
       </div>
 
-      {/* Category Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 no-scrollbar" role="tablist">
+      {/* Main Category Tabs */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-3 no-scrollbar" role="tablist">
         {categories.map((cat) => (
           <button
             key={cat.id}
             role="tab"
             aria-selected={selectedCategory === cat.id}
-            onClick={() => setSelectedCategory(cat.id)}
+            onClick={() => handleCategorySelect(cat.id)}
             className={cn(
               'rounded-xl px-4 py-2 text-sm font-bold transition-all duration-150 cursor-pointer whitespace-nowrap active:scale-95',
               selectedCategory === cat.id
@@ -143,6 +171,34 @@ export default function AudioRoute() {
         ))}
       </div>
 
+      {/* Subcategory / Topic Pills (Telegram Categories) */}
+      {availableTopics.length > 0 && (
+        <div className="mb-6 overflow-hidden">
+          <div className="flex items-center gap-1.5 overflow-x-auto py-1 px-0.5 no-scrollbar" role="tablist" aria-label="تصنيفات الموضوعات">
+            {availableTopics.map((topic) => {
+              const isActive = selectedTopic === topic.id;
+              return (
+                <button
+                  key={topic.id}
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setSelectedTopic(topic.id)}
+                  className={cn(
+                    'rounded-full px-3.5 py-1.5 text-xs transition-all duration-150 cursor-pointer whitespace-nowrap active:scale-95 border flex items-center gap-1',
+                    isActive
+                      ? 'bg-primary/15 text-primary border-primary/40 font-bold shadow-sm'
+                      : 'bg-card text-muted-foreground border-border/70 hover:text-foreground hover:bg-secondary/70'
+                  )}
+                >
+                  {topic.id !== 'all' && <Tag size={10} className="opacity-70" />}
+                  <span>{topic.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Featured Hero Banner (if not searching) */}
       {!searchQuery && featuredTrack && (
         <div
@@ -151,9 +207,15 @@ export default function AudioRoute() {
         >
           <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div className="space-y-2 max-w-xl">
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/20 px-3 py-1 text-xs font-bold text-primary">
-                <Sparkles size={13} />
-                <span>تسجيل مختار</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/20 px-3 py-1 text-xs font-bold text-primary">
+                  <Sparkles size={13} />
+                  <span>تسجيل مختار</span>
+                </div>
+                <div className="inline-flex items-center gap-1 rounded-full bg-secondary/80 px-2.5 py-0.5 text-[11px] font-medium text-foreground/80">
+                  <Tag size={11} className="text-primary" />
+                  <span>{featuredTrack.topicLabel}</span>
+                </div>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold font-arabic text-foreground group-hover:text-primary transition-colors">
                 {featuredTrack.title}
@@ -178,6 +240,22 @@ export default function AudioRoute() {
           </div>
         </div>
       )}
+
+      {/* Section Header Info */}
+      <div className="mb-4 flex items-center justify-between text-xs text-muted-foreground px-1">
+        <span>
+          عرض {filteredTracks.length} {filteredTracks.length === 1 ? 'تسجيل' : 'تسجيلات'}
+          {selectedTopic !== 'all' && ` في «${availableTopics.find(t => t.id === selectedTopic)?.label}»`}
+        </span>
+        {selectedTopic !== 'all' && (
+          <button
+            onClick={() => setSelectedTopic('all')}
+            className="text-primary hover:underline cursor-pointer"
+          >
+            إلغاء التصفية
+          </button>
+        )}
+      </div>
 
       {/* Tracks Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -252,10 +330,19 @@ export default function AudioRoute() {
               )}
 
               <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground/70">
-                <span className="rounded-md bg-secondary/80 px-2 py-0.5 font-medium">
-                  {track.categoryLabel}
-                </span>
-                <span>{track.source}</span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedCategory(track.category);
+                    setSelectedTopic(track.topicId);
+                  }}
+                  className="rounded-md bg-secondary/80 hover:bg-primary/15 hover:text-primary px-2 py-0.5 font-medium transition-colors cursor-pointer"
+                  title={`تصفية حسب: ${track.topicLabel}`}
+                >
+                  {track.topicLabel}
+                </button>
+                <span className="text-[10px] truncate max-w-[160px] opacity-80">{track.source}</span>
               </div>
             </div>
           );
@@ -265,7 +352,16 @@ export default function AudioRoute() {
       {filteredTracks.length === 0 && (
         <div className="text-center py-16 text-muted-foreground">
           <Radio size={40} className="mx-auto mb-3 opacity-40" />
-          <p className="text-sm font-medium">لم يتم العثور على مقاطع تطابق بحثك</p>
+          <p className="text-sm font-medium">لم يتم العثور على مقاطع تطابق بحثك أو التصنيف المحدد</p>
+          <button
+            onClick={() => {
+              setSelectedTopic('all');
+              setSearchQuery('');
+            }}
+            className="mt-3 text-xs text-primary underline cursor-pointer"
+          >
+            إعادة تعيين المرشحات
+          </button>
         </div>
       )}
     </div>
