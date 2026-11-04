@@ -18,6 +18,7 @@ import {
   ExternalLink,
   Flame,
   Send,
+  Compass,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import {
@@ -28,6 +29,7 @@ import {
 } from '../data/audioCatalog';
 import type { AudioCategory, AudioTrack } from '../types/audio';
 import { useAudioStore } from '../stores/useAudioStore';
+import { getRecommendedTracks } from '../lib/audioRecommendations';
 
 function formatSeconds(secs: number): string {
   if (isNaN(secs) || secs <= 0) return '00:00';
@@ -38,7 +40,7 @@ function formatSeconds(secs: number): string {
 
 export default function AudioRoute() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<'all' | AudioCategory | 'favorites'>('podcasts');
+  const [selectedCategory, setSelectedCategory] = useState<'all' | AudioCategory | 'favorites' | 'recommended'>('podcasts');
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
   const [showFollowedOnly, setShowFollowedOnly] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -62,6 +64,7 @@ export default function AudioRoute() {
   const categories = [
     { id: 'podcasts' as const, label: 'بودكاست ديني 🤍' },
     { id: 'minshawi' as const, label: 'تراث المنشاوي' },
+    { id: 'recommended' as const, label: 'موصى به لك ✨' },
     { id: 'favorites' as const, label: `المفضلة (${favoriteTrackIds.length})` },
     { id: 'all' as const, label: 'جميع الصوتيات' },
   ];
@@ -76,7 +79,25 @@ export default function AudioRoute() {
     return [];
   }, [selectedCategory]);
 
-  const handleCategorySelect = (catId: 'all' | AudioCategory | 'favorites') => {
+  // Client-Side Zero-Backend Recommendation System
+  const recommendedItems = useMemo(() => {
+    return getRecommendedTracks({
+      catalog: AUDIO_CATALOG,
+      playbackProgress,
+      favoriteTrackIds,
+      followedTopicIds,
+      currentTrack,
+      limit: 6,
+    });
+  }, [playbackProgress, favoriteTrackIds, followedTopicIds, currentTrack]);
+
+  const recommendationReasonMap = useMemo(() => {
+    const map = new Map<string, string>();
+    recommendedItems.forEach((r) => map.set(r.track.id, r.reason));
+    return map;
+  }, [recommendedItems]);
+
+  const handleCategorySelect = (catId: 'all' | AudioCategory | 'favorites' | 'recommended') => {
     setSelectedCategory(catId);
     setSelectedTopic('all');
     setShowFollowedOnly(false);
@@ -100,6 +121,20 @@ export default function AudioRoute() {
   }, [playbackProgress, currentTrack, isPlaying]);
 
   const filteredTracks = useMemo(() => {
+    // If recommended tab is selected
+    if (selectedCategory === 'recommended') {
+      const recList = recommendedItems.map((r) => r.track);
+      if (!searchQuery.trim()) return recList;
+      const q = searchQuery.toLowerCase().trim();
+      return recList.filter(
+        (t) =>
+          t.title.toLowerCase().includes(q) ||
+          t.reciterOrSpeaker.toLowerCase().includes(q) ||
+          t.topicLabel.toLowerCase().includes(q) ||
+          t.description.toLowerCase().includes(q)
+      );
+    }
+
     return AUDIO_CATALOG.filter((track) => {
       // Category or Favorites check
       if (selectedCategory === 'favorites') {
@@ -129,7 +164,15 @@ export default function AudioRoute() {
         (track.dateOrLocation && track.dateOrLocation.toLowerCase().includes(q))
       );
     });
-  }, [selectedCategory, selectedTopic, showFollowedOnly, searchQuery, favoriteTrackIds, followedTopicIds]);
+  }, [
+    selectedCategory,
+    selectedTopic,
+    showFollowedOnly,
+    searchQuery,
+    favoriteTrackIds,
+    followedTopicIds,
+    recommendedItems,
+  ]);
 
   const featuredTrack = useMemo(() => {
     return (
@@ -198,7 +241,7 @@ export default function AudioRoute() {
             </h1>
           </div>
           <p className="text-sm text-muted-foreground">
-            تراث قراء الرعيل الأول وبرامج بودكاست ديني المقسمة حسب مجموعات وقنوات تيليجرام.
+            تراث قراء الرعيل الأول وبرامج بودكاست ديني المقسمة حسب مجموعات وقنوات تيليجرام، مع ترشيحات ذكية مخصصة لك.
           </p>
         </div>
 
@@ -336,8 +379,51 @@ export default function AudioRoute() {
         })}
       </div>
 
+      {/* Recommended Spotlight Bar (shown when browsing standard categories) */}
+      {selectedCategory !== 'recommended' && selectedCategory !== 'favorites' && !searchQuery && recommendedItems.length > 0 && (
+        <div className="mb-6 rounded-2xl border border-border/70 bg-secondary/30 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+              <Compass size={14} className="text-primary" />
+              <span>مقترحات تناسبك الآن</span>
+            </div>
+            <button
+              onClick={() => handleCategorySelect('recommended')}
+              className="text-xs text-primary hover:underline cursor-pointer flex items-center gap-1"
+            >
+              <span>عرض المزيد</span>
+              <Sparkles size={11} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {recommendedItems.slice(0, 2).map(({ track, reason }) => (
+              <div
+                key={track.id}
+                onClick={() => handleTrackClick(track)}
+                className="flex items-center justify-between rounded-xl bg-card border border-border/70 p-3 hover:border-primary/40 hover:bg-secondary/60 transition-all cursor-pointer group"
+              >
+                <div className="space-y-1 min-w-0 flex-1 pl-2">
+                  <div className="inline-flex items-center gap-1 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                    <Sparkles size={10} />
+                    <span>{reason}</span>
+                  </div>
+                  <h4 className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                    {track.title}
+                  </h4>
+                  <p className="text-[11px] text-muted-foreground truncate">{track.reciterOrSpeaker}</p>
+                </div>
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                  <Play size={13} className="fill-current translate-x-[-1px]" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Subcategory / Topic Pills (Telegram Categories & Follow Option) */}
-      {availableTopics.length > 0 && selectedCategory !== 'favorites' && (
+      {availableTopics.length > 0 && selectedCategory !== 'favorites' && selectedCategory !== 'recommended' && (
         <div className="mb-6 space-y-2">
           <div className="flex items-center gap-1.5 overflow-x-auto py-1 px-0.5 no-scrollbar" role="tablist" aria-label="تصنيفات الموضوعات">
             {/* Followed Only Filter Pill */}
@@ -417,7 +503,7 @@ export default function AudioRoute() {
       )}
 
       {/* Featured Hero Banner */}
-      {!searchQuery && featuredTrack && selectedCategory !== 'favorites' && (
+      {!searchQuery && featuredTrack && selectedCategory !== 'favorites' && selectedCategory !== 'recommended' && (
         <div
           onClick={() => handleTrackClick(featuredTrack)}
           className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/15 via-primary/5 to-secondary/60 border border-primary/20 p-6 sm:p-8 mb-8 cursor-pointer group transition-all hover:border-primary/40 shadow-sm"
@@ -483,12 +569,14 @@ export default function AudioRoute() {
       <div className="mb-4 flex items-center justify-between text-xs text-muted-foreground px-1">
         <span>
           عرض {filteredTracks.length} {filteredTracks.length === 1 ? 'تسجيل' : 'تسجيلات'}
+          {selectedCategory === 'recommended' && ' مقترحة خصيصاً لك'}
           {selectedCategory === 'favorites' && ' في المفضلة'}
           {selectedTopic !== 'all' && ` في «${availableTopics.find((t) => t.id === selectedTopic)?.label}»`}
         </span>
-        {(selectedTopic !== 'all' || showFollowedOnly || searchQuery) && (
+        {(selectedTopic !== 'all' || showFollowedOnly || searchQuery || selectedCategory === 'recommended') && (
           <button
             onClick={() => {
+              setSelectedCategory('podcasts');
               setSelectedTopic('all');
               setShowFollowedOnly(false);
               setSearchQuery('');
@@ -509,6 +597,7 @@ export default function AudioRoute() {
           const isFavorite = favoriteTrackIds.includes(track.id);
           const progress = playbackProgress[track.id];
           const hasResumePoint = progress && progress.position > 15 && progress.position < progress.duration - 20;
+          const recommendationReason = recommendationReasonMap.get(track.id);
 
           return (
             <div
@@ -554,6 +643,14 @@ export default function AudioRoute() {
                   </div>
 
                   <div className="min-w-0 flex-1 space-y-1">
+                    {/* Recommendation reason if available */}
+                    {recommendationReason && (
+                      <div className="inline-flex items-center gap-1 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary mb-0.5">
+                        <Sparkles size={9} />
+                        <span>{recommendationReason}</span>
+                      </div>
+                    )}
+
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <h3 className="text-sm sm:text-base font-bold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
                         {track.title}
