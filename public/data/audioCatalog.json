@@ -82,7 +82,7 @@
   },
   {
     "id": "minshawi-yusuf-damascus",
-    "title:": "سورة يوسف — محفل دمشق النادر (جامع بني أمية)",
+    "title": "سورة يوسف — محفل دمشق النادر (جامع بني أمية)",
     "category": "minshawi",
     "categoryLabel": "تراث المنشاوي",
     "topicId": "mahafil",
@@ -95,6 +95,37 @@
     "description": "تلاوة تاريخية خالدة من رحاب المسجد الأموي بدمشق أواخر الخمسينات، صوّر فيها الشيخ قصة يوسف عليه السلام بخشوع فريد.",
     "isFeatured": true,
     "telegramGroupUrl": "https://t.me/El_minshawy"
+  },
+  {
+    "id": "minshawi-hajj",
+    "title": "سورة الحج — تلاوة المسجد الحسيني المرممة",
+    "category": "minshawi",
+    "categoryLabel": "تراث المنشاوي",
+    "topicId": "hussein",
+    "topicLabel": "نوادر المسجد الحسيني والمحافل المرممة",
+    "reciterOrSpeaker": "الشيخ محمد صديق المنشاوي",
+    "duration": 1565,
+    "durationFormatted": "26:05",
+    "audioUrl": "https://archive.org/download/rabieaaa2018_yahoo_00132463266/033-1.mp3",
+    "source": "قناة المنشاوي (عبدالرحمن السيد)",
+    "description": "نوادر تلاوات المسجد الحسيني والمحافل الخارجية المرممة؛ أداء رفيع يبث الطمأنينة والخشوع في النفس.",
+    "isFeatured": true,
+    "telegramGroupUrl": "https://t.me/menshawy_abdo_elsayed"
+  },
+  {
+    "id": "minshawi-fajr",
+    "title": "سورة الفجر والبلد — التلاوة الصباحية الخاشعة",
+    "category": "minshawi",
+    "categoryLabel": "تراث المنشاوي",
+    "topicId": "short_surahs",
+    "topicLabel": "قصار السور والختام الباكي",
+    "reciterOrSpeaker": "الشيخ محمد صديق المنشاوي",
+    "duration": 762,
+    "durationFormatted": "12:42",
+    "audioUrl": "https://archive.org/download/rabieaaa2018_yahoo_00132463266/015-.mp3",
+    "source": "قناة المنشاوي (عبدالرحمن السيد)",
+    "description": "تلاوة قصيرة تأسر القلب لسورتي الفجر والبلد، تناسب ساعات الصباح والسكينة والتأمل.",
+    "telegramGroupUrl": "https://t.me/menshawy_abdo_elsayed"
   },
   {
     "id": "waie-1",
