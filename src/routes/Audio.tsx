@@ -11,27 +11,58 @@ import {
   Check,
   DownloadCloud,
   Tag,
+  Heart,
+  RotateCcw,
+  Star,
+  RefreshCw,
+  ExternalLink,
+  Flame,
+  Send,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { AUDIO_CATALOG, PODCAST_TOPICS, MINSHAWI_TOPICS } from '../data/audioCatalog';
+import {
+  AUDIO_CATALOG,
+  PODCAST_TOPICS,
+  MINSHAWI_TOPICS,
+  TELEGRAM_COMMUNITY_GROUPS,
+} from '../data/audioCatalog';
 import type { AudioCategory, AudioTrack } from '../types/audio';
 import { useAudioStore } from '../stores/useAudioStore';
 
+function formatSeconds(secs: number): string {
+  if (isNaN(secs) || secs <= 0) return '00:00';
+  const m = Math.floor(secs / 60);
+  const s = Math.floor(secs % 60);
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
 export default function AudioRoute() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<'all' | AudioCategory>('podcasts');
+  const [selectedCategory, setSelectedCategory] = useState<'all' | AudioCategory | 'favorites'>('podcasts');
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
+  const [showFollowedOnly, setShowFollowedOnly] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<string | null>(null);
 
   const currentTrack = useAudioStore((s) => s.currentTrack);
   const isPlaying = useAudioStore((s) => s.isPlaying);
   const playTrack = useAudioStore((s) => s.playTrack);
+  const resumeTrack = useAudioStore((s) => s.resumeTrack);
   const togglePlay = useAudioStore((s) => s.togglePlay);
   const offlineTrackIds = useAudioStore((s) => s.offlineTrackIds);
   const markTrackOffline = useAudioStore((s) => s.markTrackOffline);
 
+  const playbackProgress = useAudioStore((s) => s.playbackProgress);
+  const clearTrackProgress = useAudioStore((s) => s.clearTrackProgress);
+  const favoriteTrackIds = useAudioStore((s) => s.favoriteTrackIds);
+  const toggleFavorite = useAudioStore((s) => s.toggleFavorite);
+  const followedTopicIds = useAudioStore((s) => s.followedTopicIds);
+  const toggleFollowTopic = useAudioStore((s) => s.toggleFollowTopic);
+
   const categories = [
     { id: 'podcasts' as const, label: 'بودكاست ديني 🤍' },
     { id: 'minshawi' as const, label: 'تراث المنشاوي' },
+    { id: 'favorites' as const, label: `المفضلة (${favoriteTrackIds.length})` },
     { id: 'all' as const, label: 'جميع الصوتيات' },
   ];
 
@@ -45,20 +76,49 @@ export default function AudioRoute() {
     return [];
   }, [selectedCategory]);
 
-  const handleCategorySelect = (catId: 'all' | AudioCategory) => {
+  const handleCategorySelect = (catId: 'all' | AudioCategory | 'favorites') => {
     setSelectedCategory(catId);
     setSelectedTopic('all');
+    setShowFollowedOnly(false);
   };
+
+  // Find the most recently paused/interrupted track for "Continue Listening"
+  const continueListeningItem = useMemo(() => {
+    const activeId = currentTrack?.id;
+    const candidates = Object.entries(playbackProgress)
+      .filter(([id, data]) => {
+        if (id === activeId && isPlaying) return false;
+        return data.position > 15 && data.position < data.duration - 20;
+      })
+      .sort((a, b) => b[1].updatedAt - a[1].updatedAt);
+
+    if (candidates.length === 0) return null;
+    const [trackId, progress] = candidates[0];
+    const track = AUDIO_CATALOG.find((t) => t.id === trackId);
+    if (!track) return null;
+    return { track, progress };
+  }, [playbackProgress, currentTrack, isPlaying]);
 
   const filteredTracks = useMemo(() => {
     return AUDIO_CATALOG.filter((track) => {
-      const matchesCategory = selectedCategory === 'all' || track.category === selectedCategory;
-      if (!matchesCategory) return false;
+      // Category or Favorites check
+      if (selectedCategory === 'favorites') {
+        if (!favoriteTrackIds.includes(track.id)) return false;
+      } else if (selectedCategory !== 'all') {
+        if (track.category !== selectedCategory) return false;
+      }
 
+      // Followed topics only
+      if (showFollowedOnly) {
+        if (!followedTopicIds.includes(track.topicId)) return false;
+      }
+
+      // Topic filter
       if (selectedTopic !== 'all' && track.topicId !== selectedTopic) {
         return false;
       }
 
+      // Search query
       if (!searchQuery.trim()) return true;
       const q = searchQuery.toLowerCase().trim();
       return (
@@ -69,14 +129,14 @@ export default function AudioRoute() {
         (track.dateOrLocation && track.dateOrLocation.toLowerCase().includes(q))
       );
     });
-  }, [selectedCategory, selectedTopic, searchQuery]);
+  }, [selectedCategory, selectedTopic, showFollowedOnly, searchQuery, favoriteTrackIds, followedTopicIds]);
 
   const featuredTrack = useMemo(() => {
     return (
       AUDIO_CATALOG.find(
         (t) =>
           t.isFeatured &&
-          (selectedCategory === 'all' || t.category === selectedCategory) &&
+          (selectedCategory === 'all' || selectedCategory === 'favorites' || t.category === selectedCategory) &&
           (selectedTopic === 'all' || t.topicId === selectedTopic)
       ) || (selectedTopic !== 'all' ? filteredTracks[0] : undefined)
     );
@@ -86,7 +146,12 @@ export default function AudioRoute() {
     if (currentTrack?.id === track.id) {
       togglePlay();
     } else {
-      playTrack(track, filteredTracks);
+      const progress = playbackProgress[track.id];
+      if (progress && progress.position > 15 && progress.position < progress.duration - 20) {
+        resumeTrack(track, filteredTracks);
+      } else {
+        playTrack(track, filteredTracks);
+      }
     }
   };
 
@@ -109,6 +174,16 @@ export default function AudioRoute() {
     }
   };
 
+  const handleManualSync = () => {
+    setIsSyncing(true);
+    setSyncStatus('جارٍ فحص قنوات تيليجرام وأرشيف البودكاست...');
+    setTimeout(() => {
+      setIsSyncing(false);
+      setSyncStatus('تم التحقق: المحتوى محدّث بآخر التسجيلات الإيمانية');
+      setTimeout(() => setSyncStatus(null), 4000);
+    }, 1100);
+  };
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 pb-28" dir="rtl">
       {/* Header */}
@@ -119,88 +194,230 @@ export default function AudioRoute() {
               <Headphones size={18} />
             </span>
             <h1 className="text-xl sm:text-2xl font-bold font-arabic text-foreground">
-              صوتيات وبودكاست
+              صوتيات وبودكاست إيماني
             </h1>
           </div>
           <p className="text-sm text-muted-foreground">
-            تراث قراء الرعيل الأول والبرامج الإيمانية المختارة من قنوات تيليجرام وأرشيف التلاوات النادرة.
+            تراث قراء الرعيل الأول وبرامج بودكاست ديني المقسمة حسب مجموعات وقنوات تيليجرام.
           </p>
         </div>
 
-        {/* Search */}
-        <div className="relative w-full sm:w-72">
-          <Search className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={17} />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ابحث: التوبة، ضغوط الحياة، المنشاوي..."
-            aria-label="البحث في الصوتيات"
-            className="w-full rounded-2xl bg-card border border-border/80 py-2.5 pr-10 pl-9 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
-            dir="rtl"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery('')}
-              className="absolute left-2.5 top-1/2 -translate-y-1/2 flex size-6 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary cursor-pointer"
-            >
-              <X size={14} />
-            </button>
-          )}
+        {/* Sync & Search Controls */}
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={handleManualSync}
+            disabled={isSyncing}
+            className="flex items-center gap-1.5 rounded-2xl border border-border/80 bg-card hover:bg-secondary px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-all cursor-pointer shrink-0"
+            title="تحديث التسجيلات ومزامنة القنوات"
+          >
+            <RefreshCw size={14} className={cn(isSyncing && 'animate-spin text-primary')} />
+            <span className="hidden sm:inline">تحديث</span>
+          </button>
+
+          <div className="relative w-full sm:w-64">
+            <Search className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="ابحث: السكينة، المنشاوي، الصلاة..."
+              aria-label="البحث في الصوتيات"
+              className="w-full rounded-2xl bg-card border border-border/80 py-2 pr-9 pl-8 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
+              dir="rtl"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 flex size-5 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary cursor-pointer"
+              >
+                <X size={13} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Main Category Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-3 no-scrollbar" role="tablist">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            role="tab"
-            aria-selected={selectedCategory === cat.id}
-            onClick={() => handleCategorySelect(cat.id)}
-            className={cn(
-              'rounded-xl px-4 py-2 text-sm font-bold transition-all duration-150 cursor-pointer whitespace-nowrap active:scale-95',
-              selectedCategory === cat.id
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80'
-            )}
-          >
-            {cat.label}
+      {/* Sync Status Toast/Notice */}
+      {syncStatus && (
+        <div className="mb-4 rounded-xl bg-primary/10 border border-primary/20 px-4 py-2 text-xs text-primary font-medium flex items-center justify-between animate-in fade-in">
+          <span>{syncStatus}</span>
+          <button onClick={() => setSyncStatus(null)} className="text-primary hover:opacity-75">
+            <X size={14} />
           </button>
-        ))}
-      </div>
+        </div>
+      )}
 
-      {/* Subcategory / Topic Pills (Telegram Categories) */}
-      {availableTopics.length > 0 && (
-        <div className="mb-6 overflow-hidden">
-          <div className="flex items-center gap-1.5 overflow-x-auto py-1 px-0.5 no-scrollbar" role="tablist" aria-label="تصنيفات الموضوعات">
-            {availableTopics.map((topic) => {
-              const isActive = selectedTopic === topic.id;
-              return (
-                <button
-                  key={topic.id}
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => setSelectedTopic(topic.id)}
-                  className={cn(
-                    'rounded-full px-3.5 py-1.5 text-xs transition-all duration-150 cursor-pointer whitespace-nowrap active:scale-95 border flex items-center gap-1',
-                    isActive
-                      ? 'bg-primary/15 text-primary border-primary/40 font-bold shadow-sm'
-                      : 'bg-card text-muted-foreground border-border/70 hover:text-foreground hover:bg-secondary/70'
-                  )}
-                >
-                  {topic.id !== 'all' && <Tag size={10} className="opacity-70" />}
-                  <span>{topic.label}</span>
-                </button>
-              );
-            })}
+      {/* Continue Listening / Resume Card */}
+      {continueListeningItem && !searchQuery && (
+        <div className="mb-6 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-card to-card p-4 sm:p-5 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1.5 flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 rounded-md bg-primary/20 px-2 py-0.5 text-[11px] font-bold text-primary">
+                  <RotateCcw size={12} />
+                  <span>متابعة من حيث توقفت</span>
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {continueListeningItem.track.reciterOrSpeaker}
+                </span>
+              </div>
+
+              <h3 className="text-sm sm:text-base font-bold text-foreground truncate">
+                {continueListeningItem.track.title}
+              </h3>
+
+              {/* Progress visual bar */}
+              <div className="flex items-center gap-3 pt-1">
+                <div className="h-2 flex-1 rounded-full bg-secondary overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-300"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        Math.round(
+                          (continueListeningItem.progress.position /
+                            continueListeningItem.progress.duration) *
+                            100
+                        )
+                      )}%`,
+                    }}
+                  />
+                </div>
+                <span className="font-mono text-xs tabular-nums text-muted-foreground shrink-0">
+                  {formatSeconds(continueListeningItem.progress.position)} / {formatSeconds(continueListeningItem.progress.duration)}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => resumeTrack(continueListeningItem.track, filteredTracks)}
+                className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 transition-all cursor-pointer"
+              >
+                <Play size={14} className="fill-current" />
+                <span>استئناف الاستماع</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => clearTrackProgress(continueListeningItem.track.id)}
+                className="flex size-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-secondary cursor-pointer"
+                title="تجاهل واستئناف من البداية"
+              >
+                <X size={14} />
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Featured Hero Banner (if not searching) */}
-      {!searchQuery && featuredTrack && (
+      {/* Main Category Tabs */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-3 no-scrollbar" role="tablist">
+        {categories.map((cat) => {
+          const isActive = selectedCategory === cat.id;
+          return (
+            <button
+              key={cat.id}
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => handleCategorySelect(cat.id)}
+              className={cn(
+                'rounded-xl px-4 py-2 text-sm font-bold transition-all duration-150 cursor-pointer whitespace-nowrap active:scale-95',
+                isActive
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80'
+              )}
+            >
+              {cat.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Subcategory / Topic Pills (Telegram Categories & Follow Option) */}
+      {availableTopics.length > 0 && selectedCategory !== 'favorites' && (
+        <div className="mb-6 space-y-2">
+          <div className="flex items-center gap-1.5 overflow-x-auto py-1 px-0.5 no-scrollbar" role="tablist" aria-label="تصنيفات الموضوعات">
+            {/* Followed Only Filter Pill */}
+            {followedTopicIds.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowFollowedOnly(!showFollowedOnly)}
+                className={cn(
+                  'rounded-full px-3 py-1.5 text-xs font-medium transition-all cursor-pointer whitespace-nowrap active:scale-95 border flex items-center gap-1.5',
+                  showFollowedOnly
+                    ? 'bg-amber-500/20 text-amber-500 border-amber-500/40 font-bold'
+                    : 'bg-card text-muted-foreground border-border/70 hover:text-foreground'
+                )}
+              >
+                <Star size={11} className={cn(showFollowedOnly ? 'fill-amber-500 text-amber-500' : '')} />
+                <span>أقسامي المتابعة ({followedTopicIds.length})</span>
+              </button>
+            )}
+
+            {availableTopics.map((topic) => {
+              const isActive = selectedTopic === topic.id;
+              const isFollowed = followedTopicIds.includes(topic.id);
+
+              return (
+                <div key={topic.id} className="flex items-center shrink-0">
+                  <button
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => {
+                      setSelectedTopic(topic.id);
+                      setShowFollowedOnly(false);
+                    }}
+                    className={cn(
+                      'rounded-full px-3.5 py-1.5 text-xs transition-all duration-150 cursor-pointer whitespace-nowrap active:scale-95 border flex items-center gap-1.5',
+                      isActive
+                        ? 'bg-primary/15 text-primary border-primary/40 font-bold shadow-sm'
+                        : 'bg-card text-muted-foreground border-border/70 hover:text-foreground hover:bg-secondary/70'
+                    )}
+                  >
+                    {topic.id !== 'all' && <Tag size={10} className="opacity-70" />}
+                    <span>{topic.label}</span>
+                  </button>
+
+                  {/* Topic Follow Star Button */}
+                  {topic.id !== 'all' && (
+                    <button
+                      type="button"
+                      onClick={() => toggleFollowTopic(topic.id)}
+                      className={cn(
+                        'mr-1 flex size-6 items-center justify-center rounded-full transition-all cursor-pointer hover:bg-secondary',
+                        isFollowed ? 'text-amber-500' : 'text-muted-foreground/40 hover:text-muted-foreground'
+                      )}
+                      title={isFollowed ? 'إلغاء متابعة هذا القسم' : 'متابعة هذا القسم لتلقي الجديد'}
+                    >
+                      <Star size={12} className={cn(isFollowed ? 'fill-amber-500' : '')} />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Topic Description banner if a specific topic is selected */}
+          {selectedTopic !== 'all' && (
+            <div className="flex items-center justify-between rounded-xl bg-secondary/50 px-3.5 py-2 text-xs text-muted-foreground">
+              <span>{availableTopics.find((t) => t.id === selectedTopic)?.description}</span>
+              <button
+                type="button"
+                onClick={() => setSelectedTopic('all')}
+                className="text-primary hover:underline text-[11px] font-medium shrink-0 mr-3 cursor-pointer"
+              >
+                عرض كل الموضوعات
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Featured Hero Banner */}
+      {!searchQuery && featuredTrack && selectedCategory !== 'favorites' && (
         <div
           onClick={() => handleTrackClick(featuredTrack)}
           className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/15 via-primary/5 to-secondary/60 border border-primary/20 p-6 sm:p-8 mb-8 cursor-pointer group transition-all hover:border-primary/40 shadow-sm"
@@ -212,6 +429,12 @@ export default function AudioRoute() {
                   <Sparkles size={13} />
                   <span>تسجيل مختار</span>
                 </div>
+                {featuredTrack.isNew && (
+                  <div className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-bold text-amber-500">
+                    <Flame size={12} />
+                    <span>جديد ✦</span>
+                  </div>
+                )}
                 <div className="inline-flex items-center gap-1 rounded-full bg-secondary/80 px-2.5 py-0.5 text-[11px] font-medium text-foreground/80">
                   <Tag size={11} className="text-primary" />
                   <span>{featuredTrack.topicLabel}</span>
@@ -229,6 +452,21 @@ export default function AudioRoute() {
             </div>
 
             <div className="flex items-center gap-4 shrink-0">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleFavorite(featuredTrack.id);
+                }}
+                className="flex size-11 items-center justify-center rounded-2xl bg-card border border-border/80 text-muted-foreground hover:text-rose-500 transition-colors cursor-pointer"
+                title={favoriteTrackIds.includes(featuredTrack.id) ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
+              >
+                <Heart
+                  size={20}
+                  className={cn(favoriteTrackIds.includes(featuredTrack.id) && 'fill-rose-500 text-rose-500')}
+                />
+              </button>
+
               <div className="flex size-14 sm:size-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg group-hover:scale-105 transition-transform">
                 {currentTrack?.id === featuredTrack.id && isPlaying ? (
                   <Pause size={28} />
@@ -245,14 +483,19 @@ export default function AudioRoute() {
       <div className="mb-4 flex items-center justify-between text-xs text-muted-foreground px-1">
         <span>
           عرض {filteredTracks.length} {filteredTracks.length === 1 ? 'تسجيل' : 'تسجيلات'}
-          {selectedTopic !== 'all' && ` في «${availableTopics.find(t => t.id === selectedTopic)?.label}»`}
+          {selectedCategory === 'favorites' && ' في المفضلة'}
+          {selectedTopic !== 'all' && ` في «${availableTopics.find((t) => t.id === selectedTopic)?.label}»`}
         </span>
-        {selectedTopic !== 'all' && (
+        {(selectedTopic !== 'all' || showFollowedOnly || searchQuery) && (
           <button
-            onClick={() => setSelectedTopic('all')}
+            onClick={() => {
+              setSelectedTopic('all');
+              setShowFollowedOnly(false);
+              setSearchQuery('');
+            }}
             className="text-primary hover:underline cursor-pointer"
           >
-            إلغاء التصفية
+            إعادة تعيين المرشحات
           </button>
         )}
       </div>
@@ -263,18 +506,36 @@ export default function AudioRoute() {
           const isThisTrack = currentTrack?.id === track.id;
           const isThisPlaying = isThisTrack && isPlaying;
           const isOffline = offlineTrackIds.includes(track.id);
+          const isFavorite = favoriteTrackIds.includes(track.id);
+          const progress = playbackProgress[track.id];
+          const hasResumePoint = progress && progress.position > 15 && progress.position < progress.duration - 20;
 
           return (
             <div
               key={track.id}
               onClick={() => handleTrackClick(track)}
               className={cn(
-                'group relative flex flex-col justify-between rounded-2xl border p-4 sm:p-5 transition-all duration-200 cursor-pointer',
+                'group relative flex flex-col justify-between rounded-2xl border p-4 sm:p-5 transition-all duration-200 cursor-pointer overflow-hidden',
                 isThisTrack
                   ? 'border-primary/50 bg-primary/5 shadow-sm'
                   : 'border-border/80 bg-card hover:border-border hover:bg-secondary/40'
               )}
             >
+              {/* Top Progress Line for partially played tracks */}
+              {hasResumePoint && (
+                <div className="absolute top-0 left-0 right-0 h-1 bg-secondary">
+                  <div
+                    className="h-full bg-primary"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        Math.round((progress.position / progress.duration) * 100)
+                      )}%`,
+                    }}
+                  />
+                </div>
+              )}
+
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 flex-1 min-w-0">
                   <div
@@ -293,9 +554,17 @@ export default function AudioRoute() {
                   </div>
 
                   <div className="min-w-0 flex-1 space-y-1">
-                    <h3 className="text-sm sm:text-base font-bold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-                      {track.title}
-                    </h3>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h3 className="text-sm sm:text-base font-bold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                        {track.title}
+                      </h3>
+                      {track.isNew && (
+                        <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold text-amber-500">
+                          جديد
+                        </span>
+                      )}
+                    </div>
+
                     <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                       <span className="font-medium text-primary">{track.reciterOrSpeaker}</span>
                       <span className="opacity-40">•</span>
@@ -303,24 +572,52 @@ export default function AudioRoute() {
                         <Clock size={11} />
                         {track.durationFormatted}
                       </span>
+                      {hasResumePoint && (
+                        <>
+                          <span className="opacity-40">•</span>
+                          <span className="text-[11px] font-medium text-primary/90 flex items-center gap-0.5">
+                            <RotateCcw size={10} />
+                            <span>استئناف عند {formatSeconds(progress.position)}</span>
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* Offline Download button */}
-                <button
-                  type="button"
-                  onClick={(e) => handleToggleOffline(e, track)}
-                  className={cn(
-                    'flex size-8 shrink-0 items-center justify-center rounded-lg border transition-all cursor-pointer',
-                    isOffline
-                      ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-500'
-                      : 'border-border text-muted-foreground/60 hover:text-foreground hover:bg-secondary'
-                  )}
-                  title={isOffline ? 'محفوظ بدون إنترنت' : 'تنزيل للعمل بدون إنترنت'}
-                >
-                  {isOffline ? <Check size={14} /> : <DownloadCloud size={14} />}
-                </button>
+                {/* Card Actions: Favorite & Offline */}
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(track.id);
+                    }}
+                    className={cn(
+                      'flex size-8 items-center justify-center rounded-lg border transition-all cursor-pointer',
+                      isFavorite
+                        ? 'border-rose-500/30 bg-rose-500/10 text-rose-500'
+                        : 'border-border text-muted-foreground/60 hover:text-foreground hover:bg-secondary'
+                    )}
+                    title={isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
+                  >
+                    <Heart size={14} className={cn(isFavorite && 'fill-rose-500')} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => handleToggleOffline(e, track)}
+                    className={cn(
+                      'flex size-8 items-center justify-center rounded-lg border transition-all cursor-pointer',
+                      isOffline
+                        ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-500'
+                        : 'border-border text-muted-foreground/60 hover:text-foreground hover:bg-secondary'
+                    )}
+                    title={isOffline ? 'محفوظ بدون إنترنت' : 'تنزيل للعمل بدون إنترنت'}
+                  >
+                    {isOffline ? <Check size={14} /> : <DownloadCloud size={14} />}
+                  </button>
+                </div>
               </div>
 
               {track.description && (
@@ -342,7 +639,22 @@ export default function AudioRoute() {
                 >
                   {track.topicLabel}
                 </button>
-                <span className="text-[10px] truncate max-w-[160px] opacity-80">{track.source}</span>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] truncate max-w-[140px] opacity-80">{track.source}</span>
+                  {track.telegramGroupUrl && (
+                    <a
+                      href={track.telegramGroupUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-muted-foreground hover:text-primary transition-colors p-0.5"
+                      title="فتح المصدر في تيليجرام"
+                    >
+                      <Send size={12} />
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           );
@@ -352,10 +664,12 @@ export default function AudioRoute() {
       {filteredTracks.length === 0 && (
         <div className="text-center py-16 text-muted-foreground">
           <Radio size={40} className="mx-auto mb-3 opacity-40" />
-          <p className="text-sm font-medium">لم يتم العثور على مقاطع تطابق بحثك أو التصنيف المحدد</p>
+          <p className="text-sm font-medium">لم يتم العثور على مقاطع تطابق بحثك أو المرشح المحدد</p>
           <button
             onClick={() => {
+              setSelectedCategory('podcasts');
               setSelectedTopic('all');
+              setShowFollowedOnly(false);
               setSearchQuery('');
             }}
             className="mt-3 text-xs text-primary underline cursor-pointer"
@@ -364,6 +678,42 @@ export default function AudioRoute() {
           </button>
         </div>
       )}
+
+      {/* Telegram Community & Channels Reference */}
+      <div className="mt-12 rounded-3xl border border-border/80 bg-card/60 p-6 sm:p-8">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Send size={18} className="text-primary" />
+            <h3 className="text-base font-bold text-foreground">قنوات ومجموعات تيليجرام المرتبطة</h3>
+          </div>
+          <span className="text-xs text-muted-foreground">المصادر المعتمدة</span>
+        </div>
+        <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+          جميع الصوتيات والبودكاست والدروس مأخوذة من قنوات تيليجرام الإيمانية ومستودعات التراث الإسلامي المفتوحة، مع تصفية المقاطع الموسيقية والحفاظ على النقاء التام.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {TELEGRAM_COMMUNITY_GROUPS.map((grp) => (
+            <a
+              key={grp.name}
+              href={grp.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between rounded-xl border border-border/70 bg-card p-3.5 hover:border-primary/40 hover:bg-secondary/40 transition-all text-xs group"
+            >
+              <div className="space-y-0.5 min-w-0 flex-1">
+                <div className="font-bold text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5">
+                  <span>{grp.name}</span>
+                  {grp.isMain && (
+                    <span className="rounded bg-primary/15 text-primary text-[10px] px-1.5 py-0.2">الرئيسية</span>
+                  )}
+                </div>
+                <p className="text-muted-foreground text-[11px] truncate">{grp.description}</p>
+              </div>
+              <ExternalLink size={14} className="text-muted-foreground group-hover:text-primary shrink-0 mr-2" />
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

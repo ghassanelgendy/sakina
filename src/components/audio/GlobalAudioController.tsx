@@ -3,6 +3,7 @@ import { useAudioStore } from '../../stores/useAudioStore';
 
 export function GlobalAudioController() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const lastSavedPosRef = useRef<number>(0);
 
   const activeSource = useAudioStore((s) => s.activeSource);
   const currentTrack = useAudioStore((s) => s.currentTrack);
@@ -22,6 +23,7 @@ export function GlobalAudioController() {
   const toggleQuranPlay = useAudioStore((s) => s.toggleQuranPlay);
   const nextQuranAyah = useAudioStore((s) => s.nextQuranAyah);
   const prevQuranAyah = useAudioStore((s) => s.prevQuranAyah);
+  const saveTrackProgress = useAudioStore((s) => s.saveTrackProgress);
 
   // Initialize HTML5 Audio element for Podcasts & Historic Tracks
   useEffect(() => {
@@ -30,7 +32,14 @@ export function GlobalAudioController() {
     audioRef.current = audio;
 
     const onTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
+      const cur = audio.currentTime;
+      setCurrentTime(cur);
+
+      // Periodically persist playback progress for resume option
+      if (currentTrack && Math.abs(cur - lastSavedPosRef.current) >= 3) {
+        lastSavedPosRef.current = cur;
+        saveTrackProgress(currentTrack.id, cur, audio.duration || currentTrack.duration);
+      }
     };
 
     const onDurationChange = () => {
@@ -40,11 +49,19 @@ export function GlobalAudioController() {
     };
 
     const onEnded = () => {
+      if (currentTrack) {
+        saveTrackProgress(currentTrack.id, 0, audio.duration || currentTrack.duration);
+      }
       nextTrack();
     };
 
     const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
+    const onPause = () => {
+      setIsPlaying(false);
+      if (currentTrack && audio.currentTime > 3) {
+        saveTrackProgress(currentTrack.id, audio.currentTime, audio.duration || currentTrack.duration);
+      }
+    };
 
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('durationchange', onDurationChange);
@@ -61,7 +78,7 @@ export function GlobalAudioController() {
       audio.removeEventListener('pause', onPause);
       audioRef.current = null;
     };
-  }, [nextTrack, setCurrentTime, setDuration, setIsPlaying]);
+  }, [currentTrack, nextTrack, setCurrentTime, setDuration, setIsPlaying, saveTrackProgress]);
 
   // Handle Track Source Changes
   useEffect(() => {
@@ -71,6 +88,17 @@ export function GlobalAudioController() {
     if (audio.src !== currentTrack.audioUrl) {
       audio.src = currentTrack.audioUrl;
       audio.playbackRate = playbackRate;
+
+      // Handle seeking to resume position if currentTime was pre-set
+      const targetTime = currentTime;
+      const handleCanPlay = () => {
+        if (targetTime > 0 && Math.abs(audio.currentTime - targetTime) > 1.5) {
+          audio.currentTime = targetTime;
+        }
+        audio.removeEventListener('canplay', handleCanPlay);
+      };
+      audio.addEventListener('canplay', handleCanPlay);
+
       if (isPlaying) {
         audio.play().catch(() => setIsPlaying(false));
       }

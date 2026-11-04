@@ -4,6 +4,8 @@ export interface AudioTopic {
   id: string;
   label: string;
   category: AudioCategory;
+  description?: string;
+  telegramGroup?: string;
 }
 
 export interface AudioTrack {
@@ -21,4 +23,13 @@ export interface AudioTrack {
   description: string;
   dateOrLocation?: string;
   isFeatured?: boolean;
+  isNew?: boolean;
+  publishedAt?: string;
+  telegramGroupUrl?: string;
+}
+
+export interface TrackPlaybackProgress {
+  position: number;
+  duration: number;
+  updatedAt: number;
 }
