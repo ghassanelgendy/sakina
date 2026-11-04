@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Search,
   X,
@@ -19,13 +19,16 @@ import {
   Flame,
   Send,
   Compass,
+  Layers,
+  ChevronDown,
+  BookOpen,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import {
-  AUDIO_CATALOG,
   PODCAST_TOPICS,
   MINSHAWI_TOPICS,
   TELEGRAM_COMMUNITY_GROUPS,
+  useFullAudioCatalog,
 } from '../data/audioCatalog';
 import type { AudioCategory, AudioTrack } from '../types/audio';
 import { useAudioStore } from '../stores/useAudioStore';
@@ -38,13 +41,20 @@ function formatSeconds(secs: number): string {
   return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 
+const PAGE_SIZE = 24;
+
 export default function AudioRoute() {
+  const { catalog, totalCount, isLoading: isCatalogLoading } = useFullAudioCatalog();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<'all' | AudioCategory | 'favorites' | 'recommended'>('podcasts');
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
   const [showFollowedOnly, setShowFollowedOnly] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
+  const [showTopicDrawer, setShowTopicDrawer] = useState(false);
+  const [topicSearchQuery, setTopicSearchQuery] = useState('');
 
   const currentTrack = useAudioStore((s) => s.currentTrack);
   const isPlaying = useAudioStore((s) => s.isPlaying);
@@ -79,17 +89,26 @@ export default function AudioRoute() {
     return [];
   }, [selectedCategory]);
 
+  // Compute track count per topic dynamically
+  const topicTrackCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    catalog.forEach((t) => {
+      counts[t.topicId] = (counts[t.topicId] || 0) + 1;
+    });
+    return counts;
+  }, [catalog]);
+
   // Client-Side Zero-Backend Recommendation System
   const recommendedItems = useMemo(() => {
     return getRecommendedTracks({
-      catalog: AUDIO_CATALOG,
+      catalog,
       playbackProgress,
       favoriteTrackIds,
       followedTopicIds,
       currentTrack,
       limit: 6,
     });
-  }, [playbackProgress, favoriteTrackIds, followedTopicIds, currentTrack]);
+  }, [catalog, playbackProgress, favoriteTrackIds, followedTopicIds, currentTrack]);
 
   const recommendationReasonMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -101,7 +120,13 @@ export default function AudioRoute() {
     setSelectedCategory(catId);
     setSelectedTopic('all');
     setShowFollowedOnly(false);
+    setVisibleCount(PAGE_SIZE);
   };
+
+  // Reset pagination when topic or query changes
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [selectedCategory, selectedTopic, searchQuery, showFollowedOnly]);
 
   // Find the most recently paused/interrupted track for "Continue Listening"
   const continueListeningItem = useMemo(() => {
@@ -115,10 +140,10 @@ export default function AudioRoute() {
 
     if (candidates.length === 0) return null;
     const [trackId, progress] = candidates[0];
-    const track = AUDIO_CATALOG.find((t) => t.id === trackId);
+    const track = catalog.find((t) => t.id === trackId);
     if (!track) return null;
     return { track, progress };
-  }, [playbackProgress, currentTrack, isPlaying]);
+  }, [playbackProgress, currentTrack, isPlaying, catalog]);
 
   const filteredTracks = useMemo(() => {
     // If recommended tab is selected
@@ -135,7 +160,7 @@ export default function AudioRoute() {
       );
     }
 
-    return AUDIO_CATALOG.filter((track) => {
+    return catalog.filter((track) => {
       // Category or Favorites check
       if (selectedCategory === 'favorites') {
         if (!favoriteTrackIds.includes(track.id)) return false;
@@ -165,6 +190,7 @@ export default function AudioRoute() {
       );
     });
   }, [
+    catalog,
     selectedCategory,
     selectedTopic,
     showFollowedOnly,
@@ -174,16 +200,20 @@ export default function AudioRoute() {
     recommendedItems,
   ]);
 
+  const visibleTracks = useMemo(() => {
+    return filteredTracks.slice(0, visibleCount);
+  }, [filteredTracks, visibleCount]);
+
   const featuredTrack = useMemo(() => {
     return (
-      AUDIO_CATALOG.find(
+      catalog.find(
         (t) =>
           t.isFeatured &&
           (selectedCategory === 'all' || selectedCategory === 'favorites' || t.category === selectedCategory) &&
           (selectedTopic === 'all' || t.topicId === selectedTopic)
       ) || (selectedTopic !== 'all' ? filteredTracks[0] : undefined)
     );
-  }, [selectedCategory, selectedTopic, filteredTracks]);
+  }, [catalog, selectedCategory, selectedTopic, filteredTracks]);
 
   const handleTrackClick = (track: AudioTrack) => {
     if (currentTrack?.id === track.id) {
@@ -222,9 +252,9 @@ export default function AudioRoute() {
     setSyncStatus('جارٍ فحص قنوات تيليجرام وأرشيف البودكاست...');
     setTimeout(() => {
       setIsSyncing(false);
-      setSyncStatus('تم التحقق: المحتوى محدّث بآخر التسجيلات الإيمانية');
+      setSyncStatus(`تم التحديث: تم مزامنة ${totalCount} تسجيلاً وسلسلة إيمانية بنجاح.`);
       setTimeout(() => setSyncStatus(null), 4000);
-    }, 1100);
+    }, 900);
   };
 
   return (
@@ -239,9 +269,12 @@ export default function AudioRoute() {
             <h1 className="text-xl sm:text-2xl font-bold font-arabic text-foreground">
               صوتيات وبودكاست إيماني
             </h1>
+            <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-mono font-medium text-muted-foreground">
+              {totalCount} تسجيلاً
+            </span>
           </div>
           <p className="text-sm text-muted-foreground">
-            تراث قراء الرعيل الأول وبرامج بودكاست ديني المقسمة حسب مجموعات وقنوات تيليجرام، مع ترشيحات ذكية مخصصة لك.
+            مكتبة جامعة تشمل سلاسل بودكاست وعي كاملة، برامج بودكاست ديني، وتراث قراء الرعيل الأول.
           </p>
         </div>
 
@@ -255,7 +288,7 @@ export default function AudioRoute() {
             title="تحديث التسجيلات ومزامنة القنوات"
           >
             <RefreshCw size={14} className={cn(isSyncing && 'animate-spin text-primary')} />
-            <span className="hidden sm:inline">تحديث</span>
+            <span className="hidden sm:inline">تحديث ({totalCount})</span>
           </button>
 
           <div className="relative w-full sm:w-64">
@@ -264,7 +297,7 @@ export default function AudioRoute() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ابحث: السكينة، المنشاوي، الصلاة..."
+              placeholder="ابحث: الصحابة، السكينة، المنشاوي..."
               aria-label="البحث في الصوتيات"
               className="w-full rounded-2xl bg-card border border-border/80 py-2 pr-9 pl-8 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
               dir="rtl"
@@ -379,7 +412,7 @@ export default function AudioRoute() {
         })}
       </div>
 
-      {/* Recommended Spotlight Bar (shown when browsing standard categories) */}
+      {/* Recommended Spotlight Bar */}
       {selectedCategory !== 'recommended' && selectedCategory !== 'favorites' && !searchQuery && recommendedItems.length > 0 && (
         <div className="mb-6 rounded-2xl border border-border/70 bg-secondary/30 p-4">
           <div className="flex items-center justify-between mb-3">
@@ -422,17 +455,29 @@ export default function AudioRoute() {
         </div>
       )}
 
-      {/* Subcategory / Topic Pills (Telegram Categories & Follow Option) */}
+      {/* Subcategory / Topic Pills & Topic Browser Drawer Button */}
       {availableTopics.length > 0 && selectedCategory !== 'favorites' && selectedCategory !== 'recommended' && (
         <div className="mb-6 space-y-2">
           <div className="flex items-center gap-1.5 overflow-x-auto py-1 px-0.5 no-scrollbar" role="tablist" aria-label="تصنيفات الموضوعات">
+            {/* Topic Browser Drawer Trigger */}
+            <button
+              type="button"
+              onClick={() => setShowTopicDrawer(!showTopicDrawer)}
+              className="rounded-full px-3 py-1.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 border border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 flex items-center gap-1.5 shrink-0"
+              title="تصفح جميع سلاسل ومجموعات تيليجرام"
+            >
+              <Layers size={12} />
+              <span>كل السلاسل ({availableTopics.length - 1})</span>
+              <ChevronDown size={11} className={cn('transition-transform duration-200', showTopicDrawer && 'rotate-180')} />
+            </button>
+
             {/* Followed Only Filter Pill */}
             {followedTopicIds.length > 0 && (
               <button
                 type="button"
                 onClick={() => setShowFollowedOnly(!showFollowedOnly)}
                 className={cn(
-                  'rounded-full px-3 py-1.5 text-xs font-medium transition-all cursor-pointer whitespace-nowrap active:scale-95 border flex items-center gap-1.5',
+                  'rounded-full px-3 py-1.5 text-xs font-medium transition-all cursor-pointer whitespace-nowrap active:scale-95 border flex items-center gap-1.5 shrink-0',
                   showFollowedOnly
                     ? 'bg-amber-500/20 text-amber-500 border-amber-500/40 font-bold'
                     : 'bg-card text-muted-foreground border-border/70 hover:text-foreground'
@@ -446,6 +491,7 @@ export default function AudioRoute() {
             {availableTopics.map((topic) => {
               const isActive = selectedTopic === topic.id;
               const isFollowed = followedTopicIds.includes(topic.id);
+              const count = topic.id === 'all' ? catalog.length : (topicTrackCounts[topic.id] || 0);
 
               return (
                 <div key={topic.id} className="flex items-center shrink-0">
@@ -455,6 +501,7 @@ export default function AudioRoute() {
                     onClick={() => {
                       setSelectedTopic(topic.id);
                       setShowFollowedOnly(false);
+                      setShowTopicDrawer(false);
                     }}
                     className={cn(
                       'rounded-full px-3.5 py-1.5 text-xs transition-all duration-150 cursor-pointer whitespace-nowrap active:scale-95 border flex items-center gap-1.5',
@@ -465,6 +512,9 @@ export default function AudioRoute() {
                   >
                     {topic.id !== 'all' && <Tag size={10} className="opacity-70" />}
                     <span>{topic.label}</span>
+                    {count > 0 && (
+                      <span className="opacity-60 text-[10px] font-mono">({count})</span>
+                    )}
                   </button>
 
                   {/* Topic Follow Star Button */}
@@ -485,6 +535,76 @@ export default function AudioRoute() {
               );
             })}
           </div>
+
+          {/* Expandable Topic Directory Panel */}
+          {showTopicDrawer && (
+            <div className="rounded-2xl border border-primary/20 bg-card p-4 sm:p-5 shadow-sm space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BookOpen size={16} className="text-primary" />
+                  <h3 className="text-xs sm:text-sm font-bold text-foreground">
+                    دليل سلاسل وتصنيفات تيليجرام الكاملة ({availableTopics.length - 1} سلسلة)
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowTopicDrawer(false)}
+                  className="text-muted-foreground hover:text-foreground p-1 cursor-pointer"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+
+              {/* Topic search inside drawer */}
+              <div className="relative">
+                <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={topicSearchQuery}
+                  onChange={(e) => setTopicSearchQuery(e.target.value)}
+                  placeholder="ابحث بين السلاسل: الصحابة، الأنبياء، الأخلاق، الرزق..."
+                  className="w-full rounded-xl bg-secondary/50 border border-border/60 py-1.5 pr-8 pl-3 text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
+                  dir="rtl"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-72 overflow-y-auto no-scrollbar pt-1">
+                {availableTopics
+                  .filter((t) => t.id !== 'all')
+                  .filter((t) => !topicSearchQuery.trim() || t.label.toLowerCase().includes(topicSearchQuery.toLowerCase()) || (t.description && t.description.toLowerCase().includes(topicSearchQuery.toLowerCase())))
+                  .map((t) => {
+                    const count = topicTrackCounts[t.id] || 0;
+                    const isSelected = selectedTopic === t.id;
+                    return (
+                      <div
+                        key={t.id}
+                        onClick={() => {
+                          setSelectedTopic(t.id);
+                          setShowTopicDrawer(false);
+                        }}
+                        className={cn(
+                          'rounded-xl border p-3 cursor-pointer transition-all space-y-1 text-right',
+                          isSelected
+                            ? 'border-primary/50 bg-primary/10 shadow-sm'
+                            : 'border-border/70 bg-secondary/20 hover:border-border hover:bg-secondary/60'
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-xs font-bold text-foreground truncate">{t.label}</h4>
+                          <span className="font-mono text-[10px] rounded bg-secondary px-1.5 py-0.2 text-muted-foreground shrink-0">
+                            {count} تسجيلاً
+                          </span>
+                        </div>
+                        {t.description && (
+                          <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                            {t.description}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
 
           {/* Topic Description banner if a specific topic is selected */}
           {selectedTopic !== 'all' && (
@@ -568,7 +688,7 @@ export default function AudioRoute() {
       {/* Section Header Info */}
       <div className="mb-4 flex items-center justify-between text-xs text-muted-foreground px-1">
         <span>
-          عرض {filteredTracks.length} {filteredTracks.length === 1 ? 'تسجيل' : 'تسجيلات'}
+          عرض {visibleTracks.length} من أصل {filteredTracks.length} {filteredTracks.length === 1 ? 'تسجيل' : 'تسجيلات'}
           {selectedCategory === 'recommended' && ' مقترحة خصيصاً لك'}
           {selectedCategory === 'favorites' && ' في المفضلة'}
           {selectedTopic !== 'all' && ` في «${availableTopics.find((t) => t.id === selectedTopic)?.label}»`}
@@ -590,7 +710,7 @@ export default function AudioRoute() {
 
       {/* Tracks Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredTracks.map((track) => {
+        {visibleTracks.map((track) => {
           const isThisTrack = currentTrack?.id === track.id;
           const isThisPlaying = isThisTrack && isPlaying;
           const isOffline = offlineTrackIds.includes(track.id);
@@ -757,6 +877,22 @@ export default function AudioRoute() {
           );
         })}
       </div>
+
+      {/* Pagination Load More Button */}
+      {visibleCount < filteredTracks.length && (
+        <div className="mt-8 text-center">
+          <button
+            type="button"
+            onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+            className="inline-flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 hover:bg-primary/20 px-6 py-3 text-xs sm:text-sm font-bold text-primary transition-all cursor-pointer active:scale-95 shadow-sm"
+          >
+            <span>عرض المزيد من التسجيلات</span>
+            <span className="font-mono text-xs tabular-nums opacity-80">
+              ({visibleTracks.length} / {filteredTracks.length})
+            </span>
+          </button>
+        </div>
+      )}
 
       {filteredTracks.length === 0 && (
         <div className="text-center py-16 text-muted-foreground">

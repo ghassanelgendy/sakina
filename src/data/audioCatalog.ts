@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import type { AudioTrack } from '../types/audio';
 
 export interface AudioTopicItem {
@@ -37,6 +38,13 @@ export const PODCAST_TOPICS: AudioTopicItem[] = [
     telegramGroup: 'https://t.me/podcast1110',
   },
   {
+    id: 'waie_youth',
+    label: 'سلسلة قضايا الشباب وفقه العصر',
+    category: 'podcasts',
+    description: 'السوشيال ميديا، صناعة المحتوى، ثقافة الاستهلاك، والسفر والترفيه في حياة المسلم',
+    telegramGroup: 'https://t.me/podcast1110',
+  },
+  {
     id: 'peace_conflict',
     label: 'الخروج عن الصراع وضغوط الحياة',
     category: 'podcasts',
@@ -44,8 +52,29 @@ export const PODCAST_TOPICS: AudioTopicItem[] = [
     telegramGroup: 'https://t.me/podcast1110',
   },
   {
+    id: 'mental_health',
+    label: 'سلسلة وفي أنفسكم والصحة النفسية',
+    category: 'podcasts',
+    description: 'جلسات تخصصية مع د. أنس بن عوف وياسر الحزيمي حول الاكتئاب، الهلع، الوسواس، والقلق',
+    telegramGroup: 'https://t.me/podcast1110',
+  },
+  {
+    id: 'baridy_letters',
+    label: 'سلسلة بودكاست بريدي واستشارات الواقع',
+    category: 'podcasts',
+    description: 'رسائل حقيقية من واقع الناس وأزماتهم واستشارات نفسية وإيمانية عميقة',
+    telegramGroup: 'https://t.me/podcast1110',
+  },
+  {
+    id: 'family_marriage',
+    label: 'سلسلة الميثاق الغليظ وبناء الأسرة',
+    category: 'podcasts',
+    description: 'فقه بناء البيت المسلم، حل الخلافات الأسرية، ومفاهيم القوامة والرحمة',
+    telegramGroup: 'https://t.me/podcast1110',
+  },
+  {
     id: 'repentance',
-    label: 'التوبة وصفحة جديدة مع الله',
+    label: 'التوبة وبداية الالتزام',
     category: 'podcasts',
     description: 'تجديد النية، الرجوع إلى الله بعد الذنوب، وتجاوز عثرات الماضي',
     telegramGroup: 'https://t.me/podcast1110',
@@ -86,6 +115,13 @@ export const MINSHAWI_TOPICS: AudioTopicItem[] = [
     label: 'الكل',
     category: 'minshawi',
     description: 'جميع تسجيلات وتلاوات الشيخ المنشاوي',
+  },
+  {
+    id: 'minshawi_murattal',
+    label: 'المصحف المرتل كاملاً (114 سورة)',
+    category: 'minshawi',
+    description: 'جميع سور القرآن الكريم مرتلة برواية حفص عن عاصم من الإذاعة الرسمية',
+    telegramGroup: 'https://t.me/El_minshawy',
   },
   {
     id: 'mahafil',
@@ -874,3 +910,48 @@ export const AUDIO_CATALOG: AudioTrack[] = [
     telegramGroupUrl: 'https://t.me/El_minshawy',
   },
 ];
+
+let cachedFullCatalog: AudioTrack[] | null = null;
+
+export function useFullAudioCatalog(): {
+  catalog: AudioTrack[];
+  isLoading: boolean;
+  totalCount: number;
+} {
+  const [catalog, setCatalog] = useState<AudioTrack[]>(() => cachedFullCatalog || AUDIO_CATALOG);
+  const [isLoading, setIsLoading] = useState(!cachedFullCatalog);
+
+  useEffect(() => {
+    if (cachedFullCatalog) {
+      setCatalog(cachedFullCatalog);
+      setIsLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    fetch('/data/audioCatalog.json')
+      .then((res) => {
+        if (!res.ok) throw new Error('Catalog not ready');
+        return res.json();
+      })
+      .then((data: AudioTrack[]) => {
+        if (!isMounted) return;
+        if (Array.isArray(data) && data.length > 0) {
+          cachedFullCatalog = data;
+          setCatalog(data);
+        }
+      })
+      .catch(() => {
+        // Graceful fallback to initial bundled tracks
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  return { catalog, isLoading, totalCount: catalog.length };
+}
