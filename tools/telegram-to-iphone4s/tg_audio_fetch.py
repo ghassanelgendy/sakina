@@ -56,6 +56,8 @@ async def fetch(target: str, limit: int):
             title = (msg.file.name or msg.text or "audio").strip().split("\n")[0][:60]
             safe = "".join(c for c in title if c.isalnum() or c in " -_.").strip() or "audio"
             ext = msg.file.ext or ".ogg"
+            if safe.lower().endswith(ext.lower()):  # name already carries the extension
+                safe = safe[: -len(ext)]
             path = Path(await msg.download_media(file=str(folder / f"{msg.id}_{safe}{ext}")))
             print("downloaded", path.name)
             to_mp3(path)
@@ -69,11 +71,16 @@ def push(host: str, playlist: str):
         key = str(mp3.relative_to(OUT))
         if key in done:
             continue
+        # The phone's server is Python 2 and 500s on non-ASCII filenames, so send an
+        # ASCII-safe name (message id + any ASCII part of the title).
+        mid = mp3.name.split("_", 1)[0]
+        ascii_part = "".join(c for c in mp3.stem.split("_", 1)[-1] if c.isascii() and (c.isalnum() or c in " -")).strip()
+        upload_name = f"{mid} {ascii_part}".strip() + ".mp3" if ascii_part else f"telegram {mid}.mp3"
         b = uuid.uuid4().hex
         parts = []
         if playlist:
             parts.append(f'--{b}\r\nContent-Disposition: form-data; name="playlist"\r\n\r\n{playlist}\r\n'.encode())
-        parts.append(f'--{b}\r\nContent-Disposition: form-data; name="file"; filename="{mp3.name}"\r\n'
+        parts.append(f'--{b}\r\nContent-Disposition: form-data; name="file"; filename="{upload_name}"\r\n'
                      f'Content-Type: audio/mpeg\r\n\r\n'.encode() + mp3.read_bytes() + f'\r\n--{b}--\r\n'.encode())
         req = urllib.request.Request(f"http://{host}/upload", data=b"".join(parts),
                                      headers={"Content-Type": f"multipart/form-data; boundary={b}"})
