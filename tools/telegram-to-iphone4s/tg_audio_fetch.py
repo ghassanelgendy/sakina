@@ -15,12 +15,15 @@ Usage:
   python tg_audio_fetch.py Qu_Arabia --limit 50          # a channel
   python tg_audio_fetch.py me --limit 100                # Saved Messages (forwarded audio)
   python tg_audio_fetch.py Qu_Arabia --serve 8080        # then open http://<laptop-ip>:8080 on the 4S
+  python tg_audio_fetch.py Qu_Arabia --stream 20 --host 192.168.1.106:5005
+      # RECOMMENDED: copies the newest 20 tracks into /var/mobile/Media/TelegramAudio on
+      # the phone and plays them as a queue (HA's /play /pause /next /prev /status control it).
   python tg_audio_fetch.py Qu_Arabia --push 192.168.1.106:5005 --playlist "AA - Quran"
       # uploads into the phone's Music library via the on-device ipod_control_server.py API
 
 First run asks for your phone number + login code (interactive).
 """
-import argparse, asyncio, uuid, urllib.request, html, http.server, os, socketserver, subprocess, sys
+import argparse, asyncio, subprocess, uuid, urllib.parse, urllib.request, html, http.server, os, socketserver, subprocess, sys
 from pathlib import Path
 from urllib.parse import quote
 
@@ -92,6 +95,43 @@ def push(host: str, playlist: str):
     done_file.write_text("\n".join(sorted(done)))
 
 
+def _msg_id(p: Path) -> int:
+    try:
+        return int(p.name.split("_", 1)[0])
+    except ValueError:
+        return 0
+
+
+def _duration(p: Path) -> int:
+    out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                          "-of", "csv=p=0", str(p)], capture_output=True, text=True).stdout.strip()
+    return int(float(out)) if out else 0
+
+
+def stream(host: str, count: int):
+    """Copy the newest `count` MP3s to the phone (ipod_control_server /put) and play them
+    as a queue through /play_queue (AVPlayer, independent of the Music library DB)."""
+    done_file = OUT / ".streamed"
+    done = set(done_file.read_text().split("\n")) if done_file.exists() else set()
+    newest = sorted(OUT.rglob("*.mp3"), key=_msg_id, reverse=True)[:count]
+    recs = []
+    for mp3 in newest:
+        remote = f"tg{_msg_id(mp3)}.mp3"      # ASCII name: the phone's Python 2 server can't take Arabic
+        if remote not in done:
+            req = urllib.request.Request(
+                f"http://{host}/put?name={remote}", data=mp3.open("rb"), method="POST",
+                headers={"Content-Length": str(mp3.stat().st_size)})
+            urllib.request.urlopen(req, timeout=900).read()
+            done.add(remote)
+            done_file.write_text("\n".join(sorted(done)))
+            print("copied", remote, flush=True)
+        title = mp3.stem.split("_", 1)[-1].replace("_", " ")
+        recs.append((title, remote, str(_duration(mp3))))
+    q = ";".join(",".join(urllib.parse.quote(x, safe="") for x in r) for r in recs)
+    url = f"http://{host}/play_queue?q=" + urllib.parse.quote(q, safe="")
+    print(urllib.request.urlopen(url, timeout=30).read().decode(), flush=True)
+
+
 def build_index():
     """Plain HTML 4-style page: no JS frameworks, works in iOS 9 Safari."""
     rows = []
@@ -119,11 +159,15 @@ if __name__ == "__main__":
     ap.add_argument("--limit", type=int, default=50)
     ap.add_argument("--push", metavar="HOST:PORT", help="upload to the iPhone's ipod_control_server.py")
     ap.add_argument("--playlist", default="", help="playlist name for pushed tracks")
+    ap.add_argument("--stream", type=int, metavar="N", help="copy newest N tracks to the phone and play them")
+    ap.add_argument("--host", default="192.168.1.106:5005", help="phone's ipod_control_server (with --stream)")
     ap.add_argument("--serve", type=int, metavar="PORT")
     a = ap.parse_args()
     asyncio.run(fetch(a.target, a.limit))
     build_index()
     if a.push:
         push(a.push, a.playlist)
+    if a.stream:
+        stream(a.host, a.stream)
     if a.serve:
         serve(a.serve)

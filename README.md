@@ -76,7 +76,13 @@ python tg_audio_fetch.py Qu_Arabia --limit 50 --serve 8080   # or `me` for forwa
 
 Then open `http://<laptop-ip>:8080` in Safari on the 4S.
 
-**If you can't operate the phone at all:** the jailbroken 4S runs an HTTP control API on port 5005 (`ipod_control_server.py` in the homekit repo). Use `--push 192.168.1.106:5005 --playlist "AA - Quran"` to upload tracks straight into its Music library, then drive playback with `/play_playlist?name=...`, `/play`, `/pause`, `/next`, `/prev`, `/volume`, `/status`. The login session and downloaded files are git-ignored.
+**If you can't operate the phone at all (recommended path):** the jailbroken 4S runs an HTTP control API on port 5005 (`ipod_control_server.py` in the homekit repo). Run:
+
+```bash
+python tg_audio_fetch.py Qu_Arabia --limit 1 --stream 20 --host 192.168.1.106:5005
+```
+
+This copies the newest 20 tracks into `/var/mobile/Media/TelegramAudio` on the phone (`POST /put`) and plays them as a queue (`GET /play_queue`). The queue plays through AVPlayer, so it does not depend on the Music library database. (Uploading into the Music library via `--push` writes rows that iOS 9 refuses to play, so avoid it.) While the queue is active, the same endpoints Home Assistant already uses (`/play`, `/pause`, `/toggle`, `/next`, `/prev`, `/status`, `/volume`) control it; it advances automatically when a track ends. `/stop_queue` returns to the normal Music playback.
 
 ## Credits & attribution
 
