@@ -15,10 +15,12 @@ Usage:
   python tg_audio_fetch.py Qu_Arabia --limit 50          # a channel
   python tg_audio_fetch.py me --limit 100                # Saved Messages (forwarded audio)
   python tg_audio_fetch.py Qu_Arabia --serve 8080        # then open http://<laptop-ip>:8080 on the 4S
+  python tg_audio_fetch.py Qu_Arabia --push 192.168.1.106:5005 --playlist "AA - Quran"
+      # uploads into the phone's Music library via the on-device ipod_control_server.py API
 
 First run asks for your phone number + login code (interactive).
 """
-import argparse, asyncio, html, http.server, os, socketserver, subprocess, sys
+import argparse, asyncio, uuid, urllib.request, html, http.server, os, socketserver, subprocess, sys
 from pathlib import Path
 from urllib.parse import quote
 
@@ -59,6 +61,30 @@ async def fetch(target: str, limit: int):
             to_mp3(path)
 
 
+def push(host: str, playlist: str):
+    """POST each not-yet-pushed MP3 to the iPhone's ipod_control_server.py /upload."""
+    done_file = OUT / ".pushed"
+    done = set(done_file.read_text().split("\n")) if done_file.exists() else set()
+    for mp3 in sorted(OUT.rglob("*.mp3")):
+        key = str(mp3.relative_to(OUT))
+        if key in done:
+            continue
+        b = uuid.uuid4().hex
+        parts = []
+        if playlist:
+            parts.append(f'--{b}\r\nContent-Disposition: form-data; name="playlist"\r\n\r\n{playlist}\r\n'.encode())
+        parts.append(f'--{b}\r\nContent-Disposition: form-data; name="file"; filename="{mp3.name}"\r\n'
+                     f'Content-Type: audio/mpeg\r\n\r\n'.encode() + mp3.read_bytes() + f'\r\n--{b}--\r\n'.encode())
+        req = urllib.request.Request(f"http://{host}/upload", data=b"".join(parts),
+                                     headers={"Content-Type": f"multipart/form-data; boundary={b}"})
+        try:
+            print("pushed", mp3.name, urllib.request.urlopen(req, timeout=120).read().decode())
+            done.add(key)
+        except Exception as e:
+            print("push failed", mp3.name, e)
+    done_file.write_text("\n".join(sorted(done)))
+
+
 def build_index():
     """Plain HTML 4-style page: no JS frameworks, works in iOS 9 Safari."""
     rows = []
@@ -84,9 +110,13 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("target", help="channel username, or 'me' for Saved Messages")
     ap.add_argument("--limit", type=int, default=50)
+    ap.add_argument("--push", metavar="HOST:PORT", help="upload to the iPhone's ipod_control_server.py")
+    ap.add_argument("--playlist", default="", help="playlist name for pushed tracks")
     ap.add_argument("--serve", type=int, metavar="PORT")
     a = ap.parse_args()
     asyncio.run(fetch(a.target, a.limit))
     build_index()
+    if a.push:
+        push(a.push, a.playlist)
     if a.serve:
         serve(a.serve)

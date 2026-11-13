@@ -74,7 +74,9 @@ export TG_API_ID=... TG_API_HASH=...      # from https://my.telegram.org
 python tg_audio_fetch.py Qu_Arabia --limit 50 --serve 8080   # or `me` for forwarded audio in Saved Messages
 ```
 
-Then open `http://<laptop-ip>:8080` in Safari on the 4S. The login session and downloaded files are git-ignored.
+Then open `http://<laptop-ip>:8080` in Safari on the 4S.
+
+**If you can't operate the phone at all:** the jailbroken 4S runs an HTTP control API on port 5005 (`ipod_control_server.py` in the homekit repo). Use `--push 192.168.1.106:5005 --playlist "AA - Quran"` to upload tracks straight into its Music library, then drive playback with `/play_playlist?name=...`, `/play`, `/pause`, `/next`, `/prev`, `/volume`, `/status`. The login session and downloaded files are git-ignored.
 
 ## Credits & attribution
 
