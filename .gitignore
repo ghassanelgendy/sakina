@@ -16,3 +16,8 @@ tools/**/credentials*.json
 __pycache__/
 *.py[cod]
 *$py.class
+
+# telegram-to-iphone4s tool: login session + downloaded audio
+tools/telegram-to-iphone4s/.session*
+tools/telegram-to-iphone4s/library/
+tools/telegram-to-iphone4s/.venv/

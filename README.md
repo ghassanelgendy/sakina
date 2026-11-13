@@ -63,6 +63,19 @@ src/
   lib/                    supabase client, IndexedDB helper, utils
 ```
 
+## Playing Telegram audio on an old iPhone 4S
+
+The 4S is stuck on iOS 9.3.5, which current Telegram doesn't support, and `t.me/s/<channel>` exposes no media URLs (so `scripts/sync-telegram-audio.py` can only catalog posts, not play them). `tools/telegram-to-iphone4s/tg_audio_fetch.py` downloads audio through the Telegram API (Telethon, your own login), converts it to MP3 with `ffmpeg` (iOS 9 can't play Telegram's ogg/opus voice notes), builds a plain HTML player page and serves it on your LAN:
+
+```bash
+cd tools/telegram-to-iphone4s
+python3 -m venv .venv && . .venv/bin/activate && pip install telethon
+export TG_API_ID=... TG_API_HASH=...      # from https://my.telegram.org
+python tg_audio_fetch.py Qu_Arabia --limit 50 --serve 8080   # or `me` for forwarded audio in Saved Messages
+```
+
+Then open `http://<laptop-ip>:8080` in Safari on the 4S. The login session and downloaded files are git-ignored.
+
 ## Credits & attribution
 
 Sakina is a personal, non-commercial, open-source project — not affiliated with any company.
