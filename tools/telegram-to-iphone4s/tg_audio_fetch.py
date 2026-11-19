@@ -15,6 +15,8 @@ Usage:
   python tg_audio_fetch.py Qu_Arabia --limit 50          # a channel
   python tg_audio_fetch.py me --limit 100                # Saved Messages (forwarded audio)
   python tg_audio_fetch.py Qu_Arabia --serve 8080        # then open http://<laptop-ip>:8080 on the 4S
+  python tg_audio_fetch.py NeinaaEnc Faeel_khair_41 Qu_Arabia --stream 20   # several channels,
+      # shuffled together with the phone's local Music library (--no-local / --no-shuffle to opt out)
   python tg_audio_fetch.py Qu_Arabia --stream 20 --host 192.168.1.106:5005
       # RECOMMENDED: copies the newest 20 tracks into /var/mobile/Media/TelegramAudio on
       # the phone and plays them as a queue (HA's /play /pause /next /prev /status control it).
@@ -108,12 +110,14 @@ def _duration(p: Path) -> int:
     return int(float(out)) if out else 0
 
 
-def stream(host: str, count: int):
+def stream(host: str, count: int, targets, local: bool = True, shuffle: bool = True):
     """Copy the newest `count` MP3s to the phone (ipod_control_server /put) and play them
     as a queue through /play_queue (AVPlayer, independent of the Music library DB)."""
     done_file = OUT / ".streamed"
     done = set(done_file.read_text().split("\n")) if done_file.exists() else set()
-    newest = sorted(OUT.rglob("*.mp3"), key=_msg_id, reverse=True)[:count]
+    newest = []
+    for t in targets:                          # newest `count` tracks of EACH channel
+        newest += sorted((OUT / t).rglob("*.mp3"), key=_msg_id, reverse=True)[:count]
     recs = []
     for mp3 in newest:
         remote = f"tg{_msg_id(mp3)}.mp3"      # ASCII name: the phone's Python 2 server can't take Arabic
@@ -128,7 +132,8 @@ def stream(host: str, count: int):
         title = mp3.stem.split("_", 1)[-1].replace("_", " ")
         recs.append((title, remote, str(_duration(mp3))))
     q = ";".join(",".join(urllib.parse.quote(x, safe="") for x in r) for r in recs)
-    url = f"http://{host}/play_queue?q=" + urllib.parse.quote(q, safe="")
+    url = (f"http://{host}/play_queue?q=" + urllib.parse.quote(q, safe="")
+           + f"&local={int(local)}&shuffle={int(shuffle)}")
     print(urllib.request.urlopen(url, timeout=30).read().decode(), flush=True)
 
 
@@ -155,19 +160,22 @@ def serve(port: int):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("target", help="channel username, or 'me' for Saved Messages")
+    ap.add_argument("target", nargs="+", help="one or more channel usernames, or 'me' for Saved Messages")
     ap.add_argument("--limit", type=int, default=50)
     ap.add_argument("--push", metavar="HOST:PORT", help="upload to the iPhone's ipod_control_server.py")
     ap.add_argument("--playlist", default="", help="playlist name for pushed tracks")
     ap.add_argument("--stream", type=int, metavar="N", help="copy newest N tracks to the phone and play them")
     ap.add_argument("--host", default="192.168.1.106:5005", help="phone's ipod_control_server (with --stream)")
+    ap.add_argument("--no-local", action="store_true", help="with --stream: don't mix in the phone's own Music library")
+    ap.add_argument("--no-shuffle", action="store_true", help="with --stream: keep channel order instead of shuffling")
     ap.add_argument("--serve", type=int, metavar="PORT")
     a = ap.parse_args()
-    asyncio.run(fetch(a.target, a.limit))
+    for t in a.target:
+        asyncio.run(fetch(t, a.limit))
     build_index()
     if a.push:
         push(a.push, a.playlist)
     if a.stream:
-        stream(a.host, a.stream)
+        stream(a.host, a.stream, a.target, not a.no_local, not a.no_shuffle)
     if a.serve:
         serve(a.serve)
