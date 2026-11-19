@@ -120,7 +120,7 @@ def stream(host: str, count: int, targets, local: bool = True, shuffle: bool = T
         newest += sorted((OUT / t).rglob("*.mp3"), key=_msg_id, reverse=True)[:count]
     recs = []
     for mp3 in newest:
-        remote = f"tg{_msg_id(mp3)}.mp3"      # ASCII name: the phone's Python 2 server can't take Arabic
+        remote = f"tg_{mp3.parent.name}_{_msg_id(mp3)}.mp3"      # channel + id (ids repeat across channels); ASCII name: the phone's Python 2 server can't take Arabic
         if remote not in done:
             req = urllib.request.Request(
                 f"http://{host}/put?name={remote}", data=mp3.open("rb"), method="POST",
