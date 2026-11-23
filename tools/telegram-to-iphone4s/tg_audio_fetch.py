@@ -110,7 +110,7 @@ def _duration(p: Path) -> int:
     return int(float(out)) if out else 0
 
 
-def stream(host: str, count: int, targets, local: bool = True, shuffle: bool = True):
+def stream(host: str, count: int, targets, local: bool = True, shuffle: bool = True, local_max: int = 0):
     """Copy the newest `count` MP3s to the phone (ipod_control_server /put) and play them
     as a queue through /play_queue (AVPlayer, independent of the Music library DB)."""
     done_file = OUT / ".streamed"
@@ -121,19 +121,24 @@ def stream(host: str, count: int, targets, local: bool = True, shuffle: bool = T
     recs = []
     for mp3 in newest:
         remote = f"tg_{mp3.parent.name}_{_msg_id(mp3)}.mp3"      # channel + id (ids repeat across channels); ASCII name: the phone's Python 2 server can't take Arabic
+        title = mp3.stem.split("_", 1)[-1].replace("_", " ")
+        if title.lower().endswith(".mp3"):
+            title = title[:-4].strip()
+        dur_s = str(_duration(mp3))
+        artist = f"Telegram ({mp3.parent.name})"
         if remote not in done:
+            put_q = urllib.parse.urlencode({"name": remote, "title": title, "artist": artist, "dur": dur_s})
             req = urllib.request.Request(
-                f"http://{host}/put?name={remote}", data=mp3.open("rb"), method="POST",
+                f"http://{host}/put?{put_q}", data=mp3.open("rb"), method="POST",
                 headers={"Content-Length": str(mp3.stat().st_size)})
             urllib.request.urlopen(req, timeout=900).read()
             done.add(remote)
             done_file.write_text("\n".join(sorted(done)))
             print("copied", remote, flush=True)
-        title = mp3.stem.split("_", 1)[-1].replace("_", " ")
-        recs.append((title, remote, str(_duration(mp3))))
+        recs.append((title, remote, dur_s))
     q = ";".join(",".join(urllib.parse.quote(x, safe="") for x in r) for r in recs)
     url = (f"http://{host}/play_queue?q=" + urllib.parse.quote(q, safe="")
-           + f"&local={int(local)}&shuffle={int(shuffle)}")
+           + f"&local={int(local)}&shuffle={int(shuffle)}&localmax={local_max}")
     print(urllib.request.urlopen(url, timeout=30).read().decode(), flush=True)
 
 
@@ -168,6 +173,7 @@ if __name__ == "__main__":
     ap.add_argument("--host", default="192.168.1.106:5005", help="phone's ipod_control_server (with --stream)")
     ap.add_argument("--no-local", action="store_true", help="with --stream: don't mix in the phone's own Music library")
     ap.add_argument("--no-shuffle", action="store_true", help="with --stream: keep channel order instead of shuffling")
+    ap.add_argument("--local-max", type=int, default=40, help="with --stream: how many random local songs to mix in per run (0 = all)")
     ap.add_argument("--serve", type=int, metavar="PORT")
     a = ap.parse_args()
     for t in a.target:
@@ -176,6 +182,6 @@ if __name__ == "__main__":
     if a.push:
         push(a.push, a.playlist)
     if a.stream:
-        stream(a.host, a.stream, a.target, not a.no_local, not a.no_shuffle)
+        stream(a.host, a.stream, a.target, not a.no_local, not a.no_shuffle, a.local_max)
     if a.serve:
         serve(a.serve)
